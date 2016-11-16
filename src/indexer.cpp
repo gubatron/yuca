@@ -2,12 +2,11 @@
 
 namespace yuca {
 
-	void Indexer::addDocument(Document doc) {
-
-		auto ptr = std::make_shared<Document>(std::move(doc));
-		for (auto const& k : doc.generateKeys()) {
-			documents.emplace(k, ptr);
-		}
-		//Documentdocuments.push_back(std::move(doc));
+	void Indexer::indexDocument(Document &doc) {
+        std::vector<Key> keys = doc.generateKeys();
+        for (Key key : keys) {
+            reverse_index.emplace(key, &doc);
+            reverse_index.insert(std::pair<Key, Document*>(key, &doc));
+        }
 	}
 }

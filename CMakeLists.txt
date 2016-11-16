@@ -13,7 +13,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES
         src/version.cpp
-        src/indexer.cpp src/document.cpp include/yuca/document.hpp)
+        src/indexer.cpp
+        src/document.cpp
+        include/yuca/document.hpp
+        include/yuca/key.h)
 
 add_library(yuca STATIC ${SOURCE_FILES})
 

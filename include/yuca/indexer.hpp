@@ -10,11 +10,10 @@ namespace yuca {
 
 	class Indexer {
 	public:
-
-		void addDocument(Document doc);
+		void indexDocument(Document &doc);
 
 	private:
-		std::multimap<Document::Key, std::shared_ptr<Document>> documents;
+		std::multimap<Key, Document*> reverse_index;
 	};
 }
 

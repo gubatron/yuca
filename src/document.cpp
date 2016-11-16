@@ -2,7 +2,7 @@
 
 namespace yuca {
 
-	std::vector<Document::Key> Document::generateKeys() {
+	std::vector<Key> Document::generateKeys()const {
 		return {};
 	}
 }
