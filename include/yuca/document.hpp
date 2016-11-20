@@ -21,13 +21,13 @@ namespace yuca {
         DocumentKeys getKeys() const;
 
         /** Returns all keys available under a given tag */
-        KeySet getKeys(string const &name) const;
+        KeySet getKeys(string const &name);
 
         /** Associate this document to an indexing key under the given tag */
         void addKey(string const &tag, const Key &key);
 
         /** Does this document have at least one key under this tag? */
-        bool hasKey(string const &tag) const;
+        bool hasKeys(string const &tag) const;
 
         /** Removes all keys under this tag */
         void removeKeys(string const &tag);
@@ -35,6 +35,7 @@ namespace yuca {
         /** Removes the given key */
         void removeKey(string const &tag, const Key &key);
     private:
+        // maps tags to set<Key*>
         DocumentKeys documentKeys;
 	};
 }

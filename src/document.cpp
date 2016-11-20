@@ -6,25 +6,36 @@ namespace yuca {
         return documentKeys;
     }
 
-    KeySet Document::getKeys(string const &name) const {
-        if (documentKeys.count(name) == 0) {
+    KeySet Document::getKeys(string const &tag) {
+        if (!hasKeys(tag)) {
+            documentKeys[tag] = KeySet();
+            return documentKeys[tag];
         }
         return KeySet();
     }
 
-    void Document::addKey(string const &name, const Key &key) {
-
+    void Document::addKey(string const &tag, const Key &key) {
+        KeySet keySet = getKeys(tag);
+        keySet.insert((Key*) &key);
     }
 
-    bool Document::hasKey(string const &name) const {
-        return false;
+    bool Document::hasKeys(string const &tag) const {
+        return documentKeys.count(tag) > 0;
     }
 
-    void Document::removeKeys(string const &name) {
-
+    void Document::removeKeys(string const &tag) {
+        if (!hasKeys(tag)) {
+            return;
+        }
+        KeySet keySet = getKeys(tag);
+        keySet.clear();
     }
 
-    void Document::removeKey(string const &name, const Key &key) {
-
+    void Document::removeKey(string const &tag, const Key &key) {
+        if (!hasKeys(tag)) {
+            return;
+        }
+        KeySet keySet = getKeys(tag);
+        keySet.erase((Key*) &key);
     }
 }

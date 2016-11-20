@@ -15,6 +15,6 @@ namespace yuca {
     typedef std::string string;
     typedef std::set<Document *> DocumentSet;
     typedef std::set<Key *> KeySet;
-    typedef std::map<std::string, KeySet> DocumentKeys;
+    typedef std::map<string, KeySet> DocumentKeys;
 }
 #endif //YUCA_YUCA_H
