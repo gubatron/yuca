@@ -22,10 +22,12 @@ set(SOURCE_FILES
         src/indexer.cpp
         src/document.cpp
         include/yuca/document.hpp
-        include/yuca/key.h include/yuca/yuca.h)
+        include/yuca/key.h
+        include/yuca/yuca.h)
 
 set(TEST_FILES
-        test/document_test.cpp include/yuca/yuca.h)
+        test/document_test.cpp
+        include/yuca/yuca.h)
 
 # the library libyuca
 add_library(yuca STATIC ${SOURCE_FILES})
@@ -40,5 +42,6 @@ target_link_libraries(yuca_tests torrent-rasterbar yuca)
 
 # a cplus plus playground area for random experiments to interactively debug ideas or APIs we might use.
 add_executable(yuca_playground playground.cpp playground.cpp)
-# if you need to link a library 'libfoo' (-lfoo) to test with playground, use
+
+# if you need to link a library 'libfoo' (-lfoo) to test with yuca_playground, use
 # target_link_libraries(yuca_playground foo)
