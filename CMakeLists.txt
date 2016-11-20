@@ -26,7 +26,7 @@ set(SOURCE_FILES
         include/yuca/yuca.h)
 
 set(TEST_FILES
-        test/document_test.cpp
+        test/document_tests.cpp
         include/yuca/yuca.h)
 
 # the library libyuca
