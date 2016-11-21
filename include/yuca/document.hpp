@@ -5,11 +5,8 @@
 #ifndef YUCA_DOCUMENT_HPP
 #define YUCA_DOCUMENT_HPP
 
-#include "yuca/key.h"
-#include "yuca.h"
-
-
-#include <libtorrent/sha1_hash.hpp>
+#include "yuca/key.hpp"
+#include "yuca.hpp"
 
 namespace yuca {
 
@@ -38,6 +35,43 @@ namespace yuca {
         // maps tags to set<Key*>
         DocumentKeys documentKeys;
 	};
+
+    DocumentKeys Document::getKeys() const {
+        return documentKeys;
+    }
+
+    KeySet Document::getKeys(string const &tag) {
+        if (!hasKeys(tag)) {
+            documentKeys[tag] = KeySet();
+            return documentKeys[tag];
+        }
+        return KeySet();
+    }
+
+    void Document::addKey(string const &tag, const Key &key) {
+        KeySet keySet = getKeys(tag);
+        keySet.insert((Key*) &key);
+    }
+
+    bool Document::hasKeys(string const &tag) const {
+        return documentKeys.count(tag) > 0;
+    }
+
+    void Document::removeKeys(string const &tag) {
+        if (!hasKeys(tag)) {
+            return;
+        }
+        KeySet keySet = getKeys(tag);
+        keySet.clear();
+    }
+
+    void Document::removeKey(string const &tag, const Key &key) {
+        if (!hasKeys(tag)) {
+            return;
+        }
+        KeySet keySet = getKeys(tag);
+        keySet.erase((Key*) &key);
+    }
 }
 
 #endif //YUCA_DOCUMENT_HPP
