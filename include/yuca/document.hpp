@@ -18,7 +18,7 @@ namespace yuca {
         DocumentKeys getKeys() const;
 
         /** Returns all keys available under a given tag */
-        KeySet getKeys(string const &name);
+        KeySet getKeys(string const &tag);
 
         /** Associate this document to an indexing key under the given tag */
         void addKey(string const &tag, const Key &key);
@@ -70,7 +70,12 @@ namespace yuca {
             return;
         }
         KeySet keySet = getKeys(tag);
-        keySet.erase((Key*) &key);
+        KeySet::iterator findIterator = keySet.find((Key*)&key);
+
+        if (findIterator != keySet.end()) {
+            Key* k = *findIterator;
+            keySet.erase(k);
+        }
     }
 }
 

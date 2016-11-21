@@ -7,11 +7,50 @@
 
 using namespace yuca;
 
-TEST(AddKey, TestIfKeyCanBeAdded) {
-    yuca::Document document;
-    document.addKey(string("hola"), yuca::Key());
-    ASSERT_TRUE(document.getKeys().size() == 1);
+class DocumentTests : public ::testing::Test {
+public:
+    virtual void SetUp() {
+        fooTag = "foo:";
+        fooKey = Key(fooTag);
+        document = Document();
+    }
+
+    string fooTag;
+    Document document;
+    Key fooKey;
+};
+
+
+TEST_F(DocumentTests, TestIfKeyCanBeAdded) {
+    document.addKey(fooTag, fooKey);
+    KeySet fooKeys = document.getKeys(fooTag);
+
+    // make sure we have one
+    ASSERT_TRUE(fooKeys.size() == 1);
+
+    // make sure it's the same one we've added
+    KeySet::iterator it = fooKeys.find((Key*)&fooKey);
+
+    ASSERT_FALSE(it == fooKeys.end());
+
+    Key *isThisFooKeyPtr = *it;
+
+    ASSERT_TRUE(isThisFooKeyPtr == (Key*) &fooKey);
+//    DocumentKeys::iterator it = docKeys.begin();
+
+
 }
+
+TEST_F(DocumentTests, TestsIfSingleKeyCanBeRemoved) {
+    document.addKey(fooTag, fooKey);
+    const DocumentKeys docKeys = document.getKeys();
+    ASSERT_TRUE(document.getKeys().size() == 1);
+
+    document.removeKey(fooTag, fooKey);
+    ASSERT_TRUE(document.getKeys().size() == 0);
+}
+
+
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);
