@@ -5,17 +5,18 @@ find_package(Boost REQUIRED COMPONENTS system)
 include_directories(${Boost_INCLUDE_DIRS})
 
 set(LIBTORRENT_ROOT $ENV{LIBTORRENT_ROOT} CACHE STRING "libtorrent root")
+set(GTEST_DIR $ENV{GTEST_DIR} CACHE STRING "googletest root")
 
 # if you need to add more library include/ folders, add them here.
 include_directories(${LIBTORRENT_ROOT}/include
                     include
-                    /Users/gubatron/workspace.frostwire/googletest/googletest/include)
+                    ${GTEST_DIR}/include)
 
 # /Users/gubatron/workspace.frostwire/googletest/googletest
 
 # if you need to add a library -L folder add it here
 link_directories(${LIBTORRENT_ROOT}
-        /Users/gubatron/workspace.frostwire/googletest/googletest)
+                 ${GTEST_DIR})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
