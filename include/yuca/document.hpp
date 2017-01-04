@@ -18,7 +18,7 @@ namespace yuca {
         DocumentKeys getKeys() const;
 
         /** Returns all keys available under a given tag */
-        KeySet getKeys(string const &tag);
+        KeySet* getKeys(string const &tag);
 
         /** Associate this document to an indexing key under the given tag */
         void addKey(string const &tag, const Key &key);
@@ -40,17 +40,20 @@ namespace yuca {
         return documentKeys;
     }
 
-    KeySet Document::getKeys(string const &tag) {
+    KeySet* Document::getKeys(string const &tag) {
         if (!hasKeys(tag)) {
             documentKeys[tag] = KeySet();
-            return documentKeys[tag];
+            return &documentKeys[tag];
         }
-        return KeySet();
+        return &documentKeys[tag];
     }
 
     void Document::addKey(string const &tag, const Key &key) {
-        KeySet keySet = getKeys(tag);
-        keySet.insert((Key*) &key);
+        KeySet* keySet = getKeys(tag);
+        std::cout << "Key set size before addKey: " << keySet->size() << std::endl;
+        keySet->insert((Key*) &key);
+        std::cout << "Key set size after addKey: " << keySet->size() << std::endl;
+        std::cout << "addKey() Memory address of the keySet " << keySet << std::endl;
     }
 
     bool Document::hasKeys(string const &tag) const {
@@ -61,20 +64,20 @@ namespace yuca {
         if (!hasKeys(tag)) {
             return;
         }
-        KeySet keySet = getKeys(tag);
-        keySet.clear();
+        KeySet* keySet = getKeys(tag);
+        keySet->clear();
     }
 
     void Document::removeKey(string const &tag, const Key &key) {
         if (!hasKeys(tag)) {
             return;
         }
-        KeySet keySet = getKeys(tag);
-        KeySet::iterator findIterator = keySet.find((Key*)&key);
+        KeySet* keySet = getKeys(tag);
+        KeySet::iterator findIterator = keySet->find((Key*)&key);
 
-        if (findIterator != keySet.end()) {
+        if (findIterator != keySet->end()) {
             Key* k = *findIterator;
-            keySet.erase(k);
+            keySet->erase(k);
         }
     }
 }
