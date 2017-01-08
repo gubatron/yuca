@@ -51,6 +51,7 @@ TEST_F(DocumentTests, TestsIfSingleKeyCanBeRemoved) {
 
     document.removeKeys(fooTag);
     ASSERT_TRUE(keySet->size() == 0);
+    ASSERT_TRUE(docKeys->size() == 0);
 }
 
 
