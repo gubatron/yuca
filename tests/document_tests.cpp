@@ -22,35 +22,35 @@ public:
 
 
 TEST_F(DocumentTests, TestIfKeyCanBeAdded) {
+    ;
     document.addKey(fooTag, fooKey);
-    KeySet* fooKeys = document.getKeys(fooTag);
-    std::cout << "Memory address of the keySet when we do document.getKeys(fooTag) -> " << fooKeys << std::endl;
-
+    KeySet* fooKeys = document.getTagKeys(fooTag);
 
     // make sure we have one
-    ASSERT_TRUE(fooKeys->size() == 1);
+    ASSERT_TRUE((*fooKeys).size() == 1);
 
     // make sure it's the same one we've added
-    KeySet::iterator it = fooKeys->find((Key*)&fooKey);
+    KeySet::iterator it = fooKeys->find(&fooKey);
 
-    //ASSERT_FALSE(it == fooKeys.end());
+    ASSERT_FALSE(it == fooKeys->end());
 
     Key *isThisFooKeyPtr = *it;
     std::cout << "key found? " << isThisFooKeyPtr->getTag() << std::endl;
 
+    ASSERT_TRUE(isThisFooKeyPtr->getTag() == fooTag);
     ASSERT_TRUE(isThisFooKeyPtr == (Key*) &fooKey);
-//    DocumentKeys::iterator it = docKeys.begin();
-
-
 }
 
 TEST_F(DocumentTests, TestsIfSingleKeyCanBeRemoved) {
     document.addKey(fooTag, fooKey);
-    const DocumentKeys docKeys = document.getKeys();
-    ASSERT_TRUE(document.getKeys().size() == 1);
+    KeySet* keySet = document.getTagKeys(fooTag);
+    const DocumentKeysMap* docKeys = document.getKeysMap();
 
-    document.removeKey(fooTag, fooKey);
-    ASSERT_TRUE(document.getKeys().size() == 0);
+    ASSERT_TRUE(docKeys->size() == 1);
+    ASSERT_TRUE(keySet->size() == 1);
+
+    document.removeKeys(fooTag);
+    ASSERT_TRUE(keySet->size() == 0);
 }
 
 

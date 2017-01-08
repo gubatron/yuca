@@ -17,7 +17,7 @@ namespace yuca {
     typedef std::set<Key *> KeySet;
 
     /** map<string, KeySet>> */
-    typedef std::map<string, KeySet> DocumentKeys;
+    typedef std::map<string, KeySet> DocumentKeysMap;
 
     std::string  version() {
         return "yuca-0.0.1-";// + std::string(libtorrent::version());
