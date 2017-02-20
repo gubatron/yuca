@@ -14,14 +14,14 @@ namespace yuca {
 	public:
 		Document() = default;
 
-		/** Returns all keys available */
-        const DocumentKeysMap* getKeysMap() const;
-
         /** Associate this document to an indexing key under the given tag */
         void addKey(string const &tag, const Key &key);
 
         /** Does this document have at least one key under this tag? */
         bool hasKeys(string const &tag) const;
+
+        /** Returns a copy of all tags under which we have KeySets */
+        std::vector<string> getTags() const;
 
         /** Returns a copy of all keys available under a given tag */
         KeySet getTagKeys(string const &tag) const;
@@ -36,17 +36,25 @@ namespace yuca {
         DocumentKeysMap documentKeys;
 	};
 
-    const DocumentKeysMap* Document::getKeysMap() const {
-        return &documentKeys;
+
+    std::vector<string> Document::getTags() const {
+        std::vector<string> ret;
+        if (documentKeys.size() == 0) {
+            return ret;
+        }
+        auto it = documentKeys.begin();
+        while (it != documentKeys.end()) {
+            ret.emplace_back((*it).first);
+            it++;
+        }
+        return ret;
     }
 
     KeySet Document::getTagKeys(string const &tag) const {
-        if (!hasKeys(tag)) {
-            return KeySet();
-        }
-
         KeySet ret;
-
+        if (!hasKeys(tag)) {
+            return ret;
+        }
         auto it1 = documentKeys.find(tag);
         KeySet::iterator it = (*it1).second.begin();
         while (it != (*it1).second.end()) {
@@ -76,7 +84,6 @@ namespace yuca {
         documentKeys.erase(tag);
     }
 
-    // TODO: Test this
     void Document::removeKey(string const &tag, const Key &key) {
         if (!hasKeys(tag)) {
             return;

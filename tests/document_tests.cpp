@@ -26,13 +26,16 @@ public:
 
 
 TEST_F(DocumentTests, TestIfKeyCanBeAdded) {
-    ;
+
+    KeySet isEmpty = document.getTagKeys(fooTag);
+    ASSERT_TRUE(isEmpty.empty());
+
     document.addKey(fooTag, fooKey);
     document.addKey(fooTag, barKey);
 
     KeySet fooKeys = document.getTagKeys(fooTag);
 
-    // make sure we have one
+    // make sure we have two
     ASSERT_TRUE(fooKeys.size() == 2);
 
     // make sure it's the same one we've added
@@ -52,24 +55,45 @@ TEST_F(DocumentTests, TestIfKeyCanBeAdded) {
 
     ASSERT_TRUE(isThisBarKeyPtr->getTag() == barTag);
     ASSERT_TRUE(isThisBarKeyPtr == (Key*) &barKey);
+
+    // now let's try adding the same element again, size should be the same as we're dealing with a set of unique keys
+    document.addKey(fooTag, barKey);
+    fooKeys = document.getTagKeys(fooTag);
+    ASSERT_TRUE(fooKeys.size() == 2);
 }
 
 TEST_F(DocumentTests, TestsIfSingleKeyCanBeRemoved) {
     document.addKey(fooTag, fooKey);
+    document.addKey(fooTag, barKey);
     KeySet keySet = document.getTagKeys(fooTag);
-    const DocumentKeysMap* docKeys = document.getKeysMap();
+    ASSERT_TRUE(keySet.size() == 2);
 
-    ASSERT_TRUE(docKeys->size() == 1);
+    document.removeKey(fooTag, fooKey);
+    keySet = document.getTagKeys(fooTag);
     ASSERT_TRUE(keySet.size() == 1);
 
-    document.removeKeys(fooTag);
-    ASSERT_TRUE(keySet.size() == 0);
-    ASSERT_TRUE(docKeys->size() == 0);
+    KeySet::iterator it_not_there = keySet.find(&fooKey);
+    ASSERT_TRUE(it_not_there == keySet.end());
+
+    KeySet::iterator bar_there = keySet.find(&barKey);
+    ASSERT_TRUE(*bar_there == (Key*) &barKey);
 }
 
-TEST_F(DocumentTests, TestTagKeyRemoval) {
+TEST_F(DocumentTests, TestGetTags) {
     document.addKey(fooTag, fooKey);
+    document.addKey(barTag, barKey);
 
+    std::cout << "Getting all the tags...";
+
+    std::vector<string> tags = document.getTags();
+    std::cout << "Got " << tags.size() << " tags" << std::endl;
+    std::cout << "tags[0] => " << tags.at(0) << std::endl;
+    std::cout << "tags[1] => " << tags.at(1) << std::endl;
+
+    // elements will be sorted as they're inserted in the set
+    // they are not in the set in the order they were inserted.
+    ASSERT_TRUE(tags[0] == barTag);
+    ASSERT_TRUE(tags[1] == fooTag);
 }
 
 int main(int argc, char** argv) {
