@@ -50,7 +50,7 @@ namespace yuca {
 		std::map<std::string, ReverseIndex> reverseIndices;
 
 		/**
-		 * The Indexer is confirmed by multiple reverse indexes,
+		 * The Indexer is conformed by multiple reverse indexes,
 		 * which are identified by a 'tag', this helps us partition our indexing
 		 * by categories.
 		 *

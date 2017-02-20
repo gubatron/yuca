@@ -17,14 +17,14 @@ namespace yuca {
 		/** Returns all keys available */
         const DocumentKeysMap* getKeysMap() const;
 
-        /** Returns all keys available under a given tag */
-        KeySet* getTagKeys(string const &tag);
-
         /** Associate this document to an indexing key under the given tag */
         void addKey(string const &tag, const Key &key);
 
         /** Does this document have at least one key under this tag? */
         bool hasKeys(string const &tag) const;
+
+        /** Returns a copy of all keys available under a given tag */
+        KeySet getTagKeys(string const &tag) const;
 
         /** Removes all keys under this tag */
         void removeKeys(string const &tag);
@@ -40,15 +40,28 @@ namespace yuca {
         return &documentKeys;
     }
 
-    KeySet* Document::getTagKeys(string const &tag) {
+    KeySet Document::getTagKeys(string const &tag) const {
         if (!hasKeys(tag)) {
-            documentKeys[tag] = KeySet();
+            return KeySet();
         }
-        return &documentKeys[tag];
+
+        KeySet ret;
+
+        auto it1 = documentKeys.find(tag);
+        KeySet::iterator it = (*it1).second.begin();
+        while (it != (*it1).second.end()) {
+            ret.insert(*it);
+            it++;
+        }
+
+        return ret;
     }
 
     void Document::addKey(string const &tag, const Key &key) {
-        getTagKeys(tag)->insert((Key*) &key);
+        if (!hasKeys(tag)) {
+            documentKeys[tag] = KeySet();
+        }
+        documentKeys[tag].insert((Key*) &key);
     }
 
     bool Document::hasKeys(string const &tag) const {
@@ -59,15 +72,16 @@ namespace yuca {
         if (!hasKeys(tag)) {
             return;
         }
-        getTagKeys(tag)->clear();
+        documentKeys[tag].clear();
         documentKeys.erase(tag);
     }
 
+    // TODO: Test this
     void Document::removeKey(string const &tag, const Key &key) {
         if (!hasKeys(tag)) {
             return;
         }
-        KeySet* keySet = getTagKeys(tag);
+        KeySet* keySet = &documentKeys[tag];
         KeySet::iterator findIterator = keySet->find((Key*)&key);
 
         if (findIterator != keySet->end()) {

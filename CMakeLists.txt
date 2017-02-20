@@ -24,6 +24,7 @@ set(SOURCE_FILES
         include/yuca/yuca.hpp
         include/yuca/document.hpp
         include/yuca/key.hpp
+        include/yuca/indexer.hpp
         )
 
 set(TEST_FILES

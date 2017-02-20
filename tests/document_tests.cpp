@@ -24,15 +24,15 @@ public:
 TEST_F(DocumentTests, TestIfKeyCanBeAdded) {
     ;
     document.addKey(fooTag, fooKey);
-    KeySet* fooKeys = document.getTagKeys(fooTag);
+    KeySet fooKeys = document.getTagKeys(fooTag);
 
     // make sure we have one
-    ASSERT_TRUE((*fooKeys).size() == 1);
+    ASSERT_TRUE(fooKeys.size() == 1);
 
     // make sure it's the same one we've added
-    KeySet::iterator it = fooKeys->find(&fooKey);
+    KeySet::iterator it = fooKeys.find(&fooKey);
 
-    ASSERT_FALSE(it == fooKeys->end());
+    ASSERT_FALSE(it == fooKeys.end());
 
     Key *isThisFooKeyPtr = *it;
     std::cout << "key found? " << isThisFooKeyPtr->getTag() << std::endl;
@@ -43,18 +43,21 @@ TEST_F(DocumentTests, TestIfKeyCanBeAdded) {
 
 TEST_F(DocumentTests, TestsIfSingleKeyCanBeRemoved) {
     document.addKey(fooTag, fooKey);
-    KeySet* keySet = document.getTagKeys(fooTag);
+    KeySet keySet = document.getTagKeys(fooTag);
     const DocumentKeysMap* docKeys = document.getKeysMap();
 
     ASSERT_TRUE(docKeys->size() == 1);
-    ASSERT_TRUE(keySet->size() == 1);
+    ASSERT_TRUE(keySet.size() == 1);
 
     document.removeKeys(fooTag);
-    ASSERT_TRUE(keySet->size() == 0);
+    ASSERT_TRUE(keySet.size() == 0);
     ASSERT_TRUE(docKeys->size() == 0);
 }
 
+TEST_F(DocumentTests, TestTagKeyRemoval) {
+    document.addKey(fooTag, fooKey);
 
+}
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);
