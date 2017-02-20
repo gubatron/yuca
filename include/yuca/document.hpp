@@ -27,23 +27,23 @@ namespace yuca {
         KeySet getTagKeys(string const &tag) const;
 
         /** Removes all keys under this tag */
-        void removeKeys(string const &tag);
+        void removeTag(string const &tag);
 
-        /** Removes the given key */
+        /** Removes the given key. If it's the last key, the tag is removed */
         void removeKey(string const &tag, const Key &key);
     private:
         // maps tags to set<Key*>
-        DocumentKeysMap documentKeys;
+        DocumentKeysMap tagKeysMap;
 	};
 
 
     std::vector<string> Document::getTags() const {
         std::vector<string> ret;
-        if (documentKeys.size() == 0) {
+        if (tagKeysMap.size() == 0) {
             return ret;
         }
-        auto it = documentKeys.begin();
-        while (it != documentKeys.end()) {
+        auto it = tagKeysMap.begin();
+        while (it != tagKeysMap.end()) {
             ret.emplace_back((*it).first);
             it++;
         }
@@ -55,7 +55,7 @@ namespace yuca {
         if (!hasKeys(tag)) {
             return ret;
         }
-        auto it1 = documentKeys.find(tag);
+        auto it1 = tagKeysMap.find(tag);
         KeySet::iterator it = (*it1).second.begin();
         while (it != (*it1).second.end()) {
             ret.insert(*it);
@@ -67,28 +67,28 @@ namespace yuca {
 
     void Document::addKey(string const &tag, const Key &key) {
         if (!hasKeys(tag)) {
-            documentKeys[tag] = KeySet();
+            tagKeysMap[tag] = KeySet();
         }
-        documentKeys[tag].insert((Key*) &key);
+        tagKeysMap[tag].insert((Key*) &key);
     }
 
     bool Document::hasKeys(string const &tag) const {
-        return documentKeys.count(tag) > 0;
+        return tagKeysMap.count(tag) > 0;
     }
 
-    void Document::removeKeys(string const &tag) {
+    void Document::removeTag(string const &tag) {
         if (!hasKeys(tag)) {
             return;
         }
-        documentKeys[tag].clear();
-        documentKeys.erase(tag);
+        tagKeysMap[tag].clear();
+        tagKeysMap.erase(tag);
     }
 
     void Document::removeKey(string const &tag, const Key &key) {
         if (!hasKeys(tag)) {
             return;
         }
-        KeySet* keySet = &documentKeys[tag];
+        KeySet* keySet = &tagKeysMap[tag];
         KeySet::iterator findIterator = keySet->find((Key*)&key);
 
         if (findIterator != keySet->end()) {
@@ -97,7 +97,7 @@ namespace yuca {
         }
 
         if (keySet->size() == 0) {
-            documentKeys.erase(tag);
+            tagKeysMap.erase(tag);
         }
     }
 }

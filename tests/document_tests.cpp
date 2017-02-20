@@ -80,8 +80,12 @@ TEST_F(DocumentTests, TestsIfSingleKeyCanBeRemoved) {
 }
 
 TEST_F(DocumentTests, TestGetTags) {
+    std::string zeeTag = "zeeTag:";
+    Key zeeKey(zeeTag);
+    document.addKey(zeeTag, zeeKey);
     document.addKey(fooTag, fooKey);
     document.addKey(barTag, barKey);
+
 
     std::cout << "Getting all the tags...";
 
@@ -89,11 +93,19 @@ TEST_F(DocumentTests, TestGetTags) {
     std::cout << "Got " << tags.size() << " tags" << std::endl;
     std::cout << "tags[0] => " << tags.at(0) << std::endl;
     std::cout << "tags[1] => " << tags.at(1) << std::endl;
+    std::cout << "tags[2] => " << tags.at(2) << std::endl;
 
     // elements will be sorted as they're inserted in the set
     // they are not in the set in the order they were inserted.
     ASSERT_TRUE(tags[0] == barTag);
     ASSERT_TRUE(tags[1] == fooTag);
+    ASSERT_TRUE(tags[2] == zeeTag);
+}
+
+TEST_F(DocumentTests, TestRemoveTag) {
+    std::string nameTag = "name:";
+    document.addKey(nameTag, Key(nameTag));
+
 }
 
 int main(int argc, char** argv) {
