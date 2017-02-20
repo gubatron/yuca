@@ -27,7 +27,7 @@ namespace yuca {
             return (long) this == (long) &other;
         }
 
-        std::string getTag() {
+        std::string getTag()const {
             return tag;
         }
 

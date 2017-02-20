@@ -15,7 +15,7 @@ namespace yuca {
 		Document() = default;
 
         /** Associate this document to an indexing key under the given tag */
-        void addKey(string const &tag, const Key &key);
+        void addKey(const Key &key);
 
         /** Does this document have at least one key under this tag? */
         bool hasKeys(string const &tag) const;
@@ -65,7 +65,9 @@ namespace yuca {
         return ret;
     }
 
-    void Document::addKey(string const &tag, const Key &key) {
+    void Document::addKey(const Key &key) {
+        std::string tag(key.getTag());
+
         if (!hasKeys(tag)) {
             tagKeysMap[tag] = KeySet();
         }
