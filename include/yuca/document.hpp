@@ -5,6 +5,8 @@
 #ifndef YUCA_DOCUMENT_HPP
 #define YUCA_DOCUMENT_HPP
 
+#include <map>
+#include <set>
 #include <vector>
 #include "key.hpp"
 

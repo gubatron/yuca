@@ -23,12 +23,12 @@ namespace yuca {
 			return index.count(key) > 0;
 		}
 
-		DocumentSet* const getDocuments(Key *key) const {
+		DocumentSet* getDocuments(Key *key) {
 		    if (!hasDocuments(key))	{
 				index[key] = std::set<Document *>();
 				return &index[key];
 			}
-			std::map<Key *, DocumentSet>::const_iterator it = index.find(key);
+			std::map<Key *, DocumentSet>::iterator it = index.find(key);
 			// *it dereferences to a pair<Key*, std::vector<Document *>>
 			return &(*it).second;
 		}
