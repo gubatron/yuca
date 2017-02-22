@@ -5,6 +5,7 @@
 #include "document.hpp"
 #include <map>
 #include <memory>
+#include <set>
 
 namespace yuca {
 
@@ -18,16 +19,16 @@ namespace yuca {
 			documents->insert(doc);
 		}
 
-		bool hasDocuments(Key *key) {
+		bool hasDocuments(Key *key) const {
 			return index.count(key) > 0;
 		}
 
-		DocumentSet* const getDocuments(Key *key) {
+		DocumentSet* const getDocuments(Key *key) const {
 		    if (!hasDocuments(key))	{
 				index[key] = std::set<Document *>();
 				return &index[key];
 			}
-			std::map<Key *, std::set<Document *>>::iterator it = index.find(key);
+			std::map<Key *, DocumentSet>::const_iterator it = index.find(key);
 			// *it dereferences to a pair<Key*, std::vector<Document *>>
 			return &(*it).second;
 		}
@@ -38,8 +39,6 @@ namespace yuca {
             void indexDocument(const Document &doc);
 
         private:
-        std::map<std::string, ReverseIndex *> reverseIndices;
-
             /**
              * The Indexer is conformed by multiple reverse indexes,
              * which are identified by a 'tag', this helps us partition our indexing
@@ -56,6 +55,8 @@ namespace yuca {
             ReverseIndex* const getReverseIndex(std::string const &tag);
 
             void addToIndex(std::string const &tag, const Document &doc);
+
+            std::map<std::string, ReverseIndex *> reverseIndices;
 	};
 
 	// IMPLEMENTATION
