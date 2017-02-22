@@ -5,12 +5,14 @@
 #ifndef YUCA_DOCUMENT_HPP
 #define YUCA_DOCUMENT_HPP
 
-#include "yuca/key.hpp"
-#include "yuca.hpp"
+#include <vector>
+#include "key.hpp"
 
 namespace yuca {
+    typedef std::string string;
+    typedef std::set<Key *> KeySet;
 
-	class Document {
+    class Document {
 	public:
 		Document() = default;
 
@@ -33,7 +35,7 @@ namespace yuca {
         void removeKey(string const &tag, const Key &key);
     private:
         // maps tags to set<Key*>
-        DocumentKeysMap tagKeysMap;
+        std::map<string, KeySet> tagKeysMap;
 	};
 
 

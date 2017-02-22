@@ -1,16 +1,20 @@
 #ifndef YUCA_INDEXER_HPP
 #define YUCA_INDEXER_HPP
 
+#include "key.hpp"
+#include "document.hpp"
 #include <map>
 #include <memory>
 
 namespace yuca {
 
+    typedef std::set<Document *> DocumentSet;
+
 	struct ReverseIndex {
-		std::map<Key *, std::set<Document *>> index;
+		std::map<Key *, DocumentSet> index;
 
 		void putDocument(Key *key, Document *doc) {
-			std::set<Document*> *documents = getDocuments(key);
+			DocumentSet *documents = getDocuments(key);
 			documents->insert(doc);
 		}
 
@@ -34,7 +38,7 @@ namespace yuca {
             void indexDocument(const Document &doc);
 
         private:
-            std::map<std::string, ReverseIndex *> reverseIndices;
+        std::map<std::string, ReverseIndex *> reverseIndices;
 
             /**
              * The Indexer is conformed by multiple reverse indexes,

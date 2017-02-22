@@ -1,8 +1,11 @@
 //
-// Created by gubatron on 11/19/16.
+// Created by gubatron on 11/19/2016.
 //
+#ifndef YUCA_DOCUMENT_TESTS_H
+#define YUCA_DOCUMENT_TESTS_H
 
 #include <gtest/gtest.h>
+#include <yuca/key.hpp>
 #include <yuca/document.hpp>
 
 using namespace yuca;
@@ -145,7 +148,4 @@ TEST_F(DocumentTests, TestRemoveTag) {
     ASSERT_TRUE(barKeys.empty());
 }
 
-int main(int argc, char** argv) {
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
+#endif

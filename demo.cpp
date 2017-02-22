@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <yuca/yuca.hpp>
+#include <yuca/yuca.cpp>
 #include <yuca/indexer.hpp>
 
 using namespace yuca;

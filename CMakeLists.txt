@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.6)
 project(yuca CXX)
 
-find_package(Boost REQUIRED COMPONENTS system)
+#find_package(Boost REQUIRED COMPONENTS system)
 include_directories(${Boost_INCLUDE_DIRS})
 
 set(LIBTORRENT_ROOT $ENV{LIBTORRENT_ROOT} CACHE STRING "libtorrent root")
@@ -21,21 +21,22 @@ link_directories(${LIBTORRENT_ROOT}
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES
-        include/yuca/yuca.hpp
-        include/yuca/document.hpp
+        include/yuca/yuca.cpp #gotta have at least one .cpp file, otherwise the compiler/linker freaks out
         include/yuca/key.hpp
+        include/yuca/document.hpp
         include/yuca/indexer.hpp
         )
 
 set(TEST_FILES
-        tests/document_tests.cpp
-        include/yuca/yuca.hpp)
+        tests/all_tests.cpp)
 
 # the library libyuca
-add_library(yuca STATIC ${SOURCE_FILES} src/version.cpp)
+add_library(yuca STATIC ${SOURCE_FILES})
 
 # demo executable to show how to use the library
 add_executable(yuca_demo demo.cpp)
+# had to add this because this target has no .cpp files and otherwise it errors out
+set_target_properties(yuca PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(yuca_demo torrent-rasterbar yuca)
 
 # ////////////////////////////////////////////////////////////////////////////////
@@ -45,6 +46,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 add_executable(yuca_tests ${SOURCE_FILES} ${TEST_FILES})
+set_target_properties(yuca_tests PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(yuca_tests torrent-rasterbar Threads::Threads gtest yuca)
 # ////////////////////////////////////////////////////////////////////////////////
 
