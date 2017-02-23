@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.6)
 project(yuca CXX)
 
-set(LIBTORRENT_ROOT $ENV{LIBTORRENT_ROOT} CACHE STRING "libtorrent root")
+if(NOT DEFINED ENV{GTEST_DIR})
+    message(FATAL_ERROR "GTEST_DIR environment variable not defined.\nFix your .bashrc or .bash_profile with something like:\n  export GTEST_DIR=/home/johndoe/googletest/googletest\nYou can get googletest at https://github.com/google/googletest/")
+endif()
+
 set(GTEST_DIR $ENV{GTEST_DIR} CACHE STRING "googletest root")
 
 # if you need to add more library include/ folders, add them here.
@@ -32,7 +35,7 @@ add_library(yuca STATIC ${SOURCE_FILES})
 add_executable(yuca_demo demo.cpp)
 # had to add this because this target has no .cpp files and otherwise it errors out
 set_target_properties(yuca PROPERTIES LINKER_LANGUAGE CXX)
-target_link_libraries(yuca_demo torrent-rasterbar yuca)
+target_link_libraries(yuca_demo yuca)
 
 # ////////////////////////////////////////////////////////////////////////////////
 # unit tests with google test, which require pthread
@@ -42,7 +45,7 @@ find_package(Threads REQUIRED)
 
 add_executable(yuca_tests ${SOURCE_FILES} ${TEST_FILES})
 set_target_properties(yuca_tests PROPERTIES LINKER_LANGUAGE CXX)
-target_link_libraries(yuca_tests torrent-rasterbar Threads::Threads gtest yuca)
+target_link_libraries(yuca_tests Threads::Threads gtest yuca)
 # ////////////////////////////////////////////////////////////////////////////////
 
 # a cplus plus playground area for random experiments to interactively debug ideas or APIs we might use.
