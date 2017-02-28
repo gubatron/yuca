@@ -15,28 +15,33 @@ namespace yuca {
 		std::map<Key *, DocumentSet> index;
 
 		void putDocument(Key *key, Document *doc) {
-			DocumentSet *documents = getDocuments(key);
-			documents->insert(doc);
+            if (!hasDocuments(key))	{
+                index[key] = std::set<Document *>();
+            }
+            index[key].insert(doc);
 		}
 
 		bool hasDocuments(Key *key) const {
 			return index.count(key) > 0;
 		}
 
-		DocumentSet* getDocuments(Key *key) {
+		DocumentSet getDocuments(Key *key) const {
 		    if (!hasDocuments(key))	{
-				index[key] = std::set<Document *>();
-				return &index[key];
+				return DocumentSet();
 			}
-			std::map<Key *, DocumentSet>::iterator it = index.find(key);
-			// *it dereferences to a pair<Key*, std::vector<Document *>>
-			return &(*it).second;
+            std::map<Key *, DocumentSet>::const_iterator it = index.find(key);
+            return (*it).second;
 		}
+
+        long getKeyCount() const {
+            return index.size();
+        }
 	};
 
 	class Indexer {
         public:
-            void indexDocument(const Document &doc);
+            void indexDocument(Document const &doc);
+            DocumentSet findDocuments(Key &key) const;
 
         private:
             /**
@@ -52,7 +57,7 @@ namespace yuca {
              * Documents provide the indexer with the Keys to be used.
              *
              * */
-            ReverseIndex* const getReverseIndex(std::string const &tag);
+            ReverseIndex* const getReverseIndex(std::string const &tag) const;
 
             void addToIndex(std::string const &tag, const Document &doc);
 
@@ -61,7 +66,7 @@ namespace yuca {
 
 	// IMPLEMENTATION
 
-	void Indexer::indexDocument(const Document &doc) {
+	void Indexer::indexDocument(Document const &doc) {
 
 		std::vector<string> tags = doc.getTags();
 		std::vector<string>::iterator tags_iterator = tags.begin();
@@ -84,27 +89,35 @@ namespace yuca {
 		//        [key2] = [Document1, Document2, ... ]
 	}
 
-	void Indexer::addToIndex(std::string const& tag, const Document &doc) {
+    DocumentSet Indexer::findDocuments(Key &key) const {
+        std::string tag = key.getTag();
+        ReverseIndex* const rIndex = getReverseIndex(tag);
+        return rIndex->getDocuments((Key*) &key);
+    }
+
+	void Indexer::addToIndex(std::string const &tag, const Document &doc) {
 		KeySet keys = doc.getTagKeys(tag);
         KeySet::iterator keysIterator = keys.begin();
 		if (keysIterator == keys.end()) {
-			std::cout << "Indexer::addToIndex(" << tag << "): check your logic, document does not use this tag" << std::endl;
+			std::cout << "Indexer::addToIndex(" << tag << "): check your logic, document has no keys under this tag <" << tag << ">" << std::endl;
 			return;
 		}
+        ReverseIndex *rIndex = getReverseIndex(tag);
+        if (rIndex->getKeyCount() == 0) {
+            reverseIndices[tag] = rIndex;
+        }
         while (keysIterator != keys.end()) {
-            ReverseIndex *rIndex = getReverseIndex(tag);
             Key* key = *keysIterator;
             rIndex->putDocument(key, (Document*) &doc);
             keysIterator++;
         }
 	}
 
-	ReverseIndex* const Indexer::getReverseIndex(std::string const& tag) {
+	ReverseIndex* const Indexer::getReverseIndex(std::string const& tag) const {
 		if (reverseIndices.count(tag) == 0) {
-			reverseIndices[tag] = new ReverseIndex();
-			return reverseIndices[tag];
+			return new ReverseIndex();
 		}
-		std::map<std::string, ReverseIndex*>::iterator rIndexIterator = reverseIndices.find(tag);
+		std::map<std::string, ReverseIndex*>::const_iterator rIndexIterator = reverseIndices.find(tag);
 		return rIndexIterator->second;
 	}
 }
