@@ -2,45 +2,39 @@
 // Created by gubatron on 11/9/17.
 //
 
+#include <iostream>
 #include "document.hpp"
 
 namespace yuca {
-    std::vector<std::string> Document::getTags() const {
-        std::vector<std::string> ret;
+    void Document::getTags(std::set<std::string> &tagsOut) const {
         if (tagKeysMap.empty()) {
-            return ret;
+            return;
         }
+        tagsOut = tags;
+        /**
         auto it = tagKeysMap.begin();
         while (it != tagKeysMap.end()) {
-            ret.push_back((*it).first);
+            tagsOut.push_back(it->first);
             it++;
         }
-        return ret;
+         */
     }
 
-    KeySet Document::getTagKeys(std::string const &tag) const {
-        KeySet ret;
+    void Document::getTagKeys(std::string const &tag, KeySet &keysOut) const {
+        KeySet keys;
         if (!hasKeys(tag)) {
-            return ret;
+            return;
         }
-        auto tagKeysMapIterator = tagKeysMap.find(tag);
-        auto keysetIterator = (*tagKeysMapIterator).second.begin();
-        auto lastKey = (*tagKeysMapIterator).second.end();
-        while (keysetIterator != lastKey) {
-            ret.insert(*keysetIterator);
-            keysetIterator++;
-        }
-
-        return ret;
+        keysOut = tagKeysMap.find(tag)->second;
     }
 
     void Document::addKey(const Key &key) {
         std::string tag(key.getTag());
-
         if (!hasKeys(tag)) {
-            tagKeysMap[tag] = KeySet();
+            tagKeysMap.emplace(std::make_pair(tag, KeySet()));
         }
-        tagKeysMap[tag].insert((Key *) &key);
+        tagKeysMap.find(tag)->second.insert(key);
+        tags.emplace(tag);
     }
 
     bool Document::hasKeys(std::string const &tag) const {
@@ -53,22 +47,41 @@ namespace yuca {
         }
         tagKeysMap[tag].clear();
         tagKeysMap.erase(tag);
+        tags.erase(tag);
     }
 
-    void Document::removeKey(std::string const &tag, const Key &key) {
+    void Document::removeKey(std::string const &tag, Key const &key) {
         if (!hasKeys(tag)) {
             return;
         }
-        KeySet *keySet = &tagKeysMap[tag];
-        auto findIterator = keySet->find((Key *) &key);
 
-        if (findIterator != keySet->end()) {
-            Key *k = *findIterator;
-            keySet->erase(k);
+        KeySet keys;
+        getTagKeys(tag, keys);
+
+        auto findIterator = keys.find(key);
+
+        if (findIterator != keys.end()) {
+            Key k = *findIterator;
+            keys.erase(k);
         }
 
-        if (!keySet->empty()) {
-            tagKeysMap.erase(tag);
+        // once we know the keySet has been cleared we remove it altogether from our { string -> [key0, key1] } map.
+        if (keys.empty()) {
+            removeTag(tag);
         }
+    }
+
+    bool Document::operator<(Document other) const {
+        std::cout << "Document::operator< : Comparing me(" << ((long) this) << ") vs other(" << ((long) &other) << ")"
+                  << std::endl;
+        std::cout.flush();
+        auto myMemory = (long) this;
+        auto otherMemoryOffset = (long) &other;
+        return myMemory < otherMemoryOffset;
+    }
+
+    bool Document::operator==(Document other) const {
+        std::cout << "Document::operator== !" << std::endl;
+        return (long) this == (long) &other;
     }
 }

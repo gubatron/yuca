@@ -15,7 +15,6 @@ namespace yuca {
         explicit Key(std::string myTag) : tag(myTag) {
         }
 
-        // gotta figure out how to make this a virtual method so implementing classes know they have to implement it
         virtual bool operator<(Key other) const;
 
         virtual bool operator==(Key other) const;

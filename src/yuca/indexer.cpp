@@ -3,23 +3,25 @@
 
 namespace yuca {
 
-    void ReverseIndex::putDocument(Key *key, Document *doc) {
+    void ReverseIndex::putDocument(Key const &key, Document const &doc) {
         if (!hasDocuments(key)) {
-            index[key] = std::set<Document *>();
+            index.emplace(std::make_pair(key, DocumentSet()));
         }
-        index[key].insert(doc);
+        DocumentSet docs;
+        getDocuments(key, docs);
+        docs.emplace(doc);
     }
 
-    bool ReverseIndex::hasDocuments(Key *key) const {
+    bool ReverseIndex::hasDocuments(Key const &key) const {
         return index.count(key) > 0;
     }
 
-    DocumentSet ReverseIndex::getDocuments(Key *key) const {
+    void ReverseIndex::getDocuments(Key const &key, DocumentSet &docsOut) const {
         if (!hasDocuments(key)) {
-            return DocumentSet();
+            return;
         }
         auto it = index.find(key);
-        return (*it).second;
+        docsOut = it->second;
     }
 
     long ReverseIndex::getKeyCount() const {
@@ -28,7 +30,8 @@ namespace yuca {
 
 
     void Indexer::indexDocument(Document const &doc) {
-        std::vector<std::string> tags = doc.getTags();
+        std::set<std::string> tags;
+        doc.getTags(tags);
         auto tags_iterator = tags.begin();
         while (tags_iterator != tags.end()) {
             std::string tag = *tags_iterator;
@@ -53,51 +56,59 @@ namespace yuca {
         // TODO
     }
 
-    DocumentSet Indexer::findDocuments(Key &key) const {
+    void Indexer::findDocuments(Key const &key, DocumentSet &docsOut) const {
         std::string tag = key.getTag();
-        ReverseIndex *const rIndex = getReverseIndex(tag);
-        return rIndex->getDocuments(&key);
+        ReverseIndex rIndex;
+        getReverseIndex(tag, rIndex);
+        rIndex.getDocuments(key, docsOut);
     }
 
-    DocumentSet Indexer::findDocuments(int numKeys, Key keys[]) const {
-        DocumentSet result;
+    void Indexer::findDocuments(int numKeys, Key keys[], DocumentSet &docsOut) const {
         for (int i = 0; i < numKeys; i++) {
-            DocumentSet docs = findDocuments(keys[i]);
+            DocumentSet docs;
+            findDocuments(keys[i], docs);
             if (!docs.empty()) {
                 auto it = docs.begin();
                 while (it != docs.end()) {
-                    result.insert(*it);
+                    docsOut.insert(*it);
                     it++;
                 }
             }
         }
-        return result;
     }
 
-    void Indexer::addToIndex(std::string const &tag, const Document &doc) {
-        KeySet keys = doc.getTagKeys(tag);
-        auto keysIterator = keys.begin();
-        if (keysIterator == keys.end()) {
+    void Indexer::addToIndex(std::string const &tag, Document const &doc) {
+        KeySet keys;
+        doc.getTagKeys(tag, keys);
+        if (keys.empty()) {
             std::cout << "Indexer::addToIndex(" << tag << "): check your logic, document has no keys under this tag <"
                       << tag << ">" << std::endl;
             return;
         }
-        ReverseIndex *rIndex = getReverseIndex(tag);
-        if (rIndex->getKeyCount() == 0) {
-            reverseIndices[tag] = rIndex;
+
+        // Make sure there's a ReverseIndex, if there isn't one, create an empty one
+        std::set<std::string> tags;
+        doc.getTags(tags);
+        ReverseIndex rIndex;
+        getReverseIndex(tag, rIndex);
+        if (rIndex.getKeyCount() == 0) {
+            reverseIndices.emplace(std::make_pair(tag, ReverseIndex()));
+            getReverseIndex(tag, rIndex);
         }
+
+        auto keysIterator = keys.begin();
         while (keysIterator != keys.end()) {
-            Key *key = *keysIterator;
-            rIndex->putDocument(key, (Document *) &doc);
+            Key key = *keysIterator;
+            rIndex.putDocument(key, doc);
             keysIterator++;
         }
     }
 
-    ReverseIndex *const Indexer::getReverseIndex(std::string const &tag) const {
+    void Indexer::getReverseIndex(std::string const &tag, ReverseIndex &rIndexOut) const {
         if (reverseIndices.count(tag) == 0) {
-            return new ReverseIndex();
+            return;
         }
         auto rIndexIterator = reverseIndices.find(tag);
-        return rIndexIterator->second;
+        rIndexOut = rIndexIterator->second;
     }
 }

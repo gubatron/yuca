@@ -10,13 +10,13 @@
 namespace yuca {
 
     struct ReverseIndex {
-        std::map<Key *, DocumentSet> index;
+        std::map<Key, DocumentSet> index;
 
-        void putDocument(Key *key, Document *doc);
+        void putDocument(Key const &key, Document const &doc);
 
-        bool hasDocuments(Key *key) const;
+        bool hasDocuments(Key const &key) const;
 
-        DocumentSet getDocuments(Key *key) const;
+        void getDocuments(Key const &key, DocumentSet &docsOut) const;
 
         long getKeyCount() const;
     };
@@ -26,15 +26,18 @@ namespace yuca {
         void indexDocument(Document const &doc);
 
         void removeDocument(Document const &doc); // TODO
-        DocumentSet findDocuments(Key &key) const;
 
-        DocumentSet findDocuments(int numKeys, Key keys[]) const;
+        void findDocuments(Key const &key, DocumentSet &docsOut) const;
+
+        void findDocuments(int numKeys, Key keys[], DocumentSet &docsOut) const;
 
     private:
         /**
          * The Indexer is conformed by multiple reverse indexes,
          * which are identified by a 'tag', this helps us partition our indexing
          * by categories.
+         *
+         * If there isn't a ReverseIndex for this tag, it'll create an empty one.
          *
          * For example, we could have a reverse index that catalogs documents by "file_extension"
          *
@@ -44,11 +47,11 @@ namespace yuca {
          * Documents provide the indexer with the Keys to be used.
          *
          * */
-        ReverseIndex *const getReverseIndex(std::string const &tag) const;
+        void getReverseIndex(std::string const &tag, ReverseIndex &rIndexOut) const;
 
-        void addToIndex(std::string const &tag, const Document &doc);
+        void addToIndex(std::string const &tag, Document const &doc);
 
-        std::map<std::string, ReverseIndex *> reverseIndices;
+        std::map<std::string, ReverseIndex> reverseIndices;
     };
 }
 

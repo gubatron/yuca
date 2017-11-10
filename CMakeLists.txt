@@ -20,6 +20,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(CMAKE_BUILD_TYPE Debug)
 set(SOURCE_FILES
         src/yuca/yuca.cpp #gotta have at least one .cpp file, otherwise the compiler/linker freaks out
+        src/yuca/types.hpp
         src/yuca/key.hpp
         src/yuca/key.cpp
         src/yuca/document.hpp

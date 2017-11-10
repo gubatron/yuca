@@ -12,8 +12,8 @@ namespace yuca {
     class Key;
     class Document;
 
-    typedef std::set<Key *> KeySet;
-    typedef std::set<Document *> DocumentSet;
+    typedef std::set<Key> KeySet;
+    typedef std::set<Document> DocumentSet;
 }
 
 #endif //YUCA_TYPES_HPP
