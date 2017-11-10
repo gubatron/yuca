@@ -14,7 +14,7 @@ using namespace yuca;
 
 class IndexerTests : public ::testing::Test {
 public:
-    virtual void SetUp() {
+    void SetUp() {
         fooTag = ":foo";
         barTag = ":bar";
 
@@ -49,6 +49,7 @@ TEST_F(IndexerTests, TestIndexDocument) {
 
     ASSERT_TRUE(indexer.findDocuments(fooKey).size() == 1);
     ASSERT_TRUE(indexer.findDocuments(barKey).size() == 0);
+    ASSERT_TRUE(indexer.findDocuments(fooKey2).size() == 1);
 
     indexer.indexDocument(documentBar);
 
@@ -67,7 +68,7 @@ TEST_F(IndexerTests, TestIndexDocument) {
     ASSERT_TRUE(*barIterator != &documentFoo);
 
     // search by the other key
-    Document* foundDoc = *(indexer.findDocuments(fooKey2).begin());
+    Document *foundDoc = *(indexer.findDocuments(fooKey2).begin());
     ASSERT_TRUE(foundDoc == &documentFoo);
 
     // add foo and bar key, index should now return 2 results by both keys
@@ -96,6 +97,31 @@ TEST_F(IndexerTests, TestIndexDocument) {
     ASSERT_TRUE(*barIterator == &fooBarDoc);
     barIterator++;
     ASSERT_TRUE(barIterator == barDocs.end());
+
+    //////////////////////////////
+    // multiple key search tests
+    //////////////////////////////
+
+    Indexer indexerMultiKey;
+    fooIterator = fooDocs.begin();
+    barIterator = barDocs.begin();
+    int nDocsIndexed = 0;
+
+    // add foo documents
+    while (fooIterator != fooDocs.end()) {
+        indexerMultiKey.indexDocument(**fooIterator);
+        fooIterator++;
+        nDocsIndexed++;
+    }
+    while (barIterator != barDocs.end()) {
+        indexerMultiKey.indexDocument(**barIterator);
+        barIterator++;
+        nDocsIndexed++;
+    }
+    Key keys[] = { fooKey, barKey };
+    DocumentSet multiIndexDocSet = indexerMultiKey.findDocuments(2, keys);
+    std::cout << "Docs found: " << multiIndexDocSet.size();
+    ASSERT_TRUE(multiIndexDocSet.size() == nDocsIndexed);
 }
 
 #endif

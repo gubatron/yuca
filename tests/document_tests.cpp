@@ -12,7 +12,7 @@ using namespace yuca;
 
 class DocumentTests : public ::testing::Test {
 public:
-    virtual void SetUp() {
+    void SetUp() {
         fooTag = ":foo";
         barTag = ":bar";
 
@@ -138,6 +138,7 @@ TEST_F(DocumentTests, TestRemoveTag) {
     foundKeys = nameTagKeys.find(&nameKey);
     ASSERT_FALSE(foundKeys == nameTagKeys.end());
     ASSERT_TRUE(*foundKeys == &nameKey);
+    ASSERT_TRUE(foundKeys == nameTagKeys.begin());
     document.removeKey(nameTag, nameKey);
     nameTagKeys = document.getTagKeys("name:");
     ASSERT_TRUE(nameTagKeys.empty());

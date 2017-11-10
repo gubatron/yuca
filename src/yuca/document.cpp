@@ -1,46 +1,10 @@
 //
-// Created by Alden Torres on 10/13/16.
+// Created by gubatron on 11/9/17.
 //
 
-#ifndef YUCA_DOCUMENT_HPP
-#define YUCA_DOCUMENT_HPP
-
-#include <map>
-#include <set>
-#include <vector>
-#include "key.hpp"
+#include "document.hpp"
 
 namespace yuca {
-    typedef std::string string;
-    typedef std::set<Key *> KeySet;
-
-    class Document {
-	public:
-		Document() = default;
-
-        /** Associate this document to an indexing key under the given tag */
-        void addKey(const Key &key);
-
-        /** Does this document have at least one key under this tag? */
-        bool hasKeys(string const &tag) const;
-
-        /** Returns a copy of all tags under which we have KeySets */
-        std::vector<string> getTags() const;
-
-        /** Returns a copy of all keys available under a given tag */
-        KeySet getTagKeys(string const &tag) const;
-
-        /** Removes all keys under this tag */
-        void removeTag(string const &tag);
-
-        /** Removes the given key. If it's the last key, the tag is removed */
-        void removeKey(string const &tag, const Key &key);
-    private:
-        // maps tags to set<Key*>
-        std::map<string, KeySet> tagKeysMap;
-	};
-
-
     std::vector<string> Document::getTags() const {
         std::vector<string> ret;
         if (tagKeysMap.size() == 0) {
@@ -75,7 +39,7 @@ namespace yuca {
         if (!hasKeys(tag)) {
             tagKeysMap[tag] = KeySet();
         }
-        tagKeysMap[tag].insert((Key*) &key);
+        tagKeysMap[tag].emplace((Key *) &key);
     }
 
     bool Document::hasKeys(string const &tag) const {
@@ -94,11 +58,11 @@ namespace yuca {
         if (!hasKeys(tag)) {
             return;
         }
-        KeySet* keySet = &tagKeysMap[tag];
-        KeySet::iterator findIterator = keySet->find((Key*)&key);
+        KeySet *keySet = &tagKeysMap[tag];
+        KeySet::iterator findIterator = keySet->find((Key *) &key);
 
         if (findIterator != keySet->end()) {
-            Key* k = *findIterator;
+            Key *k = *findIterator;
             keySet->erase(k);
         }
 
@@ -107,5 +71,3 @@ namespace yuca {
         }
     }
 }
-
-#endif //YUCA_DOCUMENT_HPP

@@ -7,8 +7,8 @@ endif()
 
 set(GTEST_DIR $ENV{GTEST_DIR} CACHE STRING "googletest root")
 
-# if you need to add more library include/ folders, add them here.
-include_directories(include
+# if you need to add more library src/ folders, add them here.
+include_directories(src
                     ${GTEST_DIR}/include
                     ${LIBTORRENT_ROOT}/include)
 
@@ -19,14 +19,17 @@ link_directories(${LIBTORRENT_ROOT}
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES
-        include/yuca/yuca.cpp #gotta have at least one .cpp file, otherwise the compiler/linker freaks out
-        include/yuca/key.hpp
-        include/yuca/document.hpp
-        include/yuca/indexer.hpp
+        src/yuca/yuca.cpp #gotta have at least one .cpp file, otherwise the compiler/linker freaks out
+        src/yuca/key.hpp
+        src/yuca/key.cpp
+        src/yuca/document.hpp
+        src/yuca/document.cpp
+        src/yuca/indexer.hpp
+        src/yuca/indexer.cpp
         )
 
 set(TEST_FILES
-        tests/all_tests.cpp)
+        tests/all_tests.cpp src/yuca/document.cpp)
 
 # the library libyuca
 add_library(yuca STATIC ${SOURCE_FILES})
