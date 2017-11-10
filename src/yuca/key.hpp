@@ -16,9 +16,9 @@ namespace yuca {
         }
 
         // gotta figure out how to make this a virtual method so implementing classes know they have to implement it
-        bool operator<(Key other) const;
+        virtual bool operator<(Key other) const;
 
-        bool operator==(Key other) const;
+        virtual bool operator==(Key other) const;
 
         std::string getTag() const;
 
