@@ -28,7 +28,7 @@ namespace yuca {
 
 
     void Indexer::indexDocument(Document const &doc) {
-        std::vector<string> tags = doc.getTags();
+        std::vector<std::string> tags = doc.getTags();
         auto tags_iterator = tags.begin();
         while (tags_iterator != tags.end()) {
             std::string tag = *tags_iterator;

@@ -3,12 +3,11 @@
 
 #include "key.hpp"
 #include "document.hpp"
+#include "types.hpp"
 #include <map>
 #include <set>
 
 namespace yuca {
-
-    typedef std::set<Document *> DocumentSet;
 
     struct ReverseIndex {
         std::map<Key *, DocumentSet> index;

@@ -5,8 +5,8 @@
 #include "document.hpp"
 
 namespace yuca {
-    std::vector<string> Document::getTags() const {
-        std::vector<string> ret;
+    std::vector<std::string> Document::getTags() const {
+        std::vector<std::string> ret;
         if (tagKeysMap.empty()) {
             return ret;
         }
@@ -18,7 +18,7 @@ namespace yuca {
         return ret;
     }
 
-    KeySet Document::getTagKeys(string const &tag) const {
+    KeySet Document::getTagKeys(std::string const &tag) const {
         KeySet ret;
         if (!hasKeys(tag)) {
             return ret;
@@ -43,11 +43,11 @@ namespace yuca {
         tagKeysMap[tag].insert((Key *) &key);
     }
 
-    bool Document::hasKeys(string const &tag) const {
+    bool Document::hasKeys(std::string const &tag) const {
         return tagKeysMap.count(tag) > 0;
     }
 
-    void Document::removeTag(string const &tag) {
+    void Document::removeTag(std::string const &tag) {
         if (!hasKeys(tag)) {
             return;
         }
@@ -55,7 +55,7 @@ namespace yuca {
         tagKeysMap.erase(tag);
     }
 
-    void Document::removeKey(string const &tag, const Key &key) {
+    void Document::removeKey(std::string const &tag, const Key &key) {
         if (!hasKeys(tag)) {
             return;
         }

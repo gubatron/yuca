@@ -30,11 +30,11 @@ public:
         documentBar.addKey(barKey);
     }
 
-    string fooTag;
+    std::string fooTag;
     Key fooKey;
     Key fooKey2;
 
-    string barTag;
+    std::string barTag;
     Key barKey;
 
     Document documentFoo;

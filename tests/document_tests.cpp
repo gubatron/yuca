@@ -22,9 +22,9 @@ public:
         document = Document();
     }
 
-    string fooTag;
+    std::string fooTag;
     Key fooKey;
-    string barTag;
+    std::string barTag;
 
     Key barKey;
     Key barKey2;
@@ -113,7 +113,7 @@ TEST_F(DocumentTests, TestGetTags) {
 
     std::cout << "Getting all the tags...";
 
-    std::vector<string> tags = document.getTags();
+    std::vector<std::string> tags = document.getTags();
     std::cout << "Got " << tags.size() << " tags" << std::endl;
     std::cout << "tags[0] => " << tags.at(0) << std::endl;
     std::cout << "tags[1] => " << tags.at(1) << std::endl;

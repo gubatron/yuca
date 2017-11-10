@@ -9,10 +9,9 @@
 #include <set>
 #include <vector>
 #include "key.hpp"
+#include "types.hpp"
 
 namespace yuca {
-    typedef std::string string;
-    typedef std::set<Key *> KeySet;
 
     class Document {
 	public:
@@ -22,22 +21,22 @@ namespace yuca {
         void addKey(const Key &key);
 
         /** Does this document have at least one key under this tag? */
-        bool hasKeys(string const &tag) const;
+        bool hasKeys(std::string const &tag) const;
 
         /** Returns a copy of all tags under which we have KeySets */
-        std::vector<string> getTags() const;
+        std::vector<std::string> getTags() const;
 
         /** Returns a copy of all keys available under a given tag */
-        KeySet getTagKeys(string const &tag) const;
+        KeySet getTagKeys(std::string const &tag) const;
 
         /** Removes all keys under this tag */
-        void removeTag(string const &tag);
+        void removeTag(std::string const &tag);
 
         /** Removes the given key. If it's the last key, the tag is removed */
-        void removeKey(string const &tag, const Key &key);
+        void removeKey(std::string const &tag, const Key &key);
     private:
         // maps tags to set<Key*>
-        std::map<string, KeySet> tagKeysMap;
+        std::map<std::string, KeySet> tagKeysMap;
 	};
 }
 

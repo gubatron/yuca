@@ -29,7 +29,7 @@ set(SOURCE_FILES
         )
 
 set(TEST_FILES
-        tests/all_tests.cpp src/yuca/document.cpp)
+        tests/all_tests.cpp src/yuca/document.cpp src/yuca/types.hpp)
 
 # the library libyuca
 add_library(yuca STATIC ${SOURCE_FILES})
