@@ -7,12 +7,12 @@
 namespace yuca {
     std::vector<string> Document::getTags() const {
         std::vector<string> ret;
-        if (tagKeysMap.size() == 0) {
+        if (tagKeysMap.empty()) {
             return ret;
         }
         auto it = tagKeysMap.begin();
         while (it != tagKeysMap.end()) {
-            ret.emplace_back((*it).first);
+            ret.push_back((*it).first);
             it++;
         }
         return ret;
@@ -23,11 +23,12 @@ namespace yuca {
         if (!hasKeys(tag)) {
             return ret;
         }
-        auto it1 = tagKeysMap.find(tag);
-        KeySet::iterator it = (*it1).second.begin();
-        while (it != (*it1).second.end()) {
-            ret.insert(*it);
-            it++;
+        auto tagKeysMapIterator = tagKeysMap.find(tag);
+        auto keysetIterator = (*tagKeysMapIterator).second.begin();
+        auto lastKey = (*tagKeysMapIterator).second.end();
+        while (keysetIterator != lastKey) {
+            ret.insert(*keysetIterator);
+            keysetIterator++;
         }
 
         return ret;
@@ -39,7 +40,7 @@ namespace yuca {
         if (!hasKeys(tag)) {
             tagKeysMap[tag] = KeySet();
         }
-        tagKeysMap[tag].emplace((Key *) &key);
+        tagKeysMap[tag].insert((Key *) &key);
     }
 
     bool Document::hasKeys(string const &tag) const {
@@ -59,14 +60,14 @@ namespace yuca {
             return;
         }
         KeySet *keySet = &tagKeysMap[tag];
-        KeySet::iterator findIterator = keySet->find((Key *) &key);
+        auto findIterator = keySet->find((Key *) &key);
 
         if (findIterator != keySet->end()) {
             Key *k = *findIterator;
             keySet->erase(k);
         }
 
-        if (keySet->size() == 0) {
+        if (!keySet->empty()) {
             tagKeysMap.erase(tag);
         }
     }
