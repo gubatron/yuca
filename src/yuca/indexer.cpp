@@ -18,7 +18,7 @@ namespace yuca {
         if (!hasDocuments(key)) {
             return DocumentSet();
         }
-        std::map<Key *, DocumentSet>::const_iterator it = index.find(key);
+        auto it = index.find(key);
         return (*it).second;
     }
 
@@ -29,7 +29,7 @@ namespace yuca {
 
     void Indexer::indexDocument(Document const &doc) {
         std::vector<string> tags = doc.getTags();
-        std::vector<string>::iterator tags_iterator = tags.begin();
+        auto tags_iterator = tags.begin();
         while (tags_iterator != tags.end()) {
             std::string tag = *tags_iterator;
             addToIndex(tag, doc);
@@ -56,15 +56,15 @@ namespace yuca {
     DocumentSet Indexer::findDocuments(Key &key) const {
         std::string tag = key.getTag();
         ReverseIndex *const rIndex = getReverseIndex(tag);
-        return rIndex->getDocuments((Key *) &key);
+        return rIndex->getDocuments(&key);
     }
 
     DocumentSet Indexer::findDocuments(int numKeys, Key keys[]) const {
         DocumentSet result;
         for (int i = 0; i < numKeys; i++) {
             DocumentSet docs = findDocuments(keys[i]);
-            if (docs.size() > 0) {
-                DocumentSet::iterator it = docs.begin();
+            if (!docs.empty()) {
+                auto it = docs.begin();
                 while (it != docs.end()) {
                     result.insert(*it);
                     it++;
@@ -76,7 +76,7 @@ namespace yuca {
 
     void Indexer::addToIndex(std::string const &tag, const Document &doc) {
         KeySet keys = doc.getTagKeys(tag);
-        KeySet::iterator keysIterator = keys.begin();
+        auto keysIterator = keys.begin();
         if (keysIterator == keys.end()) {
             std::cout << "Indexer::addToIndex(" << tag << "): check your logic, document has no keys under this tag <"
                       << tag << ">" << std::endl;
@@ -97,7 +97,7 @@ namespace yuca {
         if (reverseIndices.count(tag) == 0) {
             return new ReverseIndex();
         }
-        std::map<std::string, ReverseIndex *>::const_iterator rIndexIterator = reverseIndices.find(tag);
+        auto rIndexIterator = reverseIndices.find(tag);
         return rIndexIterator->second;
     }
 }
