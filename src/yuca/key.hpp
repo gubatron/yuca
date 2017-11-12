@@ -6,24 +6,31 @@
 #define YUCA_KEY_H
 
 #include <string>
+#include <utility>
 
 namespace yuca {
     class Key {
     public:
         Key() = default;
 
-        explicit Key(std::string myTag) : tag(myTag) {
+        explicit Key(long id, std::string myTag) : tag(std::move(myTag)), id(id) {
         }
 
-        virtual bool operator<(Key other) const;
+        explicit Key(std::string myTag) : tag(std::move(myTag)), id(rand()) {
+        }
 
-        virtual bool operator==(Key other) const;
+        // THIS OPERATOR IS USED FOR std::set.find()
+        virtual bool operator<(const Key &rightSide) const;
+
+        virtual bool operator==(const Key &other) const;
 
         std::string getTag() const;
 
+        long getId() const;
+
     private:
-        // TODO, make const
         std::string tag;
+        long id;
     };
 }
 

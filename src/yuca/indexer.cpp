@@ -17,6 +17,7 @@ namespace yuca {
     }
 
     void ReverseIndex::getDocuments(Key const &key, DocumentSet &docsOut) const {
+        docsOut.clear();
         if (!hasDocuments(key)) {
             return;
         }
@@ -57,6 +58,7 @@ namespace yuca {
     }
 
     void Indexer::findDocuments(Key const &key, DocumentSet &docsOut) const {
+        docsOut.clear();
         std::string tag = key.getTag();
         ReverseIndex rIndex;
         getReverseIndex(tag, rIndex);
@@ -106,6 +108,7 @@ namespace yuca {
 
     void Indexer::getReverseIndex(std::string const &tag, ReverseIndex &rIndexOut) const {
         if (reverseIndices.count(tag) == 0) {
+            rIndexOut = ReverseIndex();
             return;
         }
         auto rIndexIterator = reverseIndices.find(tag);

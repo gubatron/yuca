@@ -17,8 +17,8 @@ public:
         barTag = ":bar";
 
         fooKey = Key(fooTag);
-        barKey = Key(barTag);
-        barKey2 = Key(barTag);
+        barKey = Key(1, barTag);
+        barKey2 = Key(2, barTag);
         document = Document();
     }
 
@@ -42,6 +42,11 @@ TEST_F(DocumentTests, TestIfKeyCanBeAdded) {
     KeySet fooKeys;
     document.getTagKeys(fooTag, fooKeys);
     ASSERT_TRUE(fooKeys.size() == 1);
+    if (barKey < barKey2) {
+        std::cout << "barKey < barKey2 indeed" << std::endl;
+    } else {
+        FAIL();
+    }
 
     document.addKey(barKey);
     document.addKey(barKey2);
@@ -53,13 +58,9 @@ TEST_F(DocumentTests, TestIfKeyCanBeAdded) {
     // make sure it's the same one we've added
     auto it = fooKeys.find(fooKey);
     ASSERT_TRUE(fooKeys.size() == 1);
-    ASSERT_TRUE(it == fooKeys.end());
-
-    Key isThisFooKey = *it;
-    std::cout << "tag found? " << isThisFooKey.getTag() << std::endl;
-
-    ASSERT_TRUE(isThisFooKey.getTag() == fooTag);
-    ASSERT_TRUE(isThisFooKey == fooKey);
+    ASSERT_FALSE(it == fooKeys.end());
+    ASSERT_TRUE((*it) == fooKey);
+    ASSERT_TRUE((*it).getTag() == fooTag);
 
     it = barKeys.find(barKey);
     Key isThisBarKey = *it;
@@ -88,8 +89,8 @@ TEST_F(DocumentTests, TestsIfSingleKeyCanBeRemoved) {
     KeySet barKeySet;
     document.getTagKeys(barTag, barKeySet);
     ASSERT_TRUE(barKeySet.size() == 1);
-    document.addKey(barKey2);
 
+    document.addKey(barKey2);
     document.getTagKeys(barTag, barKeySet);
     ASSERT_TRUE(barKeySet.size() == 2);
 

@@ -7,20 +7,15 @@
 
 namespace yuca {
     void Document::getTags(std::set<std::string> &tagsOut) const {
+        tagsOut.clear();
         if (tagKeysMap.empty()) {
             return;
         }
         tagsOut = tags;
-        /**
-        auto it = tagKeysMap.begin();
-        while (it != tagKeysMap.end()) {
-            tagsOut.push_back(it->first);
-            it++;
-        }
-         */
     }
 
     void Document::getTagKeys(std::string const &tag, KeySet &keysOut) const {
+        keysOut.clear();
         KeySet keys;
         if (!hasKeys(tag)) {
             return;
@@ -33,7 +28,12 @@ namespace yuca {
         if (!hasKeys(tag)) {
             tagKeysMap.emplace(std::make_pair(tag, KeySet()));
         }
-        tagKeysMap.find(tag)->second.insert(key);
+        auto it = tagKeysMap.find(tag);
+        if (it != tagKeysMap.end()) {
+            std::cout << "inserting key " << key.getId() << ":" << key.getTag() << std::endl;
+            tagKeysMap[tag].insert(key);
+            std::cout << "now I have " << it->second.size() << " keys" << std::endl;
+        }
         tags.emplace(tag);
     }
 
@@ -61,11 +61,11 @@ namespace yuca {
         auto findIterator = keys.find(key);
 
         if (findIterator != keys.end()) {
-            Key k = *findIterator;
-            keys.erase(k);
+            tagKeysMap[tag].erase(key);
         }
 
         // once we know the keySet has been cleared we remove it altogether from our { string -> [key0, key1] } map.
+        getTagKeys(tag, keys);
         if (keys.empty()) {
             removeTag(tag);
         }
