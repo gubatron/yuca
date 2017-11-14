@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.8)
 project(yuca CXX)
 
 if(NOT DEFINED ENV{GTEST_DIR})
@@ -16,7 +16,8 @@ include_directories(src
 link_directories(${LIBTORRENT_ROOT}
                  ${GTEST_DIR})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++")
+
 set(CMAKE_BUILD_TYPE Debug)
 set(SOURCE_FILES
         src/yuca/yuca.cpp #gotta have at least one .cpp file, otherwise the compiler/linker freaks out

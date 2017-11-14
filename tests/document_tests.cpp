@@ -16,7 +16,7 @@ public:
         fooTag = ":foo";
         barTag = ":bar";
 
-        fooKey = Key(fooTag);
+        fooKey = Key(1,fooTag);
         barKey = Key(1, barTag);
         barKey2 = Key(2, barTag);
         document = Document();
@@ -112,7 +112,7 @@ TEST_F(DocumentTests, TestsIfSingleKeyCanBeRemoved) {
 
 TEST_F(DocumentTests, TestGetTags) {
     std::string zeeTag = "zeeTag:";
-    Key zeeKey(zeeTag);
+    Key zeeKey(7, zeeTag);
     document.addKey(zeeKey);
     document.addKey(fooKey);
     document.addKey(barKey);
@@ -137,10 +137,11 @@ TEST_F(DocumentTests, TestGetTags) {
 
 TEST_F(DocumentTests, TestRemoveTag) {
     std::string nameTag = "name:";
-    Key nameKey = Key(nameTag);
+    Key nameKey = Key(4, nameTag);
     document.addKey(nameKey);
     document.addKey(barKey);
     document.addKey(barKey2);
+
     KeySet nameTagKeys;
     document.getTagKeys("name:", nameTagKeys);
     KeySet::iterator foundKeys = nameTagKeys.find(barKey);
@@ -149,7 +150,10 @@ TEST_F(DocumentTests, TestRemoveTag) {
     ASSERT_FALSE(foundKeys == nameTagKeys.end());
     ASSERT_TRUE(*foundKeys == nameKey);
     ASSERT_TRUE(foundKeys == nameTagKeys.begin());
+    document.dumpToStream(std::cout);
     document.removeKey(nameTag, nameKey);
+    std::cout << std::endl << "after name: key removed" << std::endl;
+    document.dumpToStream(std::cout);
     document.getTagKeys("name:", nameTagKeys);
     ASSERT_TRUE(nameTagKeys.empty());
     KeySet barKeys;

@@ -16,9 +16,11 @@ namespace yuca {
 
         bool hasDocuments(Key const &key) const;
 
-        void getDocuments(Key const &key, DocumentSet &docsOut) const;
+        void getDocuments(Key const &key, DocumentSet &docs_out) const;
 
         long getKeyCount() const;
+
+        void dumpToStream(std::ostream &output_stream) const;
     };
 
     class Indexer {
@@ -27,9 +29,11 @@ namespace yuca {
 
         void removeDocument(Document const &doc); // TODO
 
-        void findDocuments(Key const &key, DocumentSet &docsOut) const;
+        void findDocuments(Key const &key, DocumentSet &docs_out) const;
 
-        void findDocuments(int numKeys, Key keys[], DocumentSet &docsOut) const;
+        void findDocuments(int numKeys, Key keys[], DocumentSet &docs_out) const;
+
+        void dumpToStream(std::ostream &output_stream) const;
 
     private:
         /**
@@ -47,7 +51,7 @@ namespace yuca {
          * Documents provide the indexer with the Keys to be used.
          *
          * */
-        void getReverseIndex(std::string const &tag, ReverseIndex &rIndexOut) const;
+        void getReverseIndex(std::string const &tag, ReverseIndex &r_index_out) const;
 
         void addToIndex(std::string const &tag, Document const &doc);
 

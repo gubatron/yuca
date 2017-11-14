@@ -18,9 +18,9 @@ public:
         fooTag = ":foo";
         barTag = ":bar";
 
-        fooKey = Key(fooTag);
-        fooKey2 = Key(fooTag);
-        barKey = Key(barTag);
+        fooKey = Key(1, fooTag);
+        fooKey2 = Key(2, fooTag);
+        barKey = Key(1, barTag);
 
         documentFoo = Document();
         documentFoo.addKey(fooKey);

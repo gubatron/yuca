@@ -16,17 +16,22 @@ namespace yuca {
         return index.count(key) > 0;
     }
 
-    void ReverseIndex::getDocuments(Key const &key, DocumentSet &docsOut) const {
-        docsOut.clear();
+    void ReverseIndex::getDocuments(Key const &key, DocumentSet &docs_out) const {
+        docs_out.clear();
         if (!hasDocuments(key)) {
             return;
         }
         auto it = index.find(key);
-        docsOut = it->second;
+        docs_out = it->second;
     }
 
     long ReverseIndex::getKeyCount() const {
         return index.size();
+    }
+
+    void ReverseIndex::dumpToStream(std::ostream &output_stream) const {
+        output_stream << "ReverseIndex::dumpToStream()";
+
     }
 
 
@@ -57,22 +62,22 @@ namespace yuca {
         // TODO
     }
 
-    void Indexer::findDocuments(Key const &key, DocumentSet &docsOut) const {
-        docsOut.clear();
+    void Indexer::findDocuments(Key const &key, DocumentSet &docs_out) const {
+        docs_out.clear();
         std::string tag = key.getTag();
         ReverseIndex rIndex;
         getReverseIndex(tag, rIndex);
-        rIndex.getDocuments(key, docsOut);
+        rIndex.getDocuments(key, docs_out);
     }
 
-    void Indexer::findDocuments(int numKeys, Key keys[], DocumentSet &docsOut) const {
+    void Indexer::findDocuments(int numKeys, Key keys[], DocumentSet &docs_out) const {
         for (int i = 0; i < numKeys; i++) {
             DocumentSet docs;
             findDocuments(keys[i], docs);
             if (!docs.empty()) {
                 auto it = docs.begin();
                 while (it != docs.end()) {
-                    docsOut.insert(*it);
+                    docs_out.insert(*it);
                     it++;
                 }
             }
@@ -106,12 +111,16 @@ namespace yuca {
         }
     }
 
-    void Indexer::getReverseIndex(std::string const &tag, ReverseIndex &rIndexOut) const {
+    void Indexer::getReverseIndex(std::string const &tag, ReverseIndex &r_index_out) const {
         if (reverseIndices.count(tag) == 0) {
-            rIndexOut = ReverseIndex();
+            r_index_out = ReverseIndex();
             return;
         }
         auto rIndexIterator = reverseIndices.find(tag);
-        rIndexOut = rIndexIterator->second;
+        r_index_out = rIndexIterator->second;
+    }
+
+    void Indexer::dumpToStream(std::ostream &output_stream) const {
+        output_stream << "Indexer::dumpToStream() invoked. TODO";
     }
 }
