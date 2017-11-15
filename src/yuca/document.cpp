@@ -31,7 +31,7 @@ namespace yuca {
         auto it = tag_2_keyset_map.find(tag);
         if (it != tag_2_keyset_map.end()) {
             //std::cout << "inserting key " << key.getId() << ":" << key.getTag() << std::endl;
-            tag_2_keyset_map[tag].insert(key);
+            tag_2_keyset_map[tag].insert(std::make_shared<Key>(key));
             //std::cout << "now I have " << it->second.size() << " keys" << std::endl;
         }
         tags.emplace(tag);
@@ -58,10 +58,11 @@ namespace yuca {
         KeySet keys;
         getTagKeys(tag, keys);
 
-        auto findIterator = keys.find(key);
+        auto key_sp = std::make_shared<Key>(key);
+        auto findIterator = keys.find(key_sp);
 
         if (findIterator != keys.end()) {
-            tag_2_keyset_map[tag].erase(key);
+            tag_2_keyset_map[tag].erase(key_sp);
         }
 
         // once we know the keySet has been cleared we remove it altogether from our { string -> [key0, key1] } map.
@@ -75,6 +76,7 @@ namespace yuca {
 //        std::cout << "Document::operator< : Comparing me(" << ((long) this) << ") vs other(" << ((long) &other) << ")"
 //                  << std::endl;
 //        std::cout.flush();
+        //TODO: revise this
         auto myMemory = (long) this;
         auto otherMemoryOffset = (long) &other;
         return myMemory < otherMemoryOffset;
@@ -82,6 +84,7 @@ namespace yuca {
 
     bool Document::operator==(Document other) const {
 //        std::cout << "Document::operator== !" << std::endl;
+        //TODO: revise this
         return (long) this == (long) &other;
     }
 
@@ -109,7 +112,7 @@ namespace yuca {
             output_stream << std::endl << "   tag=<" << tag << "> = [ ";
             auto keys_it = keys.begin();
             while (keys_it != keys.end()) {
-                (*keys_it).dumpToStream(output_stream);
+                (*keys_it)->dumpToStream(output_stream);
                 keys_it++;
                 if (keys_it != keys.end()) {
                     output_stream << ", ";

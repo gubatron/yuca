@@ -28,6 +28,6 @@ namespace yuca {
     }
 
     void Key::dumpToStream(std::ostream &output_stream) const {
-        output_stream << "Key(id=" << id << ", tag=" << tag << ") @" << (long) this;
+        output_stream << "Key(@" << (long) this << ", id=" << id << ", tag=" << tag << ")";
     }
 }

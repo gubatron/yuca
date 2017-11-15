@@ -51,6 +51,7 @@ public:
 TEST_F(IndexerTests, TestIndexDocument) {
     Indexer indexer;
     indexer.indexDocument(documentFoo);
+    indexer.dumpToStream(std::cout);
 
     DocumentSet fooKeyDocs;
     indexer.findDocuments(fooKey, fooKeyDocs);
@@ -74,20 +75,20 @@ TEST_F(IndexerTests, TestIndexDocument) {
     indexer.findDocuments(fooKey, fooFoundDocs);
     auto fooIterator = fooFoundDocs.begin();
     ASSERT_TRUE(fooIterator != fooFoundDocs.end());
-    ASSERT_TRUE(&*fooIterator == &documentFoo);
-    ASSERT_TRUE(&*fooIterator != &documentBar);
+    ASSERT_TRUE(**fooIterator == documentFoo);
+    ASSERT_FALSE(**fooIterator == documentBar);
 
     DocumentSet barFoundDocs;
     indexer.findDocuments(barKey, barFoundDocs);
     DocumentSet::iterator barIterator = barFoundDocs.begin();
     ASSERT_TRUE(barIterator != barFoundDocs.end());
-    Document firstBarFoundDoc = *barIterator;
-    ASSERT_TRUE(&firstBarFoundDoc == &documentBar);
-    ASSERT_TRUE(&firstBarFoundDoc != &documentFoo);
+    Document firstBarFoundDoc = **barIterator;
+    ASSERT_TRUE(firstBarFoundDoc == documentBar);
+    ASSERT_FALSE(firstBarFoundDoc == documentFoo);
 
     // search by the 2nd key (fooKey2)
     indexer.findDocuments(fooKey2, fooKey2Docs);
-    Document foundDoc = *fooKey2Docs.begin();
+    Document foundDoc = **fooKey2Docs.begin();
     ASSERT_TRUE(foundDoc == documentFoo);
 
     // add foo and bar key, index should now return 2 results by both keys
@@ -106,16 +107,16 @@ TEST_F(IndexerTests, TestIndexDocument) {
     ASSERT_TRUE(barDocs.size() == 2);
 
     fooIterator = fooDocs.begin();
-    ASSERT_TRUE(&*fooIterator == &documentFoo);
+    ASSERT_TRUE(**fooIterator == documentFoo);
     fooIterator++;
-    ASSERT_TRUE(&*fooIterator == &fooBarDoc);
+    ASSERT_TRUE(**fooIterator == fooBarDoc);
     fooIterator++;
     ASSERT_TRUE(fooIterator == fooDocs.end());
 
     barIterator = barDocs.begin();
-    ASSERT_TRUE(&*barIterator == &documentBar);
+    ASSERT_TRUE(**barIterator == documentBar);
     barIterator++;
-    ASSERT_TRUE(&*barIterator == &fooBarDoc);
+    ASSERT_TRUE(**barIterator == fooBarDoc);
     barIterator++;
     ASSERT_TRUE(barIterator == barDocs.end());
 
@@ -130,12 +131,12 @@ TEST_F(IndexerTests, TestIndexDocument) {
 
     // add foo documents
     while (fooIterator != fooDocs.end()) {
-        indexerMultiKey.indexDocument(*fooIterator);
+        indexerMultiKey.indexDocument(**fooIterator);
         fooIterator++;
         nDocsIndexed++;
     }
     while (barIterator != barDocs.end()) {
-        indexerMultiKey.indexDocument(*barIterator);
+        indexerMultiKey.indexDocument(**barIterator);
         barIterator++;
         nDocsIndexed++;
     }

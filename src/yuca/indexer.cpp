@@ -9,7 +9,9 @@ namespace yuca {
         }
         DocumentSet docs;
         getDocuments(key, docs);
-        docs.emplace(doc);
+        auto doc_dp = std::make_shared<Document>(doc);
+        docs.emplace(doc_dp);
+        index[key]=docs;
     }
 
     bool ReverseIndex::hasDocuments(Key const &key) const {
@@ -30,8 +32,34 @@ namespace yuca {
     }
 
     void ReverseIndex::dumpToStream(std::ostream &output_stream) const {
-        output_stream << "ReverseIndex::dumpToStream()";
-
+        output_stream << "ReverseIndex(@" << (long) this << "):" << std::endl;
+        auto it = index.begin();
+        if (it == index.end()) {
+            output_stream << "<empty>" << std::endl;
+        } else {
+            // index = { Key => DocumentSet }
+            while (it != index.end()) {
+                output_stream << " ";
+                (*it).first.dumpToStream(output_stream);
+                output_stream << " => ";
+                auto docset_it = (*it).second.begin();
+                if (docset_it == (*it).second.end()) {
+                    output_stream << "<empty>" << std::endl;
+                } else {
+                    output_stream << "[";
+                    while (docset_it != (*it).second.end()) {
+                        (*docset_it)->dumpToStream(output_stream);
+                        docset_it++;
+                        if (docset_it != (*it).second.end()) {
+                            output_stream << ", ";
+                        }
+                    }
+                    output_stream << "]" << std::endl;
+                }
+                it++;
+            }
+        }
+        output_stream.flush();
     }
 
 
@@ -85,30 +113,61 @@ namespace yuca {
     }
 
     void Indexer::addToIndex(std::string const &tag, Document const &doc) {
-        KeySet keys;
-        doc.getTagKeys(tag, keys);
-        if (keys.empty()) {
-            std::cout << "Indexer::addToIndex(" << tag << "): check your logic, document has no keys under this tag <"
+        KeySet doc_keys;
+        doc.getTagKeys(tag, doc_keys);
+        if (doc_keys.empty()) {
+            std::cout << "Indexer::addToIndex(" << tag << "): check your logic, document has no doc_keys under this tag <"
                       << tag << ">" << std::endl;
             return;
         }
 
+        std::cout << "Indexer::addToIndex(tag=" << tag << " doc=";
+        doc.dumpToStream(std::cout);
+        std::cout << ")" << std::endl;
+        std::cout.flush();
+        std::cout << "How does the index look before adding the document?" << std::endl;
+        std::cout.flush();
+        dumpToStream(std::cout);
+        std::cout << std::endl;
+        std::cout << std::endl;
+        std::cout.flush();
+
         // Make sure there's a ReverseIndex, if there isn't one, create an empty one
-        std::set<std::string> tags;
-        doc.getTags(tags);
-        ReverseIndex rIndex;
-        getReverseIndex(tag, rIndex);
-        if (rIndex.getKeyCount() == 0) {
-            reverseIndices.emplace(std::make_pair(tag, ReverseIndex()));
-            getReverseIndex(tag, rIndex);
+        ReverseIndex r_index;
+        getReverseIndex(tag, r_index);
+        if (r_index.getKeyCount() == 0) {
+            reverseIndices.emplace(std::make_pair(tag, std::make_shared<ReverseIndex>(ReverseIndex())));
+            getReverseIndex(tag, r_index);
+            std::cout << "We've created a fresh new ReverseIndex on tag=" << tag << ", how does it look now?" << std::endl;
+            std::cout.flush();
+            r_index.dumpToStream(std::cout);
         }
 
-        auto keysIterator = keys.begin();
-        while (keysIterator != keys.end()) {
-            Key key = *keysIterator;
-            rIndex.putDocument(key, doc);
-            keysIterator++;
+        getReverseIndex(tag, r_index); // TODO: Check if we don't need this line anymore
+        auto doc_keys_iterator = doc_keys.begin();
+        while (doc_keys_iterator != doc_keys.end()) {
+            std::shared_ptr<Key> k_sp = *doc_keys_iterator;
+            r_index.putDocument(*k_sp, doc);
+            std::cout << "    r_index.putDocument(key=";
+            k_sp->dumpToStream(std::cout);
+            std::cout << ", doc=";
+            doc.dumpToStream(std::cout);
+            std::cout << ")" << std::endl;
+            std::cout.flush();
+            std::cout << std::endl;
+            std::cout << "r_index after putDocument -> " << std::endl;
+            r_index.dumpToStream(std::cout);
+            std::cout << "------" << std::endl;
+            doc_keys_iterator++;
         }
+        reverseIndices[tag] = std::make_shared<ReverseIndex>(r_index);
+
+        std::cout << std::endl << " documents added to r_index" << std::endl;
+        std::cout << "How does the index look now?" << std::endl;
+        std::cout.flush();
+        dumpToStream(std::cout);
+        std::cout << std::endl;
+        std::cout.flush();
     }
 
     void Indexer::getReverseIndex(std::string const &tag, ReverseIndex &r_index_out) const {
@@ -117,10 +176,27 @@ namespace yuca {
             return;
         }
         auto rIndexIterator = reverseIndices.find(tag);
-        r_index_out = rIndexIterator->second;
+        r_index_out = *rIndexIterator->second;
     }
 
     void Indexer::dumpToStream(std::ostream &output_stream) const {
-        output_stream << "Indexer::dumpToStream() invoked. TODO";
+        //std::map<std::string, ReverseIndex> reverseIndices;
+        output_stream << "Indexer(@" << (long) this << "): " << std::endl;
+        output_stream << " reverseIndices = { ";
+
+        auto it = reverseIndices.begin();
+        if (it == reverseIndices.end()) {
+            output_stream << "<empty>";
+        } else {
+            while (it != reverseIndices.end()) {
+                output_stream << "   " << (*it).first << " => ";
+                (*it).second->dumpToStream(output_stream);
+                output_stream << std::endl;
+                it++;
+            }
+        }
+
+        output_stream << "}";
+        output_stream.flush();
     }
 }

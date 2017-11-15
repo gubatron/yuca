@@ -56,20 +56,20 @@ TEST_F(DocumentTests, TestIfKeyCanBeAdded) {
     ASSERT_TRUE(barKeys.size() == 2);
 
     // make sure it's the same one we've added
-    auto it = fooKeys.find(fooKey);
+    auto it = fooKeys.find(std::make_shared<Key>(fooKey));
     ASSERT_TRUE(fooKeys.size() == 1);
     ASSERT_FALSE(it == fooKeys.end());
-    ASSERT_TRUE((*it) == fooKey);
-    ASSERT_TRUE((*it).getTag() == fooTag);
+    ASSERT_TRUE(**it == fooKey);
+    ASSERT_TRUE((*it)->getTag() == fooTag);
 
-    it = barKeys.find(barKey);
-    Key isThisBarKey = *it;
+    it = barKeys.find(std::make_shared<Key>(barKey));
+    Key isThisBarKey = **it;
     std::cout << "tag found? " << isThisBarKey.getTag() << std::endl;
     ASSERT_TRUE(isThisBarKey.getTag() == barTag);
     ASSERT_TRUE(isThisBarKey == barKey);
 
     it++;
-    Key isThisBarkey2 = *it;
+    Key isThisBarkey2 = **it;
     ASSERT_TRUE(isThisBarkey2.getTag() == barTag);
     ASSERT_TRUE(isThisBarkey2 == barKey2);
 
@@ -98,16 +98,16 @@ TEST_F(DocumentTests, TestsIfSingleKeyCanBeRemoved) {
     document.getTagKeys(fooTag, fooKeySet);
     ASSERT_TRUE(fooKeySet.size() == 0);
 
-    KeySet::iterator it_not_there = fooKeySet.find(fooKey);
+    KeySet::iterator it_not_there = fooKeySet.find(std::make_shared<Key>(fooKey));
     ASSERT_TRUE(it_not_there == fooKeySet.end());
 
     document.getTagKeys(barTag, barKeySet);
-    KeySet::iterator bar_there = barKeySet.find(barKey);
-    ASSERT_TRUE(*bar_there == barKey);
+    KeySet::iterator bar_there = barKeySet.find(std::make_shared<Key>(barKey));
+    ASSERT_TRUE(**bar_there == barKey);
 
-    KeySet::iterator bar2_there = barKeySet.find(barKey2);
+    KeySet::iterator bar2_there = barKeySet.find(std::make_shared<Key>(barKey2));
     ASSERT_TRUE(bar2_there != barKeySet.end());
-    ASSERT_TRUE(*bar2_there == barKey2);
+    ASSERT_TRUE(**bar2_there == barKey2);
 }
 
 TEST_F(DocumentTests, TestGetTags) {
@@ -144,11 +144,11 @@ TEST_F(DocumentTests, TestRemoveTag) {
 
     KeySet nameTagKeys;
     document.getTagKeys("name:", nameTagKeys);
-    KeySet::iterator foundKeys = nameTagKeys.find(barKey);
+    KeySet::iterator foundKeys = nameTagKeys.find(std::make_shared<Key>(barKey));
     ASSERT_TRUE(foundKeys == nameTagKeys.end()); //assert not found
-    foundKeys = nameTagKeys.find(nameKey);
+    foundKeys = nameTagKeys.find(std::make_shared<Key>(nameKey));
     ASSERT_FALSE(foundKeys == nameTagKeys.end());
-    ASSERT_TRUE(*foundKeys == nameKey);
+    ASSERT_TRUE(**foundKeys == nameKey);
     ASSERT_TRUE(foundKeys == nameTagKeys.begin());
     document.dumpToStream(std::cout);
     document.removeKey(nameTag, nameKey);

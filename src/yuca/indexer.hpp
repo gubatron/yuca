@@ -55,7 +55,7 @@ namespace yuca {
 
         void addToIndex(std::string const &tag, Document const &doc);
 
-        std::map<std::string, ReverseIndex> reverseIndices;
+        std::map<std::string, std::shared_ptr<ReverseIndex>> reverseIndices;
     };
 }
 
