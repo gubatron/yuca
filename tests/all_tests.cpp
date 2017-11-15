@@ -5,7 +5,7 @@
 #ifndef YUCA_ALL_TESTS_H
 #define YUCA_ALL_TESTS_H
 
-#include "document_tests.cpp"
+//#include "document_tests.cpp"
 #include "indexer_tests.cpp"
 
 int main(int argc, char** argv) {

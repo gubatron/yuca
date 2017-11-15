@@ -7,15 +7,11 @@
 
 namespace yuca {
     bool Key::operator<(const Key &right_side) const {
-//        std::cout << "Key::operator< : Comparing me(" << tag << ":" << id << ") vs other(" << right_side.tag << ":" << right_side.id << ")" << std::endl;
-//        std::cout << "result => " << (tag.compare(right_side.getTag()) < 0 && id < right_side.id) << std::endl;
-//        std::cout.flush();
-        return id < right_side.id;
+        return id < right_side.id ||
+               (!(id > right_side.id));
     }
 
     bool Key::operator==(const Key &other) const {
-//        std::cout << "Key::operator== : Comparing me(" << tag << ") vs other(" << other.tag << ")" << std::endl;
-//        std::cout.flush();
         return id == other.id;
     }
 

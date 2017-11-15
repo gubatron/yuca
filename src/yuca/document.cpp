@@ -23,16 +23,14 @@ namespace yuca {
         keys_out = tag_2_keyset_map.find(tag)->second;
     }
 
-    void Document::addKey(const Key &key) {
-        std::string tag(key.getTag());
+    void Document::addKey(std::shared_ptr<Key> key) {
+        std::string tag(key->getTag());
         if (!hasKeys(tag)) {
             tag_2_keyset_map.emplace(std::make_pair(tag, KeySet()));
         }
         auto it = tag_2_keyset_map.find(tag);
         if (it != tag_2_keyset_map.end()) {
-            //std::cout << "inserting key " << key.getId() << ":" << key.getTag() << std::endl;
-            tag_2_keyset_map[tag].insert(std::make_shared<Key>(key));
-            //std::cout << "now I have " << it->second.size() << " keys" << std::endl;
+            tag_2_keyset_map[tag].insert(key);
         }
         tags.emplace(tag);
     }
@@ -50,7 +48,7 @@ namespace yuca {
         tags.erase(tag);
     }
 
-    void Document::removeKey(std::string const &tag, Key const &key) {
+    void Document::removeKey(std::string const &tag, std::shared_ptr<Key> key) {
         if (!hasKeys(tag)) {
             return;
         }
@@ -58,11 +56,10 @@ namespace yuca {
         KeySet keys;
         getTagKeys(tag, keys);
 
-        auto key_sp = std::make_shared<Key>(key);
-        auto findIterator = keys.find(key_sp);
+        auto findIterator = keys.find(key);
 
         if (findIterator != keys.end()) {
-            tag_2_keyset_map[tag].erase(key_sp);
+            tag_2_keyset_map[tag].erase(key);
         }
 
         // once we know the keySet has been cleared we remove it altogether from our { string -> [key0, key1] } map.
@@ -72,18 +69,14 @@ namespace yuca {
         }
     }
 
-    bool Document::operator<(Document other) const {
-//        std::cout << "Document::operator< : Comparing me(" << ((long) this) << ") vs other(" << ((long) &other) << ")"
-//                  << std::endl;
-//        std::cout.flush();
+    bool Document::operator<(const Document &other) const {
         //TODO: revise this
         auto myMemory = (long) this;
         auto otherMemoryOffset = (long) &other;
         return myMemory < otherMemoryOffset;
     }
 
-    bool Document::operator==(Document other) const {
-//        std::cout << "Document::operator== !" << std::endl;
+    bool Document::operator==(const Document &other) const {
         //TODO: revise this
         return (long) this == (long) &other;
     }
@@ -122,11 +115,11 @@ namespace yuca {
             t2k_it++;
             if (t2k_it != tag_2_keyset_map.end()) {
                 output_stream << "," << std::endl;
-            } else {
+            } /*else {
                 output_stream << std::endl;
-            }
+            }*/
         }
-        output_stream << std::endl << "  }" << std::endl << "--" << std::endl;
+        output_stream << std::endl << " }";
         output_stream.flush();
     }
 }

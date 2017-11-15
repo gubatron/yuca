@@ -10,13 +10,13 @@
 namespace yuca {
 
     struct ReverseIndex {
-        std::map<Key, DocumentSet> index;
+        std::map<std::shared_ptr<Key>, DocumentSet> index;
 
-        void putDocument(Key const &key, Document const &doc);
+        void putDocument(std::shared_ptr<Key> key, std::shared_ptr<Document> doc);
 
-        bool hasDocuments(Key const &key) const;
+        bool hasDocuments(std::shared_ptr<Key> key) const;
 
-        void getDocuments(Key const &key, DocumentSet &docs_out) const;
+        void getDocuments(std::shared_ptr<Key> key, DocumentSet &docs_out) const;
 
         long getKeyCount() const;
 
@@ -25,13 +25,13 @@ namespace yuca {
 
     class Indexer {
     public:
-        void indexDocument(Document const &doc);
+        void indexDocument(std::shared_ptr<Document> doc);
 
-        void removeDocument(Document const &doc); // TODO
+        void removeDocument(std::shared_ptr<Document> doc); // TODO
 
-        void findDocuments(Key const &key, DocumentSet &docs_out) const;
+        void findDocuments(std::shared_ptr<Key> key, DocumentSet &docs_out) const;
 
-        void findDocuments(int numKeys, Key keys[], DocumentSet &docs_out) const;
+        void findDocuments(int numKeys, std::shared_ptr<Key> keys[], DocumentSet &docs_out) const;
 
         void dumpToStream(std::ostream &output_stream) const;
 
@@ -51,9 +51,9 @@ namespace yuca {
          * Documents provide the indexer with the Keys to be used.
          *
          * */
-        void getReverseIndex(std::string const &tag, ReverseIndex &r_index_out) const;
+        void getReverseIndex(std::string const &tag, std::shared_ptr<ReverseIndex> &r_index_out) const;
 
-        void addToIndex(std::string const &tag, Document const &doc);
+        void addToIndex(std::string const &tag, std::shared_ptr<Document> doc);
 
         std::map<std::string, std::shared_ptr<ReverseIndex>> reverseIndices;
     };
