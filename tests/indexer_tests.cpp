@@ -21,7 +21,7 @@ public:
 
         foo_key_sp = std::make_shared<Key>(1, foo_tag);
         foo_key2_sp = std::make_shared<Key>(2, foo_tag);
-        barKey_sp = std::make_shared<Key>(1, bar_tag);
+        bar_key_sp = std::make_shared<Key>(1, bar_tag);
 
         document_foo_sp = std::make_shared<Document>();
         document_foo_sp->addKey(foo_key_sp);
@@ -29,7 +29,7 @@ public:
 
 
         document_bar_sp = std::make_shared<Document>();
-        document_bar_sp->addKey(barKey_sp);
+        document_bar_sp->addKey(bar_key_sp);
         
 
         // A Document can have many keys.
@@ -44,7 +44,7 @@ public:
     std::shared_ptr<Key> foo_key2_sp;
 
     std::string bar_tag;
-    std::shared_ptr<Key> barKey_sp;
+    std::shared_ptr<Key> bar_key_sp;
 
     std::shared_ptr<Document> document_foo_sp;
     std::shared_ptr<Document> document_bar_sp;
@@ -61,99 +61,105 @@ TEST_F(IndexerTests, TestIndexDocument) {
     indexer.indexDocument(document_foo_sp);
     indexer.dumpToStream(std::cout);
 
-    DocumentSet fooKeyDocs;
-    indexer.findDocuments(foo_key_sp, fooKeyDocs);
+    DocumentSet foo_key_docs;
+    indexer.findDocuments(foo_key_sp, foo_key_docs);
 
-    ASSERT_TRUE(fooKeyDocs.size() == 1);
+    ASSERT_TRUE(foo_key_docs.size() == 1);
 
-    DocumentSet barKeyDocs;
-    indexer.findDocuments(barKey_sp, barKeyDocs);
-    ASSERT_TRUE(barKeyDocs.size() == 0);
+    DocumentSet bar_key_docs;
+    indexer.findDocuments(bar_key_sp, bar_key_docs);
+    ASSERT_TRUE(bar_key_docs.size() == 0);
 
-    DocumentSet fooKey2Docs;
-    indexer.findDocuments(foo_key2_sp, fooKey2Docs);
-    ASSERT_TRUE(fooKey2Docs.size() == 1);
+    DocumentSet foo_key2_docs;
+    indexer.findDocuments(foo_key2_sp, foo_key2_docs);
+    ASSERT_TRUE(foo_key2_docs.size() == 1);
 
     indexer.indexDocument(document_bar_sp);
-    indexer.findDocuments(barKey_sp, barKeyDocs);
-    ASSERT_TRUE(barKeyDocs.size() == 1);
+    indexer.findDocuments(bar_key_sp, bar_key_docs);
+    ASSERT_TRUE(bar_key_docs.size() == 1);
 
     // search by the first key (fooKey)
-    DocumentSet fooFoundDocs;
-    indexer.findDocuments(foo_key_sp, fooFoundDocs);
-    auto fooIterator = fooFoundDocs.begin();
-    ASSERT_TRUE(fooIterator != fooFoundDocs.end());
-    ASSERT_TRUE(**fooIterator == *document_foo_sp.get());
-    ASSERT_FALSE(**fooIterator == *document_bar_sp.get());
+    DocumentSet foo_found_docs;
+    indexer.findDocuments(foo_key_sp, foo_found_docs);
+    auto foo_it = foo_found_docs.begin();
+    ASSERT_TRUE(foo_it != foo_found_docs.end());
+    ASSERT_TRUE(**foo_it == *document_foo_sp.get());
+    ASSERT_FALSE(**foo_it == *document_bar_sp.get());
 
-    DocumentSet barFoundDocs;
-    indexer.findDocuments(barKey_sp, barFoundDocs);
-    DocumentSet::iterator barIterator = barFoundDocs.begin();
-    ASSERT_TRUE(barIterator != barFoundDocs.end());
-    Document firstBarFoundDoc = **barIterator;
-    ASSERT_TRUE(**firstBarFoundDoc == document_bar_sp.get());
-    ASSERT_FALSE(**firstBarFoundDoc == document_foo_sp);
+    DocumentSet bar_found_docs;
+    indexer.findDocuments(bar_key_sp, bar_found_docs);
+    DocumentSet::iterator bar_it = bar_found_docs.begin();
+    ASSERT_TRUE(bar_it != bar_found_docs.end());
+
+    Document &first_bar_found_doc = **bar_it;
+    ASSERT_TRUE(first_bar_found_doc == *document_bar_sp);
+    ASSERT_FALSE(first_bar_found_doc == *document_foo_sp);
 
     // search by the 2nd key (fooKey2)
-    indexer.findDocuments(foo_key2_sp, fooKey2Docs);
-    Document foundDoc = **fooKey2Docs.begin();
-    ASSERT_TRUE(foundDoc == document_foo);
+    indexer.findDocuments(foo_key2_sp, foo_key2_docs);
+    Document &found_doc = **foo_key2_docs.begin();
+    ASSERT_TRUE(found_doc == *document_foo_sp);
 
     // add foo and bar key, index should now return 2 results by both keys
-    Document fooBarDoc;
-    fooBarDoc.addKey(foo_key_sp);
-    fooBarDoc.addKey(barKey_sp);
-    std::shared_ptr<Document> fooBarDoc_sp = std::make_shared<Document>(fooBarDoc);
-    indexer.indexDocument(fooBarDoc_sp);
+    std::shared_ptr<Document> foo_bar_doc_sp = std::make_shared<Document>();
+    foo_bar_doc_sp->addKey(foo_key_sp);
+    foo_bar_doc_sp->addKey(bar_key_sp);
 
+    indexer.indexDocument(foo_bar_doc_sp);
 
-    DocumentSet fooDocs;
-    indexer.findDocuments(foo_key_sp, fooDocs);
-    ASSERT_TRUE(fooDocs.size() == 2);
+    DocumentSet foo_docs;
+    indexer.findDocuments(foo_key_sp, foo_docs);
+    ASSERT_TRUE(foo_docs.size() == 2);
 
-    DocumentSet barDocs;
-    indexer.findDocuments(barKey_sp, barDocs);
-    ASSERT_TRUE(barDocs.size() == 2);
+    DocumentSet bar_docs;
+    indexer.findDocuments(bar_key_sp, bar_docs);
+    ASSERT_TRUE(bar_docs.size() == 2);
 
-    fooIterator = fooDocs.begin();
-    ASSERT_TRUE(**fooIterator == document_foo);
-    fooIterator++;
-    ASSERT_TRUE(**fooIterator == fooBarDoc);
-    fooIterator++;
-    ASSERT_TRUE(fooIterator == fooDocs.end());
+    foo_it = foo_docs.begin();
+    ASSERT_TRUE(**foo_it == *document_foo_sp);
+    foo_it++;
+    ASSERT_TRUE(**foo_it == *foo_bar_doc_sp);
+    foo_it++;
+    ASSERT_TRUE(foo_it == foo_docs.end());
 
-    barIterator = barDocs.begin();
-    ASSERT_TRUE(**barIterator == document_bar);
-    barIterator++;
-    ASSERT_TRUE(**barIterator == fooBarDoc);
-    barIterator++;
-    ASSERT_TRUE(barIterator == barDocs.end());
+    bar_it = bar_docs.begin();
+    ASSERT_TRUE(**bar_it == *document_bar_sp);
+    bar_it++;
+    ASSERT_TRUE(**bar_it == *foo_bar_doc_sp);
+    bar_it++;
+    ASSERT_TRUE(bar_it == bar_docs.end());
 
     //////////////////////////////
     // multiple key search tests
     //////////////////////////////
 
-    Indexer indexerMultiKey;
-    fooIterator = fooDocs.begin();
-    barIterator = barDocs.begin();
-    int nDocsIndexed = 0;
+    Indexer indexer_multi_key;
+    foo_it = foo_docs.begin();
+    bar_it = bar_docs.begin();
+    DocumentSet indexed_docs_checker;
+    int n_docs_indexed = 0;
 
     // add foo documents
-    while (fooIterator != fooDocs.end()) {
-        indexerMultiKey.indexDocument(*fooIterator);
-        fooIterator++;
-        nDocsIndexed++;
+    while (foo_it != foo_docs.end()) {
+        indexer_multi_key.indexDocument(*foo_it);
+        indexed_docs_checker.insert(*foo_it);
+        (**foo_it).dumpToStream(std::cout);
+        foo_it++;
+        n_docs_indexed = indexed_docs_checker.size();
     }
-    while (barIterator != barDocs.end()) {
-        indexerMultiKey.indexDocument(*barIterator);
-        barIterator++;
-        nDocsIndexed++;
+    while (bar_it != bar_docs.end()) {
+        indexer_multi_key.indexDocument(*bar_it);
+        indexed_docs_checker.insert(*bar_it);
+        (**bar_it).dumpToStream(std::cout);
+        bar_it++;
+        n_docs_indexed = indexed_docs_checker.size();
     }
-    std::shared_ptr<Key> keys[] = { foo_key_sp, barKey_sp };
-    DocumentSet multiIndexDocSet;
-    indexerMultiKey.findDocuments(2, keys, multiIndexDocSet);
-    std::cout << "Docs found: " << multiIndexDocSet.size();
-    ASSERT_TRUE(multiIndexDocSet.size() == nDocsIndexed);
+    std::shared_ptr<Key> keys[] = { foo_key_sp, bar_key_sp };
+    DocumentSet multi_index_doc_set;
+    indexer_multi_key.findDocuments(2, keys, multi_index_doc_set);
+    std::cout << "Docs found: " << multi_index_doc_set.size();
+
+    ASSERT_TRUE(multi_index_doc_set.size() == n_docs_indexed);
 }
 
 #endif

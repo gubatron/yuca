@@ -24,6 +24,7 @@ namespace yuca {
     }
 
     void Key::dumpToStream(std::ostream &output_stream) const {
-        output_stream << "Key(@" << (long) this << ", id=" << id << ", tag=" << tag << ")";
+        output_stream << "Key(@" << ((long) this % 10000) << ", id=" << id << ", tag=" << tag << ")";
+        output_stream.flush();
     }
 }

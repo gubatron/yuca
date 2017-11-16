@@ -32,14 +32,14 @@ public:
 
 
 TEST_F(DocumentTests, TestIfKeyCanBeAdded) {
-    KeySet isEmpty;
-    document_sp->getTagKeys(foo_tag, isEmpty);
-    ASSERT_TRUE(isEmpty.empty());
+    KeySet is_empty;
+    document_sp->getTagKeys(foo_tag, is_empty);
+    ASSERT_TRUE(is_empty.empty());
 
     document_sp->addKey(foo_key_sp);
-    KeySet fooKeys;
-    document_sp->getTagKeys(foo_tag, fooKeys);
-    ASSERT_TRUE(fooKeys.size() == 1);
+    KeySet foo_keys;
+    document_sp->getTagKeys(foo_tag, foo_keys);
+    ASSERT_TRUE(foo_keys.size() == 1);
 
     if (bar_key_sp.get() < bar_key2_sp.get()) {
         std::cout << "bar_key < bar_key2 indeed" << std::endl;
@@ -50,51 +50,51 @@ TEST_F(DocumentTests, TestIfKeyCanBeAdded) {
     document_sp->addKey(bar_key_sp);
     document_sp->addKey(bar_key2_sp);
 
-    KeySet barKeys;
-    document_sp->getTagKeys(bar_tag, barKeys);
-    ASSERT_TRUE(barKeys.size() == 2);
+    KeySet bar_keys;
+    document_sp->getTagKeys(bar_tag, bar_keys);
+    ASSERT_TRUE(bar_keys.size() == 2);
 
     // make sure it's the same one we've added
 
-    auto it = fooKeys.find(foo_key_sp);
-    if (it == fooKeys.end()) {
+    auto it = foo_keys.find(foo_key_sp);
+    if (it == foo_keys.end()) {
         std::cout << "Couldn't find fooKey even though we just added it. What the hell do we have here then?" << std::endl;
-        it = fooKeys.begin();
+        it = foo_keys.begin();
         (*it)->dumpToStream(std::cout);
         std::cout << std::endl << "vs" << std::endl;
         foo_key_sp->dumpToStream(std::cout);
         std::cout << std::endl << "------------------------" << std::endl;
         FAIL();
     }
-    ASSERT_TRUE(fooKeys.size() == 1);
-    ASSERT_FALSE(it == fooKeys.end());
+    ASSERT_TRUE(foo_keys.size() == 1);
+    ASSERT_FALSE(it == foo_keys.end());
     ASSERT_TRUE(*it == foo_key_sp);
     ASSERT_TRUE(**it == *foo_key_sp.get());
     ASSERT_TRUE((*it)->getTag() == foo_tag);
 
-    it = barKeys.find(bar_key_sp);
+    it = bar_keys.find(bar_key_sp);
     Key isThisBarKey = **it;
     std::cout << "tag found? " << isThisBarKey.getTag() << std::endl;
     ASSERT_TRUE(isThisBarKey.getTag() == bar_tag);
     ASSERT_TRUE(isThisBarKey == *bar_key_sp.get());
 
     it++;
-    Key isThisBarkey2 = **it;
-    ASSERT_TRUE(isThisBarkey2.getTag() == bar_tag);
-    ASSERT_TRUE(isThisBarkey2 == *bar_key2_sp.get());
+    Key is_this_bar_key2 = **it;
+    ASSERT_TRUE(is_this_bar_key2.getTag() == bar_tag);
+    ASSERT_TRUE(is_this_bar_key2 == *bar_key2_sp.get());
 
     // now let's try adding the same element again, size should be the same as we're dealing with a set of unique keys
     document_sp->addKey(bar_key_sp);
-    document_sp->getTagKeys(bar_tag, barKeys);
-    ASSERT_TRUE(barKeys.size() == 2);
+    document_sp->getTagKeys(bar_tag, bar_keys);
+    ASSERT_TRUE(bar_keys.size() == 2);
 }
 
 TEST_F(DocumentTests, TestsIfSingleKeyCanBeRemoved) {
     document_sp->addKey(foo_key_sp);
     document_sp->addKey(bar_key_sp);
-    KeySet fooKeySet;
-    document_sp->getTagKeys(foo_tag, fooKeySet);
-    ASSERT_TRUE(fooKeySet.size() == 1);
+    KeySet foo_key_set;
+    document_sp->getTagKeys(foo_tag, foo_key_set);
+    ASSERT_TRUE(foo_key_set.size() == 1);
 
     KeySet barKeySet;
     document_sp->getTagKeys(bar_tag, barKeySet);
@@ -105,11 +105,11 @@ TEST_F(DocumentTests, TestsIfSingleKeyCanBeRemoved) {
     ASSERT_TRUE(barKeySet.size() == 2);
 
     document_sp->removeKey(foo_tag, foo_key_sp);
-    document_sp->getTagKeys(foo_tag, fooKeySet);
-    ASSERT_TRUE(fooKeySet.size() == 0);
+    document_sp->getTagKeys(foo_tag, foo_key_set);
+    ASSERT_TRUE(foo_key_set.size() == 0);
 
-    KeySet::iterator it_not_there = fooKeySet.find(foo_key_sp);
-    ASSERT_TRUE(it_not_there == fooKeySet.end());
+    KeySet::iterator it_not_there = foo_key_set.find(foo_key_sp);
+    ASSERT_TRUE(it_not_there == foo_key_set.end());
 
     document_sp->getTagKeys(bar_tag, barKeySet);
     KeySet::iterator bar_there = barKeySet.find(bar_key_sp);
@@ -121,11 +121,10 @@ TEST_F(DocumentTests, TestsIfSingleKeyCanBeRemoved) {
 }
 
 TEST_F(DocumentTests, TestGetTags) {
-    std::string zeeTag = ":zeeTag";
-    Key zeeKey(7, zeeTag);
-    auto zeeKey_sp = std::make_shared<Key>(zeeKey);
+    std::string zee_tag = ":zee";
+    auto zee_key_sp = std::make_shared<Key>(7, zee_tag);
 
-    document_sp->addKey(zeeKey_sp);
+    document_sp->addKey(zee_key_sp);
     document_sp->addKey(foo_key_sp);
     document_sp->addKey(bar_key_sp);
 
@@ -144,37 +143,36 @@ TEST_F(DocumentTests, TestGetTags) {
     it = tags.begin();
     ASSERT_TRUE(*it++ == bar_tag);
     ASSERT_TRUE(*it++ == foo_tag);
-    ASSERT_TRUE(*it == zeeTag);
+    ASSERT_TRUE(*it == zee_tag);
 }
 
 TEST_F(DocumentTests, TestRemoveTag) {
-    std::string nameTag = ":name";
-    Key nameKey = Key(4, nameTag);
-    auto nameKey_sp = std::make_shared<Key>(nameKey);
-    document_sp->addKey(nameKey_sp);
+    std::string name_tag = ":name";
+    auto name_key_sp = std::make_shared<Key>(4, name_tag);
+    document_sp->addKey(name_key_sp);
     document_sp->addKey(bar_key_sp);
     document_sp->addKey(bar_key2_sp);
 
-    KeySet nameTagKeys;
-    document_sp->getTagKeys(":name", nameTagKeys);
-    KeySet::iterator foundKeys = nameTagKeys.find(bar_key_sp);
-    ASSERT_TRUE(foundKeys == nameTagKeys.end()); //assert not found
-    foundKeys = nameTagKeys.find(nameKey_sp);
-    ASSERT_FALSE(foundKeys == nameTagKeys.end());
-    ASSERT_TRUE(**foundKeys == nameKey);
-    ASSERT_TRUE(foundKeys == nameTagKeys.begin());
+    KeySet name_tag_keys;
+    document_sp->getTagKeys(":name", name_tag_keys);
+    KeySet::iterator found_keys = name_tag_keys.find(bar_key_sp);
+    ASSERT_TRUE(found_keys == name_tag_keys.end()); //assert not found
+    found_keys = name_tag_keys.find(name_key_sp);
+    ASSERT_FALSE(found_keys == name_tag_keys.end());
+    ASSERT_TRUE(**found_keys == *name_key_sp);
+    ASSERT_TRUE(found_keys == name_tag_keys.begin());
     document_sp->dumpToStream(std::cout);
-    document_sp->removeKey(nameTag, nameKey_sp);
+    document_sp->removeKey(name_tag, name_key_sp);
     std::cout << std::endl << "after :name key removed" << std::endl;
-    document_sp->dumpToStream(std::cout);
-    document_sp->getTagKeys(":name", nameTagKeys);
-    ASSERT_TRUE(nameTagKeys.empty());
-    KeySet barKeys;
-    document_sp->getTagKeys(bar_key_sp->getTag(), barKeys);
-    ASSERT_TRUE(barKeys.size() == 2);
+    //document_sp->dumpToStream(std::cout);
+    document_sp->getTagKeys(":name", name_tag_keys);
+    ASSERT_TRUE(name_tag_keys.empty());
+    KeySet bar_keys;
+    document_sp->getTagKeys(bar_key_sp->getTag(), bar_keys);
+    ASSERT_TRUE(bar_keys.size() == 2);
     document_sp->removeTag(bar_key_sp->getTag());
-    document_sp->getTagKeys(bar_key_sp->getTag(), barKeys);
-    ASSERT_TRUE(barKeys.empty());
+    document_sp->getTagKeys(bar_key_sp->getTag(), bar_keys);
+    ASSERT_TRUE(bar_keys.empty());
 }
 
 #endif

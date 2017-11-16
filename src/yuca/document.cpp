@@ -82,7 +82,7 @@ namespace yuca {
     }
 
     void Document::dumpToStream(std::ostream &output_stream) const {
-        output_stream << "Document(@" << (long) this << "):" << std::endl;
+        output_stream << "Document(@" << ((long) this % 10000) << "):" << std::endl;
         // tags
         output_stream << " tags={ ";
         auto tags_it = tags.begin();
