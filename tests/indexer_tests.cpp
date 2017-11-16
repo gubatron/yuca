@@ -16,25 +16,21 @@ class IndexerTests : public ::testing::Test {
 public:
 
     void SetUp() {
-        fooTag = ":foo";
-        barTag = ":bar";
+        foo_tag = ":foo";
+        bar_tag = ":bar";
 
-        fooKey = Key(1, fooTag);
-        fooKey2 = Key(2, fooTag);
-        barKey = Key(1, barTag);
+        foo_key_sp = std::make_shared<Key>(1, foo_tag);
+        foo_key2_sp = std::make_shared<Key>(2, foo_tag);
+        barKey_sp = std::make_shared<Key>(1, bar_tag);
 
-        fooKey_sp = std::make_shared<Key>(fooKey);
-        fooKey2_sp = std::make_shared<Key>(fooKey2);
-        barKey_sp = std::make_shared<Key>(barKey);
+        document_foo_sp = std::make_shared<Document>();
+        document_foo_sp->addKey(foo_key_sp);
+        document_foo_sp->addKey(foo_key2_sp);
 
-        documentFoo = Document();
-        documentFoo.addKey(fooKey_sp);
-        documentFoo.addKey(fooKey2_sp);
-        documentFoo_sp = std::make_shared<Document>(documentFoo);
 
-        documentBar = Document();
-        documentBar.addKey(barKey_sp);
-        documentBar_sp = std::make_shared<Document>(documentBar);
+        document_bar_sp = std::make_shared<Document>();
+        document_bar_sp->addKey(barKey_sp);
+        
 
         // A Document can have many keys.
         // Each key has to have a tag, which serves as a search dimension parameter
@@ -43,35 +39,30 @@ public:
         // And the indexer keeps a reverse index which maps keys to sets of documents.
     }
 
-    std::string fooTag;
-    Key fooKey;
-    Key fooKey2;
-    std::shared_ptr<Key> fooKey_sp;
-    std::shared_ptr<Key> fooKey2_sp;
+    std::string foo_tag;
+    std::shared_ptr<Key> foo_key_sp;
+    std::shared_ptr<Key> foo_key2_sp;
 
-    std::string barTag;
-    Key barKey;
+    std::string bar_tag;
     std::shared_ptr<Key> barKey_sp;
 
-    Document documentFoo;
-    Document documentBar;
-    std::shared_ptr<Document> documentFoo_sp;
-    std::shared_ptr<Document> documentBar_sp;
+    std::shared_ptr<Document> document_foo_sp;
+    std::shared_ptr<Document> document_bar_sp;
 };
 
 
 TEST_F(IndexerTests, TestIndexDocument) {
     Indexer indexer;
-    documentFoo.dumpToStream(std::cout);
+    document_foo_sp->dumpToStream(std::cout);
     std::set<std::string> someTags;
-    documentFoo.getTags(someTags);
+    document_foo_sp->getTags(someTags);
     std::set<std::string> someTags_from_sp;
-    documentFoo_sp.get()->getTags(someTags_from_sp);
-    indexer.indexDocument(documentFoo_sp);
+    document_foo_sp.get()->getTags(someTags_from_sp);
+    indexer.indexDocument(document_foo_sp);
     indexer.dumpToStream(std::cout);
 
     DocumentSet fooKeyDocs;
-    indexer.findDocuments(fooKey_sp, fooKeyDocs);
+    indexer.findDocuments(foo_key_sp, fooKeyDocs);
 
     ASSERT_TRUE(fooKeyDocs.size() == 1);
 
@@ -80,44 +71,44 @@ TEST_F(IndexerTests, TestIndexDocument) {
     ASSERT_TRUE(barKeyDocs.size() == 0);
 
     DocumentSet fooKey2Docs;
-    indexer.findDocuments(fooKey2_sp, fooKey2Docs);
+    indexer.findDocuments(foo_key2_sp, fooKey2Docs);
     ASSERT_TRUE(fooKey2Docs.size() == 1);
 
-    indexer.indexDocument(documentBar_sp);
+    indexer.indexDocument(document_bar_sp);
     indexer.findDocuments(barKey_sp, barKeyDocs);
     ASSERT_TRUE(barKeyDocs.size() == 1);
 
     // search by the first key (fooKey)
     DocumentSet fooFoundDocs;
-    indexer.findDocuments(fooKey_sp, fooFoundDocs);
+    indexer.findDocuments(foo_key_sp, fooFoundDocs);
     auto fooIterator = fooFoundDocs.begin();
     ASSERT_TRUE(fooIterator != fooFoundDocs.end());
-    ASSERT_TRUE(**fooIterator == documentFoo);
-    ASSERT_FALSE(**fooIterator == documentBar);
+    ASSERT_TRUE(**fooIterator == *document_foo_sp.get());
+    ASSERT_FALSE(**fooIterator == *document_bar_sp.get());
 
     DocumentSet barFoundDocs;
     indexer.findDocuments(barKey_sp, barFoundDocs);
     DocumentSet::iterator barIterator = barFoundDocs.begin();
     ASSERT_TRUE(barIterator != barFoundDocs.end());
     Document firstBarFoundDoc = **barIterator;
-    ASSERT_TRUE(firstBarFoundDoc == documentBar);
-    ASSERT_FALSE(firstBarFoundDoc == documentFoo);
+    ASSERT_TRUE(**firstBarFoundDoc == document_bar_sp.get());
+    ASSERT_FALSE(**firstBarFoundDoc == document_foo_sp);
 
     // search by the 2nd key (fooKey2)
-    indexer.findDocuments(fooKey2_sp, fooKey2Docs);
+    indexer.findDocuments(foo_key2_sp, fooKey2Docs);
     Document foundDoc = **fooKey2Docs.begin();
-    ASSERT_TRUE(foundDoc == documentFoo);
+    ASSERT_TRUE(foundDoc == document_foo);
 
     // add foo and bar key, index should now return 2 results by both keys
     Document fooBarDoc;
-    fooBarDoc.addKey(fooKey_sp);
+    fooBarDoc.addKey(foo_key_sp);
     fooBarDoc.addKey(barKey_sp);
     std::shared_ptr<Document> fooBarDoc_sp = std::make_shared<Document>(fooBarDoc);
     indexer.indexDocument(fooBarDoc_sp);
 
 
     DocumentSet fooDocs;
-    indexer.findDocuments(fooKey_sp, fooDocs);
+    indexer.findDocuments(foo_key_sp, fooDocs);
     ASSERT_TRUE(fooDocs.size() == 2);
 
     DocumentSet barDocs;
@@ -125,14 +116,14 @@ TEST_F(IndexerTests, TestIndexDocument) {
     ASSERT_TRUE(barDocs.size() == 2);
 
     fooIterator = fooDocs.begin();
-    ASSERT_TRUE(**fooIterator == documentFoo);
+    ASSERT_TRUE(**fooIterator == document_foo);
     fooIterator++;
     ASSERT_TRUE(**fooIterator == fooBarDoc);
     fooIterator++;
     ASSERT_TRUE(fooIterator == fooDocs.end());
 
     barIterator = barDocs.begin();
-    ASSERT_TRUE(**barIterator == documentBar);
+    ASSERT_TRUE(**barIterator == document_bar);
     barIterator++;
     ASSERT_TRUE(**barIterator == fooBarDoc);
     barIterator++;
@@ -158,7 +149,7 @@ TEST_F(IndexerTests, TestIndexDocument) {
         barIterator++;
         nDocsIndexed++;
     }
-    std::shared_ptr<Key> keys[] = { fooKey_sp, barKey_sp };
+    std::shared_ptr<Key> keys[] = { foo_key_sp, barKey_sp };
     DocumentSet multiIndexDocSet;
     indexerMultiKey.findDocuments(2, keys, multiIndexDocSet);
     std::cout << "Docs found: " << multiIndexDocSet.size();

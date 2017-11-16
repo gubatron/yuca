@@ -117,7 +117,7 @@ TEST_F(DocumentTests, TestsIfSingleKeyCanBeRemoved) {
 
     KeySet::iterator bar2_there = barKeySet.find(bar_key2_sp);
     ASSERT_TRUE(bar2_there != barKeySet.end());
-    ASSERT_TRUE(**bar2_there == *bar_key_sp);
+    ASSERT_TRUE(**bar2_there == *bar_key2_sp.get());
 }
 
 TEST_F(DocumentTests, TestGetTags) {
