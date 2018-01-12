@@ -87,7 +87,7 @@ namespace yuca {
     }
 
     void Indexer::removeDocument(std::shared_ptr<Document> doc) {
-        // TODO
+
     }
 
     void Indexer::findDocuments(std::shared_ptr<Key> key, DocumentSet &docs_out) const {
@@ -124,12 +124,12 @@ namespace yuca {
         // Make sure there's a ReverseIndex, if there isn't one, create an empty one
         std::shared_ptr<ReverseIndex> r_index;
         getReverseIndex(tag, r_index);
-        r_index->dumpToStream(std::cout);
+        //r_index->dumpToStream(std::cout);
         if (r_index->getKeyCount() == 0) {
             reverseIndices.emplace(std::make_pair(tag, std::make_shared<ReverseIndex>()));
             getReverseIndex(tag, r_index);
         }
-        r_index->dumpToStream(std::cout);
+        //r_index->dumpToStream(std::cout);
 
         auto doc_keys_iterator = doc_keys.begin();
         while (doc_keys_iterator != doc_keys.end()) {

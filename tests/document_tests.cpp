@@ -42,7 +42,7 @@ TEST_F(DocumentTests, TestIfKeyCanBeAdded) {
     ASSERT_TRUE(foo_keys.size() == 1);
 
     if (bar_key_sp.get() < bar_key2_sp.get()) {
-        std::cout << "bar_key < bar_key2 indeed" << std::endl;
+        //std::cout << "bar_key < bar_key2 indeed" << std::endl;
     } else {
         FAIL();
     }
@@ -74,7 +74,7 @@ TEST_F(DocumentTests, TestIfKeyCanBeAdded) {
 
     it = bar_keys.find(bar_key_sp);
     Key isThisBarKey = **it;
-    std::cout << "tag found? " << isThisBarKey.getTag() << std::endl;
+    //std::cout << "tag found? " << isThisBarKey.getTag() << std::endl;
     ASSERT_TRUE(isThisBarKey.getTag() == bar_tag);
     ASSERT_TRUE(isThisBarKey == *bar_key_sp.get());
 
@@ -105,6 +105,7 @@ TEST_F(DocumentTests, TestsIfSingleKeyCanBeRemoved) {
     ASSERT_TRUE(barKeySet.size() == 2);
 
     document_sp->removeKey(foo_tag, foo_key_sp);
+    ASSERT_TRUE(foo_key_set.size() == 1);
     document_sp->getTagKeys(foo_tag, foo_key_set);
     ASSERT_TRUE(foo_key_set.size() == 0);
 
@@ -128,15 +129,15 @@ TEST_F(DocumentTests, TestGetTags) {
     document_sp->addKey(foo_key_sp);
     document_sp->addKey(bar_key_sp);
 
-    std::cout << "Getting all the tags...";
+    //std::cout << "Getting all the tags...";
 
     std::set<std::string> tags;
     document_sp->getTags(tags);
-    std::cout << "Got " << tags.size() << " tags" << std::endl;
+    //std::cout << "Got " << tags.size() << " tags" << std::endl;
     auto it = tags.begin();
-    std::cout << "tags[0] => " << *it++ << std::endl;
-    std::cout << "tags[1] => " << *it++ << std::endl;
-    std::cout << "tags[2] => " << *it << std::endl;
+//    std::cout << "tags[0] => " << *it++ << std::endl;
+//    std::cout << "tags[1] => " << *it++ << std::endl;
+//    std::cout << "tags[2] => " << *it << std::endl;
 
     // elements will be sorted as they're inserted in the set
     // they are not in the set in the order they were inserted.
@@ -161,9 +162,9 @@ TEST_F(DocumentTests, TestRemoveTag) {
     ASSERT_FALSE(found_keys == name_tag_keys.end());
     ASSERT_TRUE(**found_keys == *name_key_sp);
     ASSERT_TRUE(found_keys == name_tag_keys.begin());
-    document_sp->dumpToStream(std::cout);
+    //document_sp->dumpToStream(std::cout);
     document_sp->removeKey(name_tag, name_key_sp);
-    std::cout << std::endl << "after :name key removed" << std::endl;
+    //std::cout << std::endl << "after :name key removed" << std::endl;
     //document_sp->dumpToStream(std::cout);
     document_sp->getTagKeys(":name", name_tag_keys);
     ASSERT_TRUE(name_tag_keys.empty());

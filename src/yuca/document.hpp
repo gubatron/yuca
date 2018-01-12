@@ -33,6 +33,7 @@ namespace yuca {
         void removeTag(std::string const &tag);
 
         /** Removes the given key. If it's the last key for this tag, the tag itself is removed */
+        // CLion false negative, this method is indeed being tested
         void removeKey(std::string const &tag, std::shared_ptr<Key> key);
 
         void dumpToStream(std::ostream &output_stream) const;

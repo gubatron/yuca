@@ -27,10 +27,8 @@ public:
         document_foo_sp->addKey(foo_key_sp);
         document_foo_sp->addKey(foo_key2_sp);
 
-
         document_bar_sp = std::make_shared<Document>();
         document_bar_sp->addKey(bar_key_sp);
-        
 
         // A Document can have many keys.
         // Each key has to have a tag, which serves as a search dimension parameter
@@ -53,13 +51,13 @@ public:
 
 TEST_F(IndexerTests, TestIndexDocument) {
     Indexer indexer;
-    document_foo_sp->dumpToStream(std::cout);
+    //document_foo_sp->dumpToStream(std::cout);
     std::set<std::string> someTags;
     document_foo_sp->getTags(someTags);
     std::set<std::string> someTags_from_sp;
     document_foo_sp.get()->getTags(someTags_from_sp);
     indexer.indexDocument(document_foo_sp);
-    indexer.dumpToStream(std::cout);
+    //indexer.dumpToStream(std::cout);
 
     DocumentSet foo_key_docs;
     indexer.findDocuments(foo_key_sp, foo_key_docs);
@@ -143,23 +141,27 @@ TEST_F(IndexerTests, TestIndexDocument) {
     while (foo_it != foo_docs.end()) {
         indexer_multi_key.indexDocument(*foo_it);
         indexed_docs_checker.insert(*foo_it);
-        (**foo_it).dumpToStream(std::cout);
+        //(**foo_it).dumpToStream(std::cout);
         foo_it++;
         n_docs_indexed = indexed_docs_checker.size();
     }
     while (bar_it != bar_docs.end()) {
         indexer_multi_key.indexDocument(*bar_it);
         indexed_docs_checker.insert(*bar_it);
-        (**bar_it).dumpToStream(std::cout);
+        //(**bar_it).dumpToStream(std::cout);
         bar_it++;
         n_docs_indexed = indexed_docs_checker.size();
     }
     std::shared_ptr<Key> keys[] = { foo_key_sp, bar_key_sp };
     DocumentSet multi_index_doc_set;
     indexer_multi_key.findDocuments(2, keys, multi_index_doc_set);
-    std::cout << "Docs found: " << multi_index_doc_set.size();
+    //std::cout << "Docs found: " << multi_index_doc_set.size();
 
     ASSERT_TRUE(multi_index_doc_set.size() == n_docs_indexed);
 }
+
+//TEST_F(IndexerTests, TestFindDocuments) {
+//
+//}
 
 #endif

@@ -12,7 +12,7 @@ namespace yuca {
     public:
         Key() = default;
 
-        explicit Key(long id, std::string &my_tag) : tag(my_tag), id(id) {
+        explicit Key(long id, std::string &my_tag) : id(id), tag(my_tag) {
         }
 
         // THIS OPERATOR IS USED FOR std::set.find()
