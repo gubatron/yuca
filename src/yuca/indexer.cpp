@@ -13,7 +13,7 @@ namespace yuca {
         index[key]=docs;
     }
 
-    bool ReverseIndex::hasDocuments(std::shared_ptr<Key> key) const {
+    auto ReverseIndex::hasDocuments(std::shared_ptr<Key> key) const -> bool {
         return index.count(key) > 0;
     }
 
