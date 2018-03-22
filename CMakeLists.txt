@@ -31,6 +31,8 @@ set(SOURCE_FILES
         )
 
 set(TEST_FILES
+        #tests/document_tests.cpp
+        #tests/indexer_tests.cpp
         tests/all_tests.cpp
         src/yuca/document.cpp
         src/yuca/types.hpp)
@@ -52,7 +54,22 @@ find_package(Threads REQUIRED)
 
 add_executable(yuca_tests ${SOURCE_FILES} ${TEST_FILES})
 set_target_properties(yuca_tests PROPERTIES LINKER_LANGUAGE CXX)
+target_include_directories(yuca_tests PUBLIC ${GTEST_DIR}/include)
 target_link_libraries(yuca_tests Threads::Threads gtest yuca)
+
+# unit test with catch 2
+set(TEST_CATCH2_FILES
+    tests/catch.hpp
+    tests/document_tests2.cpp
+    #tests/indexer_tests.cpp
+    #tests/all_tests.cpp
+    src/yuca/document.cpp
+    src/yuca/types.hpp)
+
+add_executable(yuca_tests2 ${SOURCE_FILES} ${TEST_FILES_2})
+set_target_properties(yuca_tests2 PROPERTIES LINKER_LANGUAGE CXX)
+
+
 # ////////////////////////////////////////////////////////////////////////////////
 
 # a cplus plus playground area for random experiments to interactively debug ideas or APIs we might use.
