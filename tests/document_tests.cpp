@@ -4,42 +4,20 @@
 #ifndef YUCA_DOCUMENT_TESTS_H
 #define YUCA_DOCUMENT_TESTS_H
 
-#include <gtest/gtest.h>
-#include <yuca/key.hpp>
-#include <yuca/document.hpp>
+TEST_CASE("Test If Key Can Be Added") {
+    auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
+    auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
+    auto bar_key2_sp = std::make_shared<Key>(2, bar_tag);
+    auto document_sp = std::make_shared<Document>();
 
-using namespace yuca;
-
-class DocumentTests : public ::testing::Test {
-public:
-    void SetUp() {
-        foo_tag = ":foo";
-        bar_tag = ":bar";
-        foo_key_sp = std::make_shared<Key>(1, foo_tag);
-        bar_key_sp = std::make_shared<Key>(1, bar_tag);
-        bar_key2_sp = std::make_shared<Key>(2, bar_tag);
-        document_sp = std::make_shared<Document>();
-    }
-
-    std::string foo_tag;
-    std::shared_ptr<Key> foo_key_sp;
-
-    std::string bar_tag;
-    std::shared_ptr<Key> bar_key_sp;
-    std::shared_ptr<Key> bar_key2_sp;
-    std::shared_ptr<Document> document_sp;
-};
-
-
-TEST_F(DocumentTests, TestIfKeyCanBeAdded) {
     KeySet is_empty;
     document_sp->getTagKeys(foo_tag, is_empty);
-    ASSERT_TRUE(is_empty.empty());
+    REQUIRE(is_empty.empty());
 
     document_sp->addKey(foo_key_sp);
     KeySet foo_keys;
     document_sp->getTagKeys(foo_tag, foo_keys);
-    ASSERT_TRUE(foo_keys.size() == 1);
+    REQUIRE(foo_keys.size() == 1);
 
     if (bar_key_sp.get() < bar_key2_sp.get()) {
         //std::cout << "bar_key < bar_key2 indeed" << std::endl;
@@ -52,7 +30,7 @@ TEST_F(DocumentTests, TestIfKeyCanBeAdded) {
 
     KeySet bar_keys;
     document_sp->getTagKeys(bar_tag, bar_keys);
-    ASSERT_TRUE(bar_keys.size() == 2);
+    REQUIRE(bar_keys.size() == 2);
 
     // make sure it's the same one we've added
 
@@ -64,64 +42,75 @@ TEST_F(DocumentTests, TestIfKeyCanBeAdded) {
         std::cout << std::endl << "vs" << std::endl;
         foo_key_sp->dumpToStream(std::cout);
         std::cout << std::endl << "------------------------" << std::endl;
-        FAIL();
+        REQUIRE(1 == 2);
     }
-    ASSERT_TRUE(foo_keys.size() == 1);
-    ASSERT_FALSE(it == foo_keys.end());
-    ASSERT_TRUE(*it == foo_key_sp);
-    ASSERT_TRUE(**it == *foo_key_sp.get());
-    ASSERT_TRUE((*it)->getTag() == foo_tag);
+    REQUIRE(foo_keys.size() == 1);
+    REQUIRE(it == foo_keys.end());
+    REQUIRE(*it == foo_key_sp);
+    REQUIRE(**it == *foo_key_sp.get());
+    REQUIRE((*it)->getTag() == foo_tag);
 
     it = bar_keys.find(bar_key_sp);
     Key isThisBarKey = **it;
     //std::cout << "tag found? " << isThisBarKey.getTag() << std::endl;
-    ASSERT_TRUE(isThisBarKey.getTag() == bar_tag);
-    ASSERT_TRUE(isThisBarKey == *bar_key_sp.get());
+    REQUIRE(isThisBarKey.getTag() == bar_tag);
+    REQUIRE(isThisBarKey == *bar_key_sp.get());
 
     it++;
     Key is_this_bar_key2 = **it;
-    ASSERT_TRUE(is_this_bar_key2.getTag() == bar_tag);
-    ASSERT_TRUE(is_this_bar_key2 == *bar_key2_sp.get());
+    REQUIRE(is_this_bar_key2.getTag() == bar_tag);
+    REQUIRE(is_this_bar_key2 == *bar_key2_sp.get());
 
     // now let's try adding the same element again, size should be the same as we're dealing with a set of unique keys
     document_sp->addKey(bar_key_sp);
     document_sp->getTagKeys(bar_tag, bar_keys);
-    ASSERT_TRUE(bar_keys.size() == 2);
+    REQUIRE(bar_keys.size() == 2);
 }
 
-TEST_F(DocumentTests, TestsIfSingleKeyCanBeRemoved) {
+
+TEST_CASE("Test if a single Key can be removed") {
+    auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
+    auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
+    auto bar_key2_sp = std::make_shared<Key>(2, bar_tag);
+    auto document_sp = std::make_shared<Document>();
+
     document_sp->addKey(foo_key_sp);
     document_sp->addKey(bar_key_sp);
     KeySet foo_key_set;
     document_sp->getTagKeys(foo_tag, foo_key_set);
-    ASSERT_TRUE(foo_key_set.size() == 1);
+    REQUIRE(foo_key_set.size() == 1);
 
     KeySet barKeySet;
     document_sp->getTagKeys(bar_tag, barKeySet);
-    ASSERT_TRUE(barKeySet.size() == 1);
+    REQUIRE(barKeySet.size() == 1);
 
     document_sp->addKey(bar_key2_sp);
     document_sp->getTagKeys(bar_tag, barKeySet);
-    ASSERT_TRUE(barKeySet.size() == 2);
+    REQUIRE(barKeySet.size() == 2);
 
     document_sp->removeKey(foo_tag, foo_key_sp);
-    ASSERT_TRUE(foo_key_set.size() == 1);
+    REQUIRE(foo_key_set.size() == 1);
     document_sp->getTagKeys(foo_tag, foo_key_set);
-    ASSERT_TRUE(foo_key_set.size() == 0);
+    REQUIRE(foo_key_set.size() == 0);
 
     KeySet::iterator it_not_there = foo_key_set.find(foo_key_sp);
-    ASSERT_TRUE(it_not_there == foo_key_set.end());
+    REQUIRE(it_not_there == foo_key_set.end());
 
     document_sp->getTagKeys(bar_tag, barKeySet);
     KeySet::iterator bar_there = barKeySet.find(bar_key_sp);
-    ASSERT_TRUE(**bar_there == *bar_key_sp.get());
+    REQUIRE(**bar_there == *bar_key_sp.get());
 
     KeySet::iterator bar2_there = barKeySet.find(bar_key2_sp);
-    ASSERT_TRUE(bar2_there != barKeySet.end());
-    ASSERT_TRUE(**bar2_there == *bar_key2_sp.get());
+    REQUIRE(false == (bar2_there == barKeySet.end()));
+    REQUIRE(**bar2_there == *bar_key2_sp.get());
 }
 
-TEST_F(DocumentTests, TestGetTags) {
+TEST_CASE("Test Get Tags") {
+    auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
+    auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
+    auto bar_key2_sp = std::make_shared<Key>(2, bar_tag);
+    auto document_sp = std::make_shared<Document>();
+
     std::string zee_tag = ":zee";
     auto zee_key_sp = std::make_shared<Key>(7, zee_tag);
 
@@ -142,13 +131,18 @@ TEST_F(DocumentTests, TestGetTags) {
     // elements will be sorted as they're inserted in the set
     // they are not in the set in the order they were inserted.
     it = tags.begin();
-    ASSERT_TRUE(*it++ == bar_tag);
-    ASSERT_TRUE(*it++ == foo_tag);
-    ASSERT_TRUE(*it == zee_tag);
+    REQUIRE(*it++ == bar_tag);
+    REQUIRE(*it++ == foo_tag);
+    REQUIRE(*it == zee_tag);
 }
 
-TEST_F(DocumentTests, TestRemoveTag) {
+TEST_CASE("Test Removing a Tag") {
     std::string name_tag = ":name";
+    auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
+    auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
+    auto bar_key2_sp = std::make_shared<Key>(2, bar_tag);
+    auto document_sp = std::make_shared<Document>();
+
     auto name_key_sp = std::make_shared<Key>(4, name_tag);
     document_sp->addKey(name_key_sp);
     document_sp->addKey(bar_key_sp);
@@ -157,23 +151,23 @@ TEST_F(DocumentTests, TestRemoveTag) {
     KeySet name_tag_keys;
     document_sp->getTagKeys(":name", name_tag_keys);
     KeySet::iterator found_keys = name_tag_keys.find(bar_key_sp);
-    ASSERT_TRUE(found_keys == name_tag_keys.end()); //assert not found
+    REQUIRE(found_keys == name_tag_keys.end()); //assert not found
     found_keys = name_tag_keys.find(name_key_sp);
-    ASSERT_FALSE(found_keys == name_tag_keys.end());
-    ASSERT_TRUE(**found_keys == *name_key_sp);
-    ASSERT_TRUE(found_keys == name_tag_keys.begin());
+    REQUIRE(found_keys != name_tag_keys.end());
+    REQUIRE(**found_keys == *name_key_sp);
+    REQUIRE(found_keys == name_tag_keys.begin());
     //document_sp->dumpToStream(std::cout);
     document_sp->removeKey(name_tag, name_key_sp);
     //std::cout << std::endl << "after :name key removed" << std::endl;
     //document_sp->dumpToStream(std::cout);
     document_sp->getTagKeys(":name", name_tag_keys);
-    ASSERT_TRUE(name_tag_keys.empty());
+    REQUIRE(name_tag_keys.empty());
     KeySet bar_keys;
     document_sp->getTagKeys(bar_key_sp->getTag(), bar_keys);
-    ASSERT_TRUE(bar_keys.size() == 2);
+    REQUIRE(bar_keys.size() == 2);
     document_sp->removeTag(bar_key_sp->getTag());
     document_sp->getTagKeys(bar_key_sp->getTag(), bar_keys);
-    ASSERT_TRUE(bar_keys.empty());
+    REQUIRE(bar_keys.empty());
 }
 
 #endif

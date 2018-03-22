@@ -5,6 +5,7 @@
 #ifndef YUCA_TYPES_HPP
 #define YUCA_TYPES_HPP
 
+#include <memory>
 #include <string>
 #include <set>
 
