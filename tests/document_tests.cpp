@@ -42,13 +42,15 @@ TEST_CASE("Test If Key Can Be Added") {
         std::cout << std::endl << "vs" << std::endl;
         foo_key_sp->dumpToStream(std::cout);
         std::cout << std::endl << "------------------------" << std::endl;
-        REQUIRE(1 == 2);
+        FAIL();
     }
     REQUIRE(foo_keys.size() == 1);
-    REQUIRE(it == foo_keys.end());
+    REQUIRE(it != foo_keys.end());
     REQUIRE(*it == foo_key_sp);
     REQUIRE(**it == *foo_key_sp.get());
     REQUIRE((*it)->getTag() == foo_tag);
+    it++;
+    REQUIRE(it == foo_keys.end());
 
     it = bar_keys.find(bar_key_sp);
     Key isThisBarKey = **it;
