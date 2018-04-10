@@ -25,7 +25,7 @@ namespace yuca {
         bool hasKeys(std::string const &tag) const;
 
         /** Returns a copy of all tags under which we have KeySets */
-        void getTags(std::set<std::string> &tags_out) const;
+        std::set<std::string> getTags() const;
 
         /** Returns a copy of all keys available under a given tag */
         void getTagKeys(std::string const &tag, KeySet &keys_out) const;

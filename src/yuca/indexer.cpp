@@ -64,8 +64,7 @@ namespace yuca {
 
 
     void Indexer::indexDocument(std::shared_ptr<Document> doc) {
-        std::set<std::string> tags;
-        doc->getTags(tags);
+        std::set<std::string> tags = doc->getTags();
         auto tags_iterator = tags.begin();
         while (tags_iterator != tags.end()) {
             std::string tag = *tags_iterator;

@@ -124,8 +124,7 @@ TEST_CASE("Test Get Tags") {
 
     //std::cout << "Getting all the tags...";
 
-    std::set<std::string> tags;
-    document_sp->getTags(tags);
+    std::set<std::string> tags = document_sp->getTags();
     //std::cout << "Got " << tags.size() << " tags" << std::endl;
     auto it = tags.begin();
 //    std::cout << "tags[0] => " << *it++ << std::endl;

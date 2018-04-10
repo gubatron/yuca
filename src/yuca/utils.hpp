@@ -44,23 +44,27 @@ namespace yuca {
                 return true;
             }
 
-            bool removeAll(T other_set) {
-                auto it = other_set.iterator();
-                while (it != other_set.end()) {
+            bool removeAll(Set<T> other_set) {
+                auto it = other_set.s.iterator();
+                while (it != other_set.s.end()) {
                     remove(*it);
                     it++;
                 }
                 return true;
             }
 
-            void copyTo(std::set<T> &other_std_set) const {
-	        	other_std_set.clear();
+            /**
+             * @return a copied std::set<T> instance of the containing std::set<T> s
+             */
+	        std::set<T> getStdSet() const {
+		        std::set<T> other_std_set;
 
 	        	auto it = s.begin();
 	        	while (it != s.end()) {
 	        		other_std_set.insert(*it);
 	        		it++;
 	        	}
+	        	return other_std_set;
 	        }
 
 	        void dumpToStream(std::ostream &output_stream) const {

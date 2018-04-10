@@ -6,12 +6,12 @@
 #include "document.hpp"
 
 namespace yuca {
-    void Document::getTags(std::set<std::string> &tags_out) const {
-        tags_out.clear();
+    std::set<std::string> Document::getTags() const {
+        std::set<std::string> tags_out;
         if (tag_2_keyset_map.empty()) {
-            return;
+            return tags_out;
         }
-        tags.copyTo(tags_out);
+        return tags.getStdSet();
     }
 
     void Document::getTagKeys(std::string const &tag, KeySet &keys_out) const {

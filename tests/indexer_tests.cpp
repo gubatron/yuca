@@ -28,10 +28,7 @@ TEST_CASE("Test Indexer.indexDocument") {
 
     Indexer indexer;
     //document_foo_sp->dumpToStream(std::cout);
-    std::set<std::string> someTags;
-    document_foo_sp->getTags(someTags);
-    std::set<std::string> someTags_from_sp;
-    document_foo_sp.get()->getTags(someTags_from_sp);
+    std::set<std::string> someTags = document_foo_sp->getTags();
     indexer.indexDocument(document_foo_sp);
     //indexer.dumpToStream(std::cout);
 
