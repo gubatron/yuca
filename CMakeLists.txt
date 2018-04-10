@@ -23,7 +23,7 @@ set(SOURCE_FILES
         )
 
 # the library libyuca
-add_library(yuca STATIC ${SOURCE_FILES})
+add_library(yuca STATIC ${SOURCE_FILES} src/yuca/utils.hpp)
 
 # demo executable to show how to use the library
 add_executable(yuca_demo demo.cpp)

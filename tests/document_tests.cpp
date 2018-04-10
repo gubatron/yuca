@@ -6,8 +6,12 @@
 
 TEST_CASE("Test If Key Can Be Added") {
     auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
-    auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
-    auto bar_key2_sp = std::make_shared<Key>(2, bar_tag);
+    auto bar_key_sp = std::make_shared<Key>(111, bar_tag);
+    auto bar_key2_sp = std::make_shared<Key>(222, bar_tag);
+    bar_key_sp->dumpToStream(std::cout);
+    std::cout << std::endl;
+    bar_key2_sp->dumpToStream(std::cout);
+    std::cout << std::endl;
     auto document_sp = std::make_shared<Document>();
 
     KeySet is_empty;
@@ -19,7 +23,7 @@ TEST_CASE("Test If Key Can Be Added") {
     document_sp->getTagKeys(foo_tag, foo_keys);
     REQUIRE(foo_keys.size() == 1);
 
-    if (bar_key_sp.get() < bar_key2_sp.get()) {
+    if (bar_key_sp.get()->getId() < bar_key2_sp.get()->getId()) {
         //std::cout << "bar_key < bar_key2 indeed" << std::endl;
     } else {
         FAIL();
@@ -35,16 +39,6 @@ TEST_CASE("Test If Key Can Be Added") {
     // make sure it's the same one we've added
 
     auto it = foo_keys.find(foo_key_sp);
-    if (it == foo_keys.end()) {
-        std::cout << "Couldn't find fooKey even though we just added it. What the hell do we have here then?" << std::endl;
-        it = foo_keys.begin();
-        (*it)->dumpToStream(std::cout);
-        std::cout << std::endl << "vs" << std::endl;
-        foo_key_sp->dumpToStream(std::cout);
-        std::cout << std::endl << "------------------------" << std::endl;
-        FAIL();
-    }
-    REQUIRE(foo_keys.size() == 1);
     REQUIRE(it != foo_keys.end());
     REQUIRE(*it == foo_key_sp);
     REQUIRE(**it == *foo_key_sp.get());
@@ -53,14 +47,22 @@ TEST_CASE("Test If Key Can Be Added") {
     REQUIRE(it == foo_keys.end());
 
     it = bar_keys.find(bar_key_sp);
-    Key isThisBarKey = **it;
+    Key is_this_bar_key = *it->get();
+    std::cout << std::endl;
+    is_this_bar_key.dumpToStream(std::cout);
+    std::cout << std::endl;
+    bar_key_sp.get()->dumpToStream(std::cout);
     //std::cout << "tag found? " << isThisBarKey.getTag() << std::endl;
-    REQUIRE(isThisBarKey.getTag() == bar_tag);
-    REQUIRE(isThisBarKey == *bar_key_sp.get());
+    REQUIRE(is_this_bar_key.getTag() == bar_tag);
+    REQUIRE(is_this_bar_key.getId() == bar_key_sp.get()->getId());
+    REQUIRE(is_this_bar_key == *bar_key_sp.get());
 
-    it++;
-    Key is_this_bar_key2 = **it;
+    it = bar_keys.find(bar_key2_sp);
+    Key is_this_bar_key2 = *it->get();
+    std::cout << std::endl;
+    is_this_bar_key2.dumpToStream(std::cout);
     REQUIRE(is_this_bar_key2.getTag() == bar_tag);
+    REQUIRE(bar_key2_sp.get()->getId() == is_this_bar_key2.getId());
     REQUIRE(is_this_bar_key2 == *bar_key2_sp.get());
 
     // now let's try adding the same element again, size should be the same as we're dealing with a set of unique keys

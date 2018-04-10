@@ -10,6 +10,7 @@
 #include <vector>
 #include "key.hpp"
 #include "types.hpp"
+#include "utils.hpp"
 
 namespace yuca {
 
@@ -45,7 +46,8 @@ namespace yuca {
     private:
         // maps tags to set<Key>
         std::map<std::string, KeySet> tag_2_keyset_map;
-        std::set<std::string> tags;
+        yuca::utils::Set<std::string> tags;
+	    //std::set<std::string> tags;
     };
 }
 

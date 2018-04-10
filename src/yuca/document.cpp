@@ -11,7 +11,7 @@ namespace yuca {
         if (tag_2_keyset_map.empty()) {
             return;
         }
-        tags_out = tags;
+        tags.copyTo(tags_out);
     }
 
     void Document::getTagKeys(std::string const &tag, KeySet &keys_out) const {
@@ -32,7 +32,7 @@ namespace yuca {
         if (it != tag_2_keyset_map.end()) {
             tag_2_keyset_map[tag].insert(key);
         }
-        tags.emplace(tag);
+        tags.add(tag);
     }
 
     bool Document::hasKeys(std::string const &tag) const {
@@ -45,7 +45,7 @@ namespace yuca {
         }
         tag_2_keyset_map[tag].clear();
         tag_2_keyset_map.erase(tag);
-        tags.erase(tag);
+        tags.remove(tag);
     }
 
     void Document::removeKey(std::string const &tag, std::shared_ptr<Key> key) {
@@ -85,14 +85,7 @@ namespace yuca {
         output_stream << "Document(@" << ((long) this % 10000) << "):" << std::endl;
         // tags
         output_stream << " tags={ ";
-        auto tags_it = tags.begin();
-        while (tags_it != tags.end()) {
-            output_stream << *tags_it;
-            tags_it++;
-            if (tags_it != tags.end()) {
-                output_stream << ", ";
-            }
-        }
+        tags.dumpToStream(output_stream);
         output_stream << " }" << std::endl;
         output_stream.flush();
 

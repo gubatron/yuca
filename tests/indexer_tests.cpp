@@ -14,7 +14,7 @@
 // And the indexer keeps a reverse index which maps keys to sets of documents.
 
 void initIndexerTests() {
-    auto document_foo_sp = std::make_shared<Document>();
+    document_foo_sp = std::make_shared<Document>();
     document_foo_sp  = std::make_shared<Document>();
     document_foo_sp->addKey(foo_key_sp);
     document_foo_sp->addKey(foo_key2_sp);
@@ -25,6 +25,7 @@ void initIndexerTests() {
 
 TEST_CASE("Test Indexer.indexDocument") {
     initIndexerTests();
+
     Indexer indexer;
     //document_foo_sp->dumpToStream(std::cout);
     std::set<std::string> someTags;
@@ -89,7 +90,16 @@ TEST_CASE("Test Indexer.indexDocument") {
     REQUIRE(bar_docs.size() == 2);
 
     foo_it = foo_docs.begin();
-    REQUIRE(**foo_it == *document_foo_sp);
+    std::cout << "foo_it -> ";
+    foo_it->get()->dumpToStream(std::cout);
+    std::cout << std::endl;
+
+    std::cout << "document_foo_sp -> ";
+    document_foo_sp.get()->dumpToStream(std::cout);
+    std::cout << std::endl;
+
+
+    REQUIRE(*foo_it == document_foo_sp);
     foo_it++;
     REQUIRE(**foo_it == *foo_bar_doc_sp);
     foo_it++;
