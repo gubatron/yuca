@@ -81,13 +81,16 @@ TEST_CASE("Test Indexer.indexDocument") {
     REQUIRE(foo_docs.size() == 2);
 
     foo_it = foo_docs.begin();
+    // Notes on shared_pointers.
+	//   sp.get() -> pointer to object (*Object)
+	//   *sp.get() -> dereferences the pointer to the object (Object)
 	REQUIRE(**foo_it == *document_foo_sp.get()); // Document == Document
 	REQUIRE((*foo_it) == document_foo_sp); // shared_ptr<Document> == shared_ptr<Document>
 	foo_it++;
 
-	std::cout << std::endl << "foo_it->get() -> ";
-	foo_it->get()->dumpToStream(std::cout);
-	std::cout << std::endl;
+	//std::cout << std::endl << "foo_it->get() -> ";
+	//foo_it->get()->dumpToStream(std::cout);
+
 
 	REQUIRE(**foo_it == *document_foo_bar_sp.get()); // Document == Document
 	REQUIRE((*foo_it) == document_foo_bar_sp); // shared_ptr<Document> == shared_ptr<Document>
@@ -99,9 +102,9 @@ TEST_CASE("Test Indexer.indexDocument") {
 	REQUIRE(bar_docs.size() == 2);
 
 	bar_it = bar_docs.begin();
-    REQUIRE(**bar_it == *document_bar_sp.get());
+    REQUIRE(**bar_it == *document_bar_sp.get()); // bar Document == bar Document
     bar_it++;
-    REQUIRE(**bar_it == *document_foo_bar_sp.get());
+    REQUIRE(**bar_it == *document_foo_bar_sp.get()); // foo bar Document == foo bar Document
     bar_it++;
     REQUIRE(bar_it == bar_docs.end());
 
@@ -133,7 +136,7 @@ TEST_CASE("Test Indexer.indexDocument") {
     std::shared_ptr<Key> keys[] = { foo_key_sp, bar_key_sp };
     DocumentSet multi_index_doc_set;
     indexer_multi_key.findDocuments(2, keys, multi_index_doc_set);
-    //std::cout << "Docs found: "fg << multi_index_doc_set.size();
+    //std::cout << "Docs found: " << multi_index_doc_set.size();
 
     REQUIRE(multi_index_doc_set.size() == n_docs_indexed);
 }

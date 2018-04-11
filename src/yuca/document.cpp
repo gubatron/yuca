@@ -81,18 +81,18 @@ namespace yuca {
         return (long) this == (long) &other;
     }
 
-    void Document::dumpToStream(std::ostream &output_stream) const {
-        output_stream << "Document(@" << ((long) this % 10000) << "):" << std::endl;
+    std::ostream& operator<<(std::ostream &output_stream, const Document &doc) {
+        output_stream << "Document(@" << ((long) &doc % 10000) << "):" << std::endl;
         // tags
         output_stream << " tags={ ";
-        tags.dumpToStream(output_stream);
+        doc.tags.dumpToStream(output_stream);
         output_stream << " }" << std::endl;
         output_stream.flush();
 
         // tags_2_keys_map
-        auto t2k_it = tag_2_keyset_map.begin();
+        auto t2k_it = doc.tag_2_keyset_map.begin();
         output_stream << " tag_2_keyset_map={";
-        while (t2k_it != tag_2_keyset_map.end()) {
+        while (t2k_it != doc.tag_2_keyset_map.end()) {
             std::string tag(t2k_it->first);
             KeySet keys(t2k_it->second);
             output_stream << std::endl << "   tag=<" << tag << "> = [ ";
@@ -106,13 +106,12 @@ namespace yuca {
             }
             output_stream << " ]";
             t2k_it++;
-            if (t2k_it != tag_2_keyset_map.end()) {
+            if (t2k_it != doc.tag_2_keyset_map.end()) {
                 output_stream << "," << std::endl;
-            } /*else {
-                output_stream << std::endl;
-            }*/
+            }
         }
         output_stream << std::endl << " }";
         output_stream.flush();
+        return output_stream;
     }
 }

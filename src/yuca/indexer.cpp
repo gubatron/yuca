@@ -48,7 +48,7 @@ namespace yuca {
                 } else {
                     output_stream << "[";
                     while (docset_it != (*it).second.end()) {
-                        (*docset_it)->dumpToStream(output_stream);
+                        output_stream << *docset_it;
                         docset_it++;
                         if (docset_it != (*it).second.end()) {
                             output_stream << ", ";

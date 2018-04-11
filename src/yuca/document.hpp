@@ -37,17 +37,16 @@ namespace yuca {
         // CLion false negative, this method is indeed being tested
         void removeKey(std::string const &tag, std::shared_ptr<Key> key);
 
-        void dumpToStream(std::ostream &output_stream) const;
-
         bool operator<(const Document &other) const;
 
         bool operator==(const Document &other) const;
+
+        friend std::ostream& operator<<(std::ostream &output_stream, const Document &doc);
 
     private:
         // maps tags to set<Key>
         std::map<std::string, KeySet> tag_2_keyset_map;
         yuca::utils::Set<std::string> tags;
-	    //std::set<std::string> tags;
     };
 }
 
