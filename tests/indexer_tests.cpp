@@ -88,9 +88,7 @@ TEST_CASE("Test Indexer.indexDocument") {
 	REQUIRE((*foo_it) == document_foo_sp); // shared_ptr<Document> == shared_ptr<Document>
 	foo_it++;
 
-	//std::cout << std::endl << "foo_it->get() -> ";
-	//foo_it->get()->dumpToStream(std::cout);
-
+	//std::cout << std::endl << "foo_it->get() -> " << *foo_it->get();
 
 	REQUIRE(**foo_it == *document_foo_bar_sp.get()); // Document == Document
 	REQUIRE((*foo_it) == document_foo_bar_sp); // shared_ptr<Document> == shared_ptr<Document>
@@ -122,14 +120,14 @@ TEST_CASE("Test Indexer.indexDocument") {
     while (foo_it != foo_docs.end()) {
         indexer_multi_key.indexDocument(*foo_it);
         indexed_docs_checker.insert(*foo_it);
-        //(**foo_it).dumpToStream(std::cout);
+        //std::cout << **foo_it;
         foo_it++;
         n_docs_indexed = indexed_docs_checker.size();
     }
     while (bar_it != bar_docs.end()) {
         indexer_multi_key.indexDocument(*bar_it);
         indexed_docs_checker.insert(*bar_it);
-        //(**bar_it).dumpToStream(std::cout);
+        //std::cout << **bar_it;
         bar_it++;
         n_docs_indexed = indexed_docs_checker.size();
     }

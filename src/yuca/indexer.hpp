@@ -20,7 +20,7 @@ namespace yuca {
 
         long getKeyCount() const;
 
-        void dumpToStream(std::ostream &output_stream) const;
+	    friend std::ostream& operator<<(std::ostream &output_stream, ReverseIndex &rindex);
     };
 
     class Indexer {
@@ -34,7 +34,8 @@ namespace yuca {
 
         void findDocuments(int numKeys, std::shared_ptr<Key> keys[], DocumentSet &docs_out) const;
 
-        void dumpToStream(std::ostream &output_stream) const;
+        friend std::ostream& operator<<(std::ostream &output_stream, Indexer &indexer);
+
 
     private:
         /**

@@ -30,16 +30,16 @@ namespace yuca {
         return index.size();
     }
 
-    void ReverseIndex::dumpToStream(std::ostream &output_stream) const {
-        output_stream << "ReverseIndex(@" << ((long) this % 10000) << "):" << std::endl;
-        auto it = index.begin();
-        if (it == index.end()) {
+    std::ostream& operator<<(std::ostream &output_stream, ReverseIndex &rindex) {
+        output_stream << "ReverseIndex(@" << ((long) &rindex % 10000) << "):" << std::endl;
+        auto it = rindex.index.begin();
+        if (it == rindex.index.end()) {
             output_stream << "<empty>" << std::endl;
         } else {
             // index = { Key => DocumentSet }
-            while (it != index.end()) {
+            while (it != rindex.index.end()) {
                 output_stream << " ";
-                (*it).first->dumpToStream(output_stream);
+                output_stream << (*it).first;
                 output_stream << " => ";
                 auto docset_it = (*it).second.begin();
                 output_stream << "(" << (*it).second.size() << ") ";
@@ -60,6 +60,7 @@ namespace yuca {
             }
         }
         output_stream.flush();
+        return output_stream;
     }
 
 
@@ -123,12 +124,12 @@ namespace yuca {
         // Make sure there's a ReverseIndex, if there isn't one, create an empty one
         std::shared_ptr<ReverseIndex> r_index;
         getReverseIndex(tag, r_index);
-        //r_index->dumpToStream(std::cout);
+        //std::cout << r_index;
         if (r_index->getKeyCount() == 0) {
             reverseIndices.emplace(std::make_pair(tag, std::make_shared<ReverseIndex>()));
             getReverseIndex(tag, r_index);
         }
-        //r_index->dumpToStream(std::cout);
+        //std::cout << r_index;
 
         auto doc_keys_iterator = doc_keys.begin();
         while (doc_keys_iterator != doc_keys.end()) {
@@ -148,24 +149,23 @@ namespace yuca {
         r_index_out = rIndexIterator->second;
     }
 
-    void Indexer::dumpToStream(std::ostream &output_stream) const {
-        //std::map<std::string, ReverseIndex> reverseIndices;
-        output_stream << "Indexer(@" << ((long) this % 10000) << "): " << std::endl;
+    std::ostream& operator<<(std::ostream &output_stream, Indexer &indexer) {
+        output_stream << "Indexer(@" << ((long) &indexer % 10000) << "): " << std::endl;
         output_stream << " reverseIndices = { ";
 
-        auto it = reverseIndices.begin();
-        if (it == reverseIndices.end()) {
+        auto it = indexer.reverseIndices.begin();
+        if (it == indexer.reverseIndices.end()) {
             output_stream << "<empty>";
         } else {
-            while (it != reverseIndices.end()) {
+            while (it != indexer.reverseIndices.end()) {
                 output_stream << "   " << (*it).first << " => ";
-                (*it).second->dumpToStream(output_stream);
+                output_stream << (*it).second; // second is the ReverseIndex
                 output_stream << std::endl;
                 it++;
             }
         }
-
         output_stream << "}";
         output_stream.flush();
+        return output_stream;
     }
 }

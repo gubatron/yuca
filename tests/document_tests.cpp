@@ -8,10 +8,8 @@ TEST_CASE("Test If Key Can Be Added") {
     auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
     auto bar_key_sp = std::make_shared<Key>(111, bar_tag);
     auto bar_key2_sp = std::make_shared<Key>(222, bar_tag);
-    //bar_key_sp->dumpToStream(std::cout);
-    std::cout << std::endl;
-    //bar_key2_sp->dumpToStream(std::cout);
-    std::cout << std::endl;
+//    std::cout << *bar_key_sp->get() << std::endl;
+//    std::cout << *bar_key2_sp->get() << std::endl;
     auto document_sp = std::make_shared<Document>();
 
     KeySet is_empty;
@@ -48,10 +46,9 @@ TEST_CASE("Test If Key Can Be Added") {
 
     it = bar_keys.find(bar_key_sp);
     Key is_this_bar_key = *it->get();
-    std::cout << std::endl;
-    //is_this_bar_key.dumpToStream(std::cout);
     //std::cout << std::endl;
-    //bar_key_sp.get()->dumpToStream(std::cout);
+    //std::cout << is_this_bar_key << std::endl;
+    //std::cout << *bar_key_sp.get();
     //std::cout << "tag found? " << isThisBarKey.getTag() << std::endl;
     REQUIRE(is_this_bar_key.getTag() == bar_tag);
     REQUIRE(is_this_bar_key.getId() == bar_key_sp.get()->getId());
@@ -60,7 +57,7 @@ TEST_CASE("Test If Key Can Be Added") {
     it = bar_keys.find(bar_key2_sp);
     Key is_this_bar_key2 = *it->get();
     //std::cout << std::endl;
-    //is_this_bar_key2.dumpToStream(std::cout);
+    //std::cout << is_this_bar_key2 << std::endl;
     REQUIRE(is_this_bar_key2.getTag() == bar_tag);
     REQUIRE(bar_key2_sp.get()->getId() == is_this_bar_key2.getId());
     REQUIRE(is_this_bar_key2 == *bar_key2_sp.get());
@@ -159,10 +156,10 @@ TEST_CASE("Test Removing a Tag") {
     REQUIRE(found_keys != name_tag_keys.end());
     REQUIRE(**found_keys == *name_key_sp);
     REQUIRE(found_keys == name_tag_keys.begin());
-    //document_sp->dumpToStream(std::cout);
+    //std::cout << *document_sp->get();
     document_sp->removeKey(name_tag, name_key_sp);
     //std::cout << std::endl << "after :name key removed" << std::endl;
-    //document_sp->dumpToStream(std::cout);
+    //std::cout  << *document_sp->get();
     document_sp->getTagKeys(":name", name_tag_keys);
     REQUIRE(name_tag_keys.empty());
     KeySet bar_keys;

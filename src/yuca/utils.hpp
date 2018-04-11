@@ -54,15 +54,17 @@ namespace yuca {
 	        	return s;
 	        }
 
-	        void dumpToStream(std::ostream &output_stream) const {
-		        auto it = s.begin();
-		        while (it != s.end()) {
+	        friend std::ostream& operator<<(std::ostream &output_stream, Set<T> set) {
+		        auto it = set.s.begin();
+		        while (it != set.s.end()) {
 			        output_stream << *it;
 			        it++;
-			        if (it != s.end()) {
+			        if (it != set.s.end()) {
 				        output_stream << std::string(", ");
 			        }
 		        }
+		        // output_stream.flush();
+		        return output_stream;
 	        }
 
         private:

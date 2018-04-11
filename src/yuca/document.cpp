@@ -84,9 +84,7 @@ namespace yuca {
     std::ostream& operator<<(std::ostream &output_stream, const Document &doc) {
         output_stream << "Document(@" << ((long) &doc % 10000) << "):" << std::endl;
         // tags
-        output_stream << " tags={ ";
-        doc.tags.dumpToStream(output_stream);
-        output_stream << " }" << std::endl;
+        output_stream << " tags={ " << doc.tags << std::endl;
         output_stream.flush();
 
         // tags_2_keys_map
@@ -98,7 +96,7 @@ namespace yuca {
             output_stream << std::endl << "   tag=<" << tag << "> = [ ";
             auto keys_it = keys.begin();
             while (keys_it != keys.end()) {
-                (*keys_it)->dumpToStream(output_stream);
+                output_stream << (*keys_it);
                 keys_it++;
                 if (keys_it != keys.end()) {
                     output_stream << ", ";

@@ -24,7 +24,7 @@ namespace yuca {
 
         long getId() const;
 
-        void dumpToStream(std::ostream &output_stream) const;
+        friend std::ostream& operator<<(std::ostream &output_stream, Key &key);
 
     private:
         std::string tag;
