@@ -8,9 +8,9 @@ TEST_CASE("Test If Key Can Be Added") {
     auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
     auto bar_key_sp = std::make_shared<Key>(111, bar_tag);
     auto bar_key2_sp = std::make_shared<Key>(222, bar_tag);
-    bar_key_sp->dumpToStream(std::cout);
+    //bar_key_sp->dumpToStream(std::cout);
     std::cout << std::endl;
-    bar_key2_sp->dumpToStream(std::cout);
+    //bar_key2_sp->dumpToStream(std::cout);
     std::cout << std::endl;
     auto document_sp = std::make_shared<Document>();
 
@@ -49,9 +49,9 @@ TEST_CASE("Test If Key Can Be Added") {
     it = bar_keys.find(bar_key_sp);
     Key is_this_bar_key = *it->get();
     std::cout << std::endl;
-    is_this_bar_key.dumpToStream(std::cout);
-    std::cout << std::endl;
-    bar_key_sp.get()->dumpToStream(std::cout);
+    //is_this_bar_key.dumpToStream(std::cout);
+    //std::cout << std::endl;
+    //bar_key_sp.get()->dumpToStream(std::cout);
     //std::cout << "tag found? " << isThisBarKey.getTag() << std::endl;
     REQUIRE(is_this_bar_key.getTag() == bar_tag);
     REQUIRE(is_this_bar_key.getId() == bar_key_sp.get()->getId());
@@ -59,8 +59,8 @@ TEST_CASE("Test If Key Can Be Added") {
 
     it = bar_keys.find(bar_key2_sp);
     Key is_this_bar_key2 = *it->get();
-    std::cout << std::endl;
-    is_this_bar_key2.dumpToStream(std::cout);
+    //std::cout << std::endl;
+    //is_this_bar_key2.dumpToStream(std::cout);
     REQUIRE(is_this_bar_key2.getTag() == bar_tag);
     REQUIRE(bar_key2_sp.get()->getId() == is_this_bar_key2.getId());
     REQUIRE(is_this_bar_key2 == *bar_key2_sp.get());

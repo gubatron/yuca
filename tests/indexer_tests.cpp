@@ -15,36 +15,38 @@
 
 void initIndexerTests() {
     document_foo_sp = std::make_shared<Document>();
-    document_foo_sp  = std::make_shared<Document>();
     document_foo_sp->addKey(foo_key_sp);
     document_foo_sp->addKey(foo_key2_sp);
 
     document_bar_sp = std::make_shared<Document>();
     document_bar_sp->addKey(bar_key_sp);
+
+	document_foo_bar_sp = std::make_shared<Document>();
+	document_foo_bar_sp->addKey(foo_key_sp);
+	document_foo_bar_sp->addKey(bar_key_sp);
 }
 
 TEST_CASE("Test Indexer.indexDocument") {
     initIndexerTests();
 
+    // Index one doc with 'foo' tagged keys and find it.
     Indexer indexer;
-    //document_foo_sp->dumpToStream(std::cout);
-    std::set<std::string> someTags = document_foo_sp->getTags();
     indexer.indexDocument(document_foo_sp);
-    //indexer.dumpToStream(std::cout);
-
     DocumentSet foo_key_docs;
     indexer.findDocuments(foo_key_sp, foo_key_docs);
-
     REQUIRE(foo_key_docs.size() == 1);
 
+    // Look for a bar doc and find none.
     DocumentSet bar_key_docs;
     indexer.findDocuments(bar_key_sp, bar_key_docs);
     REQUIRE(bar_key_docs.size() == 0);
 
+    // Look for the same doc using another key that also has a 'foo' tag
     DocumentSet foo_key2_docs;
     indexer.findDocuments(foo_key2_sp, foo_key2_docs);
     REQUIRE(foo_key2_docs.size() == 1);
 
+    // Index a document with 'bar' tagged key and find it
     indexer.indexDocument(document_bar_sp);
     indexer.findDocuments(bar_key_sp, bar_key_docs);
     REQUIRE(bar_key_docs.size() == 1);
@@ -53,7 +55,7 @@ TEST_CASE("Test Indexer.indexDocument") {
     DocumentSet foo_found_docs;
     indexer.findDocuments(foo_key_sp, foo_found_docs);
     auto foo_it = foo_found_docs.begin();
-    REQUIRE(foo_it != foo_found_docs.end());
+    REQUIRE(foo_it != foo_found_docs.end()); // non-empty search results
     REQUIRE(**foo_it == *document_foo_sp.get());
     REQUIRE(false == (**foo_it == *document_bar_sp.get()));
 
@@ -71,41 +73,35 @@ TEST_CASE("Test Indexer.indexDocument") {
     Document &found_doc = **foo_key2_docs.begin();
     REQUIRE(found_doc == *document_foo_sp);
 
-    // add foo and bar key, index should now return 2 results by both keys
-    std::shared_ptr<Document> foo_bar_doc_sp = std::make_shared<Document>();
-    foo_bar_doc_sp->addKey(foo_key_sp);
-    foo_bar_doc_sp->addKey(bar_key_sp);
+    // add foo and bar key doc, index should now return 2 results by both keys
 
-    indexer.indexDocument(foo_bar_doc_sp);
-
+    indexer.indexDocument(document_foo_bar_sp);
     DocumentSet foo_docs;
     indexer.findDocuments(foo_key_sp, foo_docs);
     REQUIRE(foo_docs.size() == 2);
 
-    DocumentSet bar_docs;
-    indexer.findDocuments(bar_key_sp, bar_docs);
-    REQUIRE(bar_docs.size() == 2);
-
     foo_it = foo_docs.begin();
-    std::cout << "foo_it -> ";
-    foo_it->get()->dumpToStream(std::cout);
-    std::cout << std::endl;
+	REQUIRE(**foo_it == *document_foo_sp.get()); // Document == Document
+	REQUIRE((*foo_it) == document_foo_sp); // shared_ptr<Document> == shared_ptr<Document>
+	foo_it++;
 
-    std::cout << "document_foo_sp -> ";
-    document_foo_sp.get()->dumpToStream(std::cout);
-    std::cout << std::endl;
+	std::cout << std::endl << "foo_it->get() -> ";
+	foo_it->get()->dumpToStream(std::cout);
+	std::cout << std::endl;
 
+	REQUIRE(**foo_it == *document_foo_bar_sp.get()); // Document == Document
+	REQUIRE((*foo_it) == document_foo_bar_sp); // shared_ptr<Document> == shared_ptr<Document>
 
-    REQUIRE(*foo_it == document_foo_sp);
-    foo_it++;
-    REQUIRE(**foo_it == *foo_bar_doc_sp);
-    foo_it++;
-    REQUIRE(foo_it == foo_docs.end());
+	//////////////////////////////////////////////////////////////////
 
-    bar_it = bar_docs.begin();
-    REQUIRE(**bar_it == *document_bar_sp);
+	DocumentSet bar_docs;
+	indexer.findDocuments(bar_key_sp, bar_docs);
+	REQUIRE(bar_docs.size() == 2);
+
+	bar_it = bar_docs.begin();
+    REQUIRE(**bar_it == *document_bar_sp.get());
     bar_it++;
-    REQUIRE(**bar_it == *foo_bar_doc_sp);
+    REQUIRE(**bar_it == *document_foo_bar_sp.get());
     bar_it++;
     REQUIRE(bar_it == bar_docs.end());
 

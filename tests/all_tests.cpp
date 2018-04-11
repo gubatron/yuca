@@ -20,7 +20,8 @@ auto foo_key2_sp = std::make_shared<Key>(2, foo_tag);
 auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
 
 std::shared_ptr<Document> document_foo_sp;
-std::shared_ptr<Document> document_bar_sp = std::make_shared<Document>();
+std::shared_ptr<Document> document_bar_sp;
+std::shared_ptr<Document> document_foo_bar_sp;
 
 #include "document_tests.cpp"
 #include "indexer_tests.cpp"
