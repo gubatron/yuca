@@ -1,4 +1,5 @@
 //
+// Java Collections Inspired wrappers for std:: collections
 // Created by gubatron on 3/23/18.
 //
 
@@ -13,18 +14,14 @@ namespace yuca {
 	    template<class T>
         class Set {
         public:
-	        bool add(T e) {
-                s.emplace(e);
-                return true;
+	        void add(T e) {
+                s.insert(e);
             }
 
-            bool addAll(Set<T> other_set) {
-                auto it = other_set.s.begin();
-                while (it != other_set.s.end()) {
-                    add(*it);
-                    it++;
+            void addAll(Set<T> other_set) {
+                for (auto const& x : other_set.s) {
+                	add(x);
                 }
-                return true;
             }
 
             bool contains(T something) const noexcept {
@@ -44,27 +41,17 @@ namespace yuca {
                 return true;
             }
 
-            bool removeAll(Set<T> other_set) {
-                auto it = other_set.s.iterator();
-                while (it != other_set.s.end()) {
-                    remove(*it);
-                    it++;
+            void removeAll(Set<T> other_set) {
+                for (auto const& x : other_set.s) {
+                    remove(x);
                 }
-                return true;
             }
 
             /**
              * @return a copied std::set<T> instance of the containing std::set<T> s
              */
 	        std::set<T> getStdSet() const {
-		        std::set<T> other_std_set;
-
-	        	auto it = s.begin();
-	        	while (it != s.end()) {
-	        		other_std_set.insert(*it);
-	        		it++;
-	        	}
-	        	return other_std_set;
+	        	return s;
 	        }
 
 	        void dumpToStream(std::ostream &output_stream) const {
