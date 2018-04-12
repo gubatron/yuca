@@ -5,7 +5,7 @@
 #ifndef YUCA_UTILS_TESTS_H
 #define YUCA_UTILS_TESTS_H
 
-TEST_CASE("yuca::utils::Set (add, size, contains, isEmpty)") {
+TEST_CASE("yuca::utils::Set (add, size, contains, isEmpty, clear)") {
 	yuca::utils::Set<std::string> set;
 	REQUIRE(set.size() == 0);
 	REQUIRE(set.isEmpty());
@@ -20,6 +20,10 @@ TEST_CASE("yuca::utils::Set (add, size, contains, isEmpty)") {
 	set.add("two");
 	REQUIRE(set.size() == 2);
 	REQUIRE(set.contains("two"));
+
+	set.clear();
+	REQUIRE(set.size() == 0);
+	REQUIRE(set.isEmpty());
 }
 
 TEST_CASE("yuca::utils:Set (addAll, containsAll, removeAll)") {
