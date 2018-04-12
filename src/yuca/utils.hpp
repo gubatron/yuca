@@ -18,7 +18,7 @@ namespace yuca {
                 s.insert(e);
             }
 
-            void addAll(Set<T> other_set) {
+            void addAll(Set<T> other_set) noexcept {
                 for (auto const& x : other_set.s) {
                 	add(x);
                 }
@@ -27,6 +27,15 @@ namespace yuca {
             bool contains(T something) const noexcept {
                 return s.find(something) != s.end();
             }
+
+            bool containsAll(Set<T> other) const noexcept {
+                for (auto const& x : other.s) {
+                	if (!contains(x)) {
+                		return false;
+                	}
+                }
+                return true;
+	        }
 
             bool isEmpty() const noexcept {
                 return s.empty();
@@ -47,6 +56,10 @@ namespace yuca {
                 }
             }
 
+            void clear() {
+	        	s.clear();
+	        }
+
             /**
              * @return a copied std::set<T> instance of the containing std::set<T> s
              */
@@ -54,16 +67,20 @@ namespace yuca {
 	        	return s;
 	        }
 
+	        unsigned long size() const {
+	        	return s.size();
+	        }
+
 	        friend std::ostream& operator<<(std::ostream &output_stream, Set<T> set) {
-		        auto it = set.s.begin();
-		        while (it != set.s.end()) {
-			        output_stream << *it;
-			        it++;
-			        if (it != set.s.end()) {
-				        output_stream << std::string(", ");
+	        	long last_index = set.size() - 1;
+	        	long i=0;
+		        std::string sep(", ");
+	        	for (auto const& x : set.s) {
+	        		output_stream << x;
+	        		if (i++ != last_index) {
+			        	output_stream << sep;
 			        }
-		        }
-		        // output_stream.flush();
+	        	}
 		        return output_stream;
 	        }
 
