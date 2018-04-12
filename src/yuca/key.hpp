@@ -18,6 +18,12 @@ namespace yuca {
         // THIS OPERATOR IS USED FOR std::set.find()
         virtual bool operator<(const Key &right_side) const;
 
+        virtual bool operator<=(const Key &right_side) const;
+
+        virtual bool operator>(const Key &right_side) const;
+
+        virtual bool operator>=(const Key &right_side) const;
+
         virtual bool operator==(const Key &other) const;
 
         std::string getTag() const;

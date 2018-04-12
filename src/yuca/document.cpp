@@ -70,21 +70,17 @@ namespace yuca {
     }
 
     bool Document::operator<(const Document &other) const {
-        //TODO: revise this
-        auto myMemory = (long) this;
-        auto otherMemoryOffset = (long) &other;
-        return myMemory < otherMemoryOffset;
+        return creation_timestamp < other.creation_timestamp;
     }
 
     bool Document::operator==(const Document &other) const {
-        //TODO: revise this
-        return (long) this == (long) &other;
+        return creation_timestamp == other.creation_timestamp;
     }
 
     std::ostream& operator<<(std::ostream &output_stream, const Document &doc) {
-        output_stream << "Document(@" << ((long) &doc % 10000) << "):" << std::endl;
+        output_stream << "Document(@" << ((long) &doc % 10000) << ", ts=" << doc.creation_timestamp << "):" << std::endl;
         // tags
-        output_stream << " tags={ " << doc.tags << std::endl;
+        output_stream << " tags={" << doc.tags << "}" << std::endl;
         output_stream.flush();
 
         // tags_2_keys_map
@@ -96,7 +92,7 @@ namespace yuca {
             output_stream << std::endl << "   tag=<" << tag << "> = [ ";
             auto keys_it = keys.begin();
             while (keys_it != keys.end()) {
-                output_stream << (*keys_it);
+                output_stream << *(*keys_it).get();
                 keys_it++;
                 if (keys_it != keys.end()) {
                     output_stream << ", ";

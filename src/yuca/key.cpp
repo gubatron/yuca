@@ -7,12 +7,23 @@
 
 namespace yuca {
     bool Key::operator<(const Key &right_side) const {
-        return id < right_side.id ||
-               (!(id > right_side.id));
+        return id < right_side.id;
+    }
+
+    bool Key::operator<=(const Key &right_side) const {
+        return id <= right_side.id;
+    }
+
+    bool Key::operator>(const Key &right_side) const {
+        return id > right_side.id;
+    }
+
+    bool Key::operator>=(const Key &right_side) const {
+        return id >= right_side.id;
     }
 
     bool Key::operator==(const Key &other) const {
-        return id == other.id;
+        return id == other.id && tag == other.tag;
     }
 
     std::string Key::getTag() const {
@@ -26,5 +37,6 @@ namespace yuca {
     std::ostream &operator<<(std::ostream &output_stream, Key &key) {
         output_stream << "Key(@" << ((long) &key % 10000) << ", id=" << key.id << ", tag=" << key.tag << ")";
         output_stream.flush();
+        return output_stream;
     }
 }

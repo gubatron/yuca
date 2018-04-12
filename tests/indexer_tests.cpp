@@ -56,6 +56,8 @@ TEST_CASE("Test Indexer.indexDocument") {
     indexer.findDocuments(foo_key_sp, foo_found_docs);
     auto foo_it = foo_found_docs.begin();
     REQUIRE(foo_it != foo_found_docs.end()); // non-empty search results
+//	std::cout << "**foo_it -> " << std::endl << **foo_it << std::endl;
+//	std::cout << "*document_foo_sp.get() -> " << std::endl << *document_foo_sp.get() << std::endl;
     REQUIRE(**foo_it == *document_foo_sp.get());
     REQUIRE(false == (**foo_it == *document_bar_sp.get()));
 
@@ -81,28 +83,30 @@ TEST_CASE("Test Indexer.indexDocument") {
     REQUIRE(foo_docs.size() == 2);
 
     foo_it = foo_docs.begin();
-    // Notes on shared_pointers.
+	REQUIRE(**foo_it == *document_foo_bar_sp.get()); // Document == Document
+	REQUIRE((*foo_it) == document_foo_bar_sp); // shared_ptr<Document> == shared_ptr<Document>
+
+	foo_it++;
+
+	// Notes on shared_pointers.
 	//   sp.get() -> pointer to object (*Object)
 	//   *sp.get() -> dereferences the pointer to the object (Object)
 	REQUIRE(**foo_it == *document_foo_sp.get()); // Document == Document
 	REQUIRE((*foo_it) == document_foo_sp); // shared_ptr<Document> == shared_ptr<Document>
+
 	foo_it++;
 
-	//std::cout << std::endl << "foo_it->get() -> " << *foo_it->get();
-
-	REQUIRE(**foo_it == *document_foo_bar_sp.get()); // Document == Document
-	REQUIRE((*foo_it) == document_foo_bar_sp); // shared_ptr<Document> == shared_ptr<Document>
-
+	REQUIRE(foo_it == foo_docs.end());
 	//////////////////////////////////////////////////////////////////
 
 	DocumentSet bar_docs;
 	indexer.findDocuments(bar_key_sp, bar_docs);
+	// bar_docs = { document_bar_sp, document_foo_bar_sp }
 	REQUIRE(bar_docs.size() == 2);
-
 	bar_it = bar_docs.begin();
-    REQUIRE(**bar_it == *document_bar_sp.get()); // bar Document == bar Document
+	REQUIRE(**bar_it == *document_bar_sp.get()); // bar Document == bar Document
     bar_it++;
-    REQUIRE(**bar_it == *document_foo_bar_sp.get()); // foo bar Document == foo bar Document
+	REQUIRE(**bar_it == *document_foo_bar_sp.get()); // foo bar Document == foo bar Document
     bar_it++;
     REQUIRE(bar_it == bar_docs.end());
 
@@ -138,9 +142,5 @@ TEST_CASE("Test Indexer.indexDocument") {
 
     REQUIRE(multi_index_doc_set.size() == n_docs_indexed);
 }
-
-//TEST_CASE("Test Indexer.findDocuments") {
-//    initIndexerTests();
-//}
 
 #endif

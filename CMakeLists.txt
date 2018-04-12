@@ -35,8 +35,6 @@ target_link_libraries(yuca_demo yuca)
 set(TEST_FILES
     tests/catch.hpp
     tests/all_tests.cpp
-    #tests/document_tests.cpp
-    #tests/indexer_tests.cpp
     src/yuca/document.cpp
     src/yuca/types.hpp)
 

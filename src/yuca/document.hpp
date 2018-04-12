@@ -8,15 +8,16 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <chrono>
 #include "key.hpp"
 #include "types.hpp"
 #include "utils.hpp"
 
 namespace yuca {
-
     class Document {
     public:
-        Document() = default;
+        Document() : creation_timestamp(std::chrono::high_resolution_clock::now().time_since_epoch().count()) {
+        }
 
         /** Associate this document to an indexing key under the given tag */
         void addKey(std::shared_ptr<Key> key);
@@ -44,6 +45,8 @@ namespace yuca {
         friend std::ostream& operator<<(std::ostream &output_stream, const Document &doc);
 
     private:
+        const long creation_timestamp;
+
         // maps tags to set<Key>
         std::map<std::string, KeySet> tag_2_keyset_map;
         yuca::utils::Set<std::string> tags;
