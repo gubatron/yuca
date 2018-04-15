@@ -88,13 +88,11 @@ TEST_CASE("Test Indexer.indexDocument") {
 	REQUIRE(foo_docs.size() == 2);
 
 	foo_it = foo_docs.begin();
-	REQUIRE(**foo_it == *document_foo_sp.get()); // Document == Document
-	REQUIRE((*foo_it) == document_foo_sp); // shared_ptr<Document> == shared_ptr<Document>
-
+	REQUIRE((**foo_it == *document_foo_bar_sp.get() || **foo_it == *document_foo_sp.get())); // Document comparison (foo or foo_bar)
+	REQUIRE(((*foo_it) == document_foo_bar_sp || (*foo_it) == document_foo_sp)); // shared_ptr<Document> == shared_ptr<Document>
 	foo_it++;
-	REQUIRE(**foo_it == *document_foo_bar_sp.get()); // Document == Document
-	REQUIRE((*foo_it) == document_foo_bar_sp); // shared_ptr<Document> == shared_ptr<Document>
-
+	REQUIRE((**foo_it == *document_foo_bar_sp.get() || **foo_it == *document_foo_sp.get())); // Document comparison (foo or foo_bar)
+	REQUIRE(((*foo_it) == document_foo_bar_sp || (*foo_it) == document_foo_sp)); // shared_ptr<Document> == shared_ptr<Document>
 	foo_it++;
 	REQUIRE(foo_it == foo_docs.end());
 	//////////////////////////////////////////////////////////////////
@@ -104,9 +102,9 @@ TEST_CASE("Test Indexer.indexDocument") {
 	// bar_docs = { document_bar_sp, document_foo_bar_sp }
 	REQUIRE(bar_docs.size() == 2);
 	bar_it = bar_docs.begin();
-	REQUIRE(**bar_it == *document_bar_sp.get()); // bar Document == bar Document
+	REQUIRE((**bar_it == *document_foo_bar_sp.get() || (**bar_it == *document_bar_sp.get()))); // foo bar Document || bar Document
 	bar_it++;
-	REQUIRE(**bar_it == *document_foo_bar_sp.get()); // foo bar Document == foo bar Document
+	REQUIRE((**bar_it == *document_foo_bar_sp.get() || (**bar_it == *document_bar_sp.get()))); // foo bar Document || bar Document
 	bar_it++;
 	REQUIRE(bar_it == bar_docs.end());
 

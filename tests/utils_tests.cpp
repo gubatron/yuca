@@ -26,7 +26,7 @@ TEST_CASE("yuca::utils::Set (add, size, contains, isEmpty, clear)") {
 	REQUIRE(set.isEmpty());
 }
 
-TEST_CASE("yuca::utils:Set (addAll, containsAll, removeAll)") {
+TEST_CASE("yuca::utils::Set (addAll, containsAll, removeAll)") {
 	std::string one_tag("one");
 	std::string two_tag("two");
 	std::string three_tag("three");
@@ -72,5 +72,33 @@ TEST_CASE("yuca::utils:Set (addAll, containsAll, removeAll)") {
     // Set1 = {}
 	REQUIRE(set1.size() == 0);
 	REQUIRE(set1.isEmpty());
+}
+
+TEST_CASE("yuca::utils::Map (isEmpty, clear, put, get, remove, keySet)") {
+	yuca::utils::Map<std::string, int> m(-1);
+	REQUIRE(m.isEmpty());
+	m.put("angel",1);
+	REQUIRE(!m.isEmpty());
+    int val = m.get("angel");
+    REQUIRE(val == 1);
+    m.put("angel", m.get("angel")+1);
+    REQUIRE(m.get("angel") == (val+1));
+    int last_val = m.remove("angel");
+    REQUIRE(m.isEmpty());
+    REQUIRE(last_val == val+1); // 2
+	m.put("desmond", 1);
+	m.put("sarah", 2);
+	m.put("paulina", 3);
+	REQUIRE(m.size() == 3);
+	auto key_set = m.keySet();
+	REQUIRE(key_set.size() == 3);
+	REQUIRE(key_set.contains("desmond"));
+	REQUIRE(key_set.contains("sarah"));
+	REQUIRE(key_set.contains("paulina"));
+	REQUIRE(!key_set.contains("angel"));
+	m.clear();
+	key_set = m.keySet();
+	REQUIRE(key_set.isEmpty());
+
 }
 #endif
