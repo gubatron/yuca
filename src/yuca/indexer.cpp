@@ -113,29 +113,21 @@ namespace yuca {
     }
 
     void Indexer::addToIndex(std::string const &tag, std::shared_ptr<Document> doc) {
-        KeySet doc_keys;
-        doc->getTagKeys(tag, doc_keys);
-        if (doc_keys.empty()) {
+        KeySet doc_keys = doc->getTagKeys(tag);
+        if (doc_keys.isEmpty()) {
             std::cout << "Indexer::addToIndex(" << tag << "): check your logic, document has no doc_keys under this tag <"
                       << tag << ">" << std::endl;
             return;
         }
-
         // Make sure there's a ReverseIndex, if there isn't one, create an empty one
         std::shared_ptr<ReverseIndex> r_index;
         getReverseIndex(tag, r_index);
-        //std::cout << r_index;
         if (r_index->getKeyCount() == 0) {
             reverseIndices.emplace(std::make_pair(tag, std::make_shared<ReverseIndex>()));
             getReverseIndex(tag, r_index);
         }
-        //std::cout << r_index;
-
-        auto doc_keys_iterator = doc_keys.begin();
-        while (doc_keys_iterator != doc_keys.end()) {
-            std::shared_ptr<Key> k_sp = *doc_keys_iterator;
+        for (auto const& k_sp : doc_keys.getStdSet()) {
             r_index->putDocument(k_sp, doc);
-            doc_keys_iterator++;
         }
         reverseIndices[tag] = r_index;
     }

@@ -9,6 +9,7 @@
 #include <set>
 #include <map>
 #include <ostream>
+#include <iostream>
 
 namespace yuca {
 	namespace utils {
@@ -75,6 +76,7 @@ namespace yuca {
 			friend std::ostream &operator<<(std::ostream &output_stream, Set<T> set) {
 				long last_index = set.size() - 1;
 				long i = 0;
+				output_stream << "[";
 				std::string sep(", ");
 				for (auto const &x : set.s) {
 					output_stream << x;
@@ -82,10 +84,11 @@ namespace yuca {
 						output_stream << sep;
 					}
 				}
+				output_stream << "]";
 				return output_stream;
 			}
 
-		private:
+			//private:
 			std::set<T> s;
 		};
 
@@ -93,9 +96,10 @@ namespace yuca {
 		template<class K, class V>
 		class Map {
 		public:
-			explicit Map(V def_empty_val) : default_empty_value(def_empty_val) {}
+			explicit Map(V def_empty_val) : default_empty_value(def_empty_val) {
+			}
 
-			bool clear() {
+			void clear() {
 				m.clear();
 			}
 
@@ -155,17 +159,17 @@ namespace yuca {
 				return m.size();
 			}
 
-			void putAll(Map<K,V> other) {
+			void putAll(Map<K, V> other) {
 				auto entry_set = other.entrySet().getStdSet();
-				for (auto const& entry : entry_set) {
+				for (auto const &entry : entry_set) {
 					put(entry.first, entry.second);
 				}
 			}
 
-			friend std::ostream &operator<<(std::ostream &output_stream, Map<K,V> map) {
+			friend std::ostream &operator<<(std::ostream &output_stream, Map<K, V> map) {
 				output_stream << "{";
 				auto it = map.m.begin();
-				for (auto const& pair : map.m) {
+				for (auto const &pair : map.m) {
 					output_stream << pair.first << ":" << pair.second;
 					it++;
 					if (it != map.m.end()) {
@@ -175,6 +179,7 @@ namespace yuca {
 				output_stream << "}";
 				return output_stream;
 			}
+
 		private:
 			std::map<K, V> m;
 			const V default_empty_value;

@@ -29,7 +29,7 @@ namespace yuca {
         std::set<std::string> getTags() const;
 
         /** Returns a copy of all keys available under a given tag */
-        void getTagKeys(std::string const &tag, KeySet &keys_out) const;
+        KeySet getTagKeys(std::string const &tag) const;
 
         /** Removes all keys under this tag */
         void removeTag(std::string const &tag);

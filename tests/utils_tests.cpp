@@ -41,7 +41,9 @@ TEST_CASE("yuca::utils::Set (addAll, containsAll, removeAll)") {
 
 	// Set1 = { k1, k2, k3 }
 	// Set2 = { <empty> }
-	set1.add(k1); set1.add(k2); set1.add(k3);
+	set1.add(k1);
+	set1.add(k2);
+	set1.add(k3);
 	REQUIRE(set1.size() == 3);
 	REQUIRE(set2.isEmpty());
 
@@ -61,15 +63,15 @@ TEST_CASE("yuca::utils::Set (addAll, containsAll, removeAll)") {
 	REQUIRE(set2.contains(k1));
 	REQUIRE(!set1.containsAll(set2));
 
-    set2.removeAll(set1);
-    // Set2 = { k4 }
-    REQUIRE(set1.size() == 3);
-    REQUIRE(set2.size() == 1);
-    REQUIRE(set2.contains(k4));
-    REQUIRE(!set2.contains(k3));
+	set2.removeAll(set1);
+	// Set2 = { k4 }
+	REQUIRE(set1.size() == 3);
+	REQUIRE(set2.size() == 1);
+	REQUIRE(set2.contains(k4));
+	REQUIRE(!set2.contains(k3));
 
-    set1.clear();
-    // Set1 = {}
+	set1.clear();
+	// Set1 = {}
 	REQUIRE(set1.size() == 0);
 	REQUIRE(set1.isEmpty());
 }
@@ -77,15 +79,15 @@ TEST_CASE("yuca::utils::Set (addAll, containsAll, removeAll)") {
 TEST_CASE("yuca::utils::Map (isEmpty, clear, put, get, remove, keySet)") {
 	yuca::utils::Map<std::string, int> m(-1);
 	REQUIRE(m.isEmpty());
-	m.put("angel",1);
+	m.put("angel", 1);
 	REQUIRE(!m.isEmpty());
-    int val = m.get("angel");
-    REQUIRE(val == 1);
-    m.put("angel", m.get("angel")+1);
-    REQUIRE(m.get("angel") == (val+1));
-    int last_val = m.remove("angel");
-    REQUIRE(m.isEmpty());
-    REQUIRE(last_val == val+1); // 2
+	int val = m.get("angel");
+	REQUIRE(val == 1);
+	m.put("angel", m.get("angel") + 1);
+	REQUIRE(m.get("angel") == (val + 1));
+	int last_val = m.remove("angel");
+	REQUIRE(m.isEmpty());
+	REQUIRE(last_val == val + 1); // 2
 	m.put("desmond", 1);
 	m.put("sarah", 2);
 	m.put("paulina", 3);
@@ -105,15 +107,15 @@ TEST_CASE("yuca::utils::Map (putAll, entrySet)") {
 	yuca::utils::Map<std::string, std::string> m1("");
 	yuca::utils::Map<std::string, std::string> m2("");
 
-	m1.put("1","one");
-	m1.put("2","two");
-	m1.put("3","three");
+	m1.put("1", "one");
+	m1.put("2", "two");
+	m1.put("3", "three");
 
 	REQUIRE(m1.size() == 3);
 	REQUIRE(m2.size() == 0);
 
 	REQUIRE(m2.get("1") == "");
-    REQUIRE(m2.size() == 0); // failed query should not increase container size
+	REQUIRE(m2.size() == 0); // failed query should not increase container size
 
 	m2.putAll(m1);
 	REQUIRE(m2.size() == 3);
@@ -131,7 +133,7 @@ TEST_CASE("yuca::utils::Map (putAll, entrySet)") {
 	REQUIRE(m1.size() == 6);
 
 	auto m2_keyset = m2.keySet().getStdSet();
-	for (auto const& k : m2_keyset) {
+	for (auto const &k : m2_keyset) {
 		REQUIRE(m1.containsKey(k));
 		REQUIRE(m1.get(k) == m2.get(k));
 	}
