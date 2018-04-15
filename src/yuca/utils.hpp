@@ -8,6 +8,7 @@
 
 #include <set>
 #include <map>
+#include <ostream>
 
 namespace yuca {
 	namespace utils {
@@ -92,7 +93,7 @@ namespace yuca {
 		template<class K, class V>
 		class Map {
 		public:
-			Map(V def_empty_val) : default_empty_value(def_empty_val) {}
+			explicit Map(V def_empty_val) : default_empty_value(def_empty_val) {}
 
 			bool clear() {
 				m.clear();
@@ -159,6 +160,20 @@ namespace yuca {
 				for (auto const& entry : entry_set) {
 					put(entry.first, entry.second);
 				}
+			}
+
+			friend std::ostream &operator<<(std::ostream &output_stream, Map<K,V> map) {
+				output_stream << "{";
+				auto it = map.m.begin();
+				for (auto const& pair : map.m) {
+					output_stream << pair.first << ":" << pair.second;
+					it++;
+					if (it != map.m.end()) {
+						output_stream << ", ";
+					}
+				}
+				output_stream << "}";
+				return output_stream;
 			}
 		private:
 			std::map<K, V> m;

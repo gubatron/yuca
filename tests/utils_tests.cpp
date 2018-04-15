@@ -99,6 +99,42 @@ TEST_CASE("yuca::utils::Map (isEmpty, clear, put, get, remove, keySet)") {
 	m.clear();
 	key_set = m.keySet();
 	REQUIRE(key_set.isEmpty());
-
 }
+
+TEST_CASE("yuca::utils::Map (putAll, entrySet)") {
+	yuca::utils::Map<std::string, std::string> m1("");
+	yuca::utils::Map<std::string, std::string> m2("");
+
+	m1.put("1","one");
+	m1.put("2","two");
+	m1.put("3","three");
+
+	REQUIRE(m1.size() == 3);
+	REQUIRE(m2.size() == 0);
+
+	REQUIRE(m2.get("1") == "");
+    REQUIRE(m2.size() == 0); // failed query should not increase container size
+
+	m2.putAll(m1);
+	REQUIRE(m2.size() == 3);
+	REQUIRE(m2.containsKey("3"));
+	REQUIRE(m2.containsKey("2"));
+	REQUIRE(m2.containsKey("1"));
+
+	m2.put("4", "four");
+	m2.put("5", "five");
+	m2.put("6", "six");
+
+	m1.putAll(m2);
+
+	REQUIRE(m2.size() == 6);
+	REQUIRE(m1.size() == 6);
+
+	auto m2_keyset = m2.keySet().getStdSet();
+	for (auto const& k : m2_keyset) {
+		REQUIRE(m1.containsKey(k));
+		REQUIRE(m1.get(k) == m2.get(k));
+	}
+}
+
 #endif
