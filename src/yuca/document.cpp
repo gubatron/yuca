@@ -84,16 +84,15 @@ namespace yuca {
             std::string tag(t2k_it->first);
             KeySet keys(t2k_it->second);
             output_stream << std::endl << "   tag=<" << tag << "> = ";
-            output_stream << keys;
-//            auto keys_it = keys.begin();
-//            while (keys_it != keys.end()) {
-//                output_stream << *(*keys_it).get();
-//                keys_it++;
-//                if (keys_it != keys.end()) {
-//                    output_stream << ", ";
-//                }
-//            }
-//            output_stream << " ]";
+            auto keys_it = keys.getStdSet().begin();
+            while (keys_it != keys.getStdSet().end()) {
+                output_stream << *(*keys_it).get();
+                keys_it++;
+                if (keys_it != keys.getStdSet().end()) {
+                    output_stream << ", ";
+                }
+            }
+            output_stream << " ]";
             t2k_it++;
             if (t2k_it != doc.tag_2_keyset_map.end()) {
                 output_stream << "," << std::endl;

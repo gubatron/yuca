@@ -8,8 +8,6 @@ TEST_CASE("Test If Key Can Be Added") {
 	auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
 	auto bar_key_sp = std::make_shared<Key>(111, bar_tag);
 	auto bar_key2_sp = std::make_shared<Key>(222, bar_tag);
-//    std::cout << *bar_key_sp->get() << std::endl;
-//    std::cout << *bar_key2_sp->get() << std::endl;
 	auto document_sp = std::make_shared<Document>();
 
 	KeySet is_empty = document_sp->getTagKeys(foo_tag);
@@ -93,14 +91,8 @@ TEST_CASE("Test Get Tags") {
 	document_sp->addKey(foo_key_sp);
 	document_sp->addKey(bar_key_sp);
 
-	//std::cout << "Getting all the tags...";
-
 	std::set<std::string> tags = document_sp->getTags();
-	//std::cout << "Got " << tags.size() << " tags" << std::endl;
 	auto it = tags.begin();
-//    std::cout << "tags[0] => " << *it++ << std::endl;
-//    std::cout << "tags[1] => " << *it++ << std::endl;
-//    std::cout << "tags[2] => " << *it << std::endl;
 
 	// elements will be sorted as they're inserted in the set
 	// they are not in the set in the order they were inserted.
@@ -136,5 +128,4 @@ TEST_CASE("Test Removing a Tag") {
 	bar_keys = document_sp->getTagKeys(bar_key_sp->getTag());
 	REQUIRE(bar_keys.isEmpty());
 }
-
 #endif

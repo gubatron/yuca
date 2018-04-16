@@ -16,7 +16,7 @@ namespace yuca {
 
         auto hasDocuments(std::shared_ptr<Key> key) const -> bool;
 
-        void getDocuments(std::shared_ptr<Key> key, DocumentSet &docs_out) const;
+	    DocumentSet getDocuments(std::shared_ptr<Key> key) const;
 
         long getKeyCount() const;
 
@@ -30,9 +30,9 @@ namespace yuca {
         void removeDocument(std::shared_ptr<Document> doc); // TODO
 
 	    /** Given a key, it finds all related documents to its tag */
-        void findDocuments(std::shared_ptr<Key> key, DocumentSet &docs_out) const;
+	    DocumentSet findDocuments(std::shared_ptr<Key> key) const;
 
-        void findDocuments(int numKeys, std::shared_ptr<Key> keys[], DocumentSet &docs_out) const;
+	    DocumentSet findDocuments(int numKeys, std::shared_ptr<Key> keys[]) const;
 
         friend std::ostream& operator<<(std::ostream &output_stream, Indexer &indexer);
 

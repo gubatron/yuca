@@ -7,9 +7,8 @@ namespace yuca {
         if (!hasDocuments(key)) {
             index.emplace(std::make_pair(key, DocumentSet()));
         }
-        DocumentSet docs;
-        getDocuments(key, docs);
-        docs.emplace(doc);
+        DocumentSet docs = getDocuments(key);
+        docs.add(doc);
         index[key]=docs;
     }
 
@@ -17,13 +16,12 @@ namespace yuca {
         return index.count(key) > 0;
     }
 
-    void ReverseIndex::getDocuments(std::shared_ptr<Key> key, DocumentSet &docs_out) const {
-        docs_out.clear();
+    DocumentSet ReverseIndex::getDocuments(std::shared_ptr<Key> key) const {
         if (!hasDocuments(key)) {
-            return;
+            return DocumentSet();
         }
         auto it = index.find(key);
-        docs_out = it->second;
+        return it->second;
     }
 
     long ReverseIndex::getKeyCount() const {
@@ -41,16 +39,16 @@ namespace yuca {
                 output_stream << " ";
                 output_stream << (*it).first;
                 output_stream << " => ";
-                auto docset_it = (*it).second.begin();
+                auto docset_it = (*it).second.getStdSet().begin();
                 output_stream << "(" << (*it).second.size() << ") ";
-                if (docset_it == (*it).second.end()) {
+                if (docset_it == (*it).second.getStdSet().end()) {
                     output_stream << "<empty>" << std::endl;
                 } else {
                     output_stream << "[";
-                    while (docset_it != (*it).second.end()) {
+                    while (docset_it != (*it).second.getStdSet().end()) {
                         output_stream << *docset_it;
                         docset_it++;
-                        if (docset_it != (*it).second.end()) {
+                        if (docset_it != (*it).second.getStdSet().end()) {
                             output_stream << ", ";
                         }
                     }
@@ -90,26 +88,24 @@ namespace yuca {
 
     }
 
-    void Indexer::findDocuments(std::shared_ptr<Key> key, DocumentSet &docs_out) const {
-        docs_out.clear();
+    DocumentSet Indexer::findDocuments(std::shared_ptr<Key> key) const {
         std::string tag = key->getTag();
         std::shared_ptr<ReverseIndex> rIndex;
         getReverseIndex(tag, rIndex);
-        rIndex->getDocuments(key, docs_out);
+        return rIndex->getDocuments(key);
     }
 
-    void Indexer::findDocuments(int numKeys, std::shared_ptr<Key> keys[], DocumentSet &docs_out) const {
+    DocumentSet Indexer::findDocuments(int numKeys, std::shared_ptr<Key> keys[]) const {
+        DocumentSet docs_out;
         for (int i = 0; i < numKeys; i++) {
-            DocumentSet docs;
-            findDocuments(keys[i], docs);
-            if (!docs.empty()) {
-                auto it = docs.begin();
-                while (it != docs.end()) {
-                    docs_out.insert(*it);
-                    it++;
+            DocumentSet docs = findDocuments(keys[i]);
+            if (!docs.isEmpty()) {
+                for (auto const& doc_sp : docs.getStdSet()) {
+                    docs_out.add(doc_sp);
                 }
             }
         }
+        return docs_out;
     }
 
     void Indexer::addToIndex(std::string const &tag, std::shared_ptr<Document> doc) {
