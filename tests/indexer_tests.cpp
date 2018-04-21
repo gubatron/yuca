@@ -91,28 +91,19 @@ TEST_CASE("Test Indexer.indexDocument") {
 	//////////////////////////////
 
 	Indexer indexer_multi_key;
-	foo_it = foo_docs.getStdSet().begin();
-	bar_it = bar_docs.getStdSet().begin();
 	DocumentSet indexed_docs_checker;
 	int n_docs_indexed = 0;
 
 	// add foo documents
-	while (foo_it != foo_docs.getStdSet().end()) {
-		indexer_multi_key.indexDocument(*foo_it);
-		indexed_docs_checker.add(*foo_it);
-		//std::cout << **foo_it;
-		foo_it++;
-		n_docs_indexed = indexed_docs_checker.size();
+	for (auto sh_ptr_doc : foo_docs.getStdSet()) {
+	    indexer_multi_key.indexDocument(sh_ptr_doc);
+	    indexed_docs_checker.add(sh_ptr_doc);
 	}
-
-
-	while (bar_it != bar_docs.getStdSet().end()) {
-		indexer_multi_key.indexDocument(*bar_it);
-		indexed_docs_checker.add(*bar_it);
-		//std::cout << **bar_it;
-		bar_it++;
-		n_docs_indexed = indexed_docs_checker.size();
+        for (auto sh_ptr_doc : bar_docs.getStdSet()) {
+	    indexer_multi_key.indexDocument(sh_ptr_doc);
+	    indexed_docs_checker.add(sh_ptr_doc);
 	}
+        n_docs_indexed = indexed_docs_checker.size();
 	std::shared_ptr<Key> keys[] = {foo_key_sp, bar_key_sp};
 	DocumentSet multi_index_doc_set = indexer_multi_key.findDocuments(2, keys);
 	//std::cout << "Docs found: " << multi_index_doc_set.size();
