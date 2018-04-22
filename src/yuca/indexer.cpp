@@ -63,13 +63,9 @@ namespace yuca {
 
     void Indexer::indexDocument(std::shared_ptr<Document> doc) {
         std::set<std::string> tags = doc->getTags();
-        auto tags_iterator = tags.begin();
-        while (tags_iterator != tags.end()) {
-            std::string tag = *tags_iterator;
+        for (auto const& tag : tags) {
             addToIndex(tag, doc);
-            tags_iterator++;
         }
-
         // look for each one of the keys defined for this document
         // the keys come along with their tag, which is used
         // by the indexer to partition the reverse indexes
