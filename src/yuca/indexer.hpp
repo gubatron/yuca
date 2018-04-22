@@ -6,11 +6,13 @@
 #include "types.hpp"
 #include <map>
 #include <set>
+#include <memory>
 
 namespace yuca {
-
     struct ReverseIndex {
-        std::map<std::shared_ptr<Key>, DocumentSet> index;
+    	ReverseIndex() : index(DocumentSet()) {}
+
+        yuca::utils::Map<std::shared_ptr<Key>, DocumentSet> index;
 
         void putDocument(std::shared_ptr<Key> key, std::shared_ptr<Document> doc);
 
@@ -25,6 +27,8 @@ namespace yuca {
 
     class Indexer {
     public:
+	    Indexer() : reverseIndices(std::shared_ptr<ReverseIndex>()) {}
+
         void indexDocument(std::shared_ptr<Document> doc);
 
         void removeDocument(std::shared_ptr<Document> doc); // TODO
@@ -53,11 +57,11 @@ namespace yuca {
          * Documents provide the indexer with the Keys to be used.
          *
          * */
-        void getReverseIndex(std::string const &tag, std::shared_ptr<ReverseIndex> &r_index_out) const;
+        std::shared_ptr<ReverseIndex> getReverseIndex(std::string const &tag) const;
 
         void addToIndex(std::string const &tag, std::shared_ptr<Document> doc);
 
-        std::map<std::string, std::shared_ptr<ReverseIndex>> reverseIndices;
+        yuca::utils::Map<std::string, std::shared_ptr<ReverseIndex>> reverseIndices;
     };
 }
 

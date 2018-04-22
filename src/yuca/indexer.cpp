@@ -5,23 +5,22 @@ namespace yuca {
 
     void ReverseIndex::putDocument(std::shared_ptr<Key> key, std::shared_ptr<Document> doc) {
         if (!hasDocuments(key)) {
-            index.emplace(std::make_pair(key, DocumentSet()));
+            index.put(key, DocumentSet());
         }
         DocumentSet docs = getDocuments(key);
         docs.add(doc);
-        index[key]=docs;
+        index.put(key,docs);
     }
 
     auto ReverseIndex::hasDocuments(std::shared_ptr<Key> key) const -> bool {
-        return index.count(key) > 0;
+        return index.containsKey(key);
     }
 
     DocumentSet ReverseIndex::getDocuments(std::shared_ptr<Key> key) const {
         if (!hasDocuments(key)) {
             return DocumentSet();
         }
-        auto it = index.find(key);
-        return it->second;
+        return index.get(key);
     }
 
     long ReverseIndex::getKeyCount() const {
@@ -30,12 +29,12 @@ namespace yuca {
 
     std::ostream& operator<<(std::ostream &output_stream, ReverseIndex &rindex) {
         output_stream << "ReverseIndex(@" << ((long) &rindex % 10000) << "):" << std::endl;
-        auto it = rindex.index.begin();
-        if (it == rindex.index.end()) {
+        auto it = rindex.index.getStdMap().begin();
+        if (it == rindex.index.getStdMap().end()) {
             output_stream << "<empty>" << std::endl;
         } else {
             // index = { Key => DocumentSet }
-            while (it != rindex.index.end()) {
+            while (it != rindex.index.getStdMap().end()) {
                 output_stream << " ";
                 output_stream << (*it).first;
                 output_stream << " => ";
@@ -89,10 +88,7 @@ namespace yuca {
     }
 
     DocumentSet Indexer::findDocuments(std::shared_ptr<Key> key) const {
-        std::string tag = key->getTag();
-        std::shared_ptr<ReverseIndex> rIndex;
-        getReverseIndex(tag, rIndex);
-        return rIndex->getDocuments(key);
+        return getReverseIndex(key->getTag())->getDocuments(key);
     }
 
     DocumentSet Indexer::findDocuments(int numKeys, std::shared_ptr<Key> keys[]) const {
@@ -116,36 +112,33 @@ namespace yuca {
             return;
         }
         // Make sure there's a ReverseIndex, if there isn't one, create an empty one
-        std::shared_ptr<ReverseIndex> r_index;
-        getReverseIndex(tag, r_index);
+        std::shared_ptr<ReverseIndex> r_index = getReverseIndex(tag);
         if (r_index->getKeyCount() == 0) {
-            reverseIndices.emplace(std::make_pair(tag, std::make_shared<ReverseIndex>()));
-            getReverseIndex(tag, r_index);
+            reverseIndices.put(tag, std::make_shared<ReverseIndex>());
+            r_index = getReverseIndex(tag);
         }
         for (auto const& k_sp : doc_keys.getStdSet()) {
             r_index->putDocument(k_sp, doc);
         }
-        reverseIndices[tag] = r_index;
+        reverseIndices.put(tag,r_index);
     }
 
-    void Indexer::getReverseIndex(std::string const &tag, std::shared_ptr<ReverseIndex> &r_index_out) const {
-        if (reverseIndices.count(tag) == 0) {
-            r_index_out = std::make_shared<ReverseIndex>();
-            return;
+    std::shared_ptr<ReverseIndex> Indexer::getReverseIndex(std::string const &tag) const {
+        if (!reverseIndices.containsKey(tag)) {
+            return std::make_shared<ReverseIndex>();
         }
-        auto rIndexIterator = reverseIndices.find(tag);
-        r_index_out = rIndexIterator->second;
+        return reverseIndices.get(tag);
     }
 
     std::ostream& operator<<(std::ostream &output_stream, Indexer &indexer) {
         output_stream << "Indexer(@" << ((long) &indexer % 10000) << "): " << std::endl;
         output_stream << " reverseIndices = { ";
 
-        auto it = indexer.reverseIndices.begin();
-        if (it == indexer.reverseIndices.end()) {
+        auto it = indexer.reverseIndices.getStdMap().begin();
+        if (it == indexer.reverseIndices.getStdMap().end()) {
             output_stream << "<empty>";
         } else {
-            while (it != indexer.reverseIndices.end()) {
+            while (it != indexer.reverseIndices.getStdMap().end()) {
                 output_stream << "   " << (*it).first << " => ";
                 output_stream << (*it).second; // second is the ReverseIndex
                 output_stream << std::endl;
