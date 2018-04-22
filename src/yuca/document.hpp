@@ -16,7 +16,9 @@
 namespace yuca {
     class Document {
     public:
-        Document() : creation_timestamp(std::chrono::high_resolution_clock::now().time_since_epoch().count()) {
+        Document() : creation_timestamp(std::chrono::high_resolution_clock::now().time_since_epoch().count()),
+        tag_2_keyset_map(KeySet())
+        {
         }
 
         /** Associate this document to an indexing key under the given tag */
@@ -48,7 +50,7 @@ namespace yuca {
         const long creation_timestamp;
 
         // maps tags to set<Key>
-        std::map<std::string, KeySet> tag_2_keyset_map;
+        yuca::utils::Map<std::string, KeySet> tag_2_keyset_map;
         yuca::utils::Set<std::string> tags;
     };
 }

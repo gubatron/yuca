@@ -166,6 +166,10 @@ namespace yuca {
 				}
 			}
 
+			std::map<K, V> getStdMap() const {
+				return m;
+			}
+
 			friend std::ostream &operator<<(std::ostream &output_stream, Map<K, V> map) {
 				output_stream << "{";
 				auto it = map.m.begin();

@@ -8,7 +8,7 @@
 namespace yuca {
     std::set<std::string> Document::getTags() const {
         std::set<std::string> tags_out;
-        if (tag_2_keyset_map.empty()) {
+        if (tag_2_keyset_map.isEmpty()) {
             return tags_out;
         }
         return tags.getStdSet();
@@ -18,18 +18,18 @@ namespace yuca {
         if (!hasKeys(tag)) {
             return KeySet();
         }
-        return tag_2_keyset_map.find(tag)->second;
+        return tag_2_keyset_map.get(tag);
     }
 
     void Document::addKey(std::shared_ptr<Key> key) {
         std::string tag(key->getTag());
         if (!hasKeys(tag)) {
-            tag_2_keyset_map.emplace(std::make_pair(tag, KeySet()));
+            tag_2_keyset_map.put(tag, KeySet());
         }
-        auto it = tag_2_keyset_map.find(tag);
-        if (it != tag_2_keyset_map.end()) {
-            tag_2_keyset_map[tag].add(key);
-        }
+        KeySet key_set = tag_2_keyset_map.get(tag);
+        key_set.add(key);
+        tag_2_keyset_map.put(tag, key_set);
+
         tags.add(tag);
     }
 
@@ -39,8 +39,8 @@ namespace yuca {
         }
         KeySet keys = getTagKeys(tag);
         keys.remove(key);
-        tag_2_keyset_map.erase(tag);
-        tag_2_keyset_map.emplace(std::make_pair(tag, keys));
+        tag_2_keyset_map.remove(tag);
+        tag_2_keyset_map.put(tag, keys);
 
         // once we know the keySet has been cleared we remove it altogether from our { string -> [key0, key1] } map.
         keys = getTagKeys(tag);
@@ -51,15 +51,15 @@ namespace yuca {
 
 
     bool Document::hasKeys(std::string const &tag) const {
-        return tag_2_keyset_map.count(tag) > 0;
+        return tag_2_keyset_map.containsKey(tag);
     }
 
     void Document::removeTag(std::string const &tag) {
         if (!hasKeys(tag)) {
             return;
         }
-        tag_2_keyset_map[tag].clear();
-        tag_2_keyset_map.erase(tag);
+        tag_2_keyset_map.get(tag).clear();
+        tag_2_keyset_map.remove(tag);
         tags.remove(tag);
     }
 
@@ -78,9 +78,9 @@ namespace yuca {
         output_stream.flush();
 
         // tags_2_keys_map
-        auto t2k_it = doc.tag_2_keyset_map.begin();
+        auto t2k_it = doc.tag_2_keyset_map.getStdMap().begin();
         output_stream << " tag_2_keyset_map={";
-        while (t2k_it != doc.tag_2_keyset_map.end()) {
+        while (t2k_it != doc.tag_2_keyset_map.getStdMap().end()) {
             std::string tag(t2k_it->first);
             KeySet keys(t2k_it->second);
             output_stream << std::endl << "   tag=<" << tag << "> = ";
@@ -94,7 +94,7 @@ namespace yuca {
             }
             output_stream << " ]";
             t2k_it++;
-            if (t2k_it != doc.tag_2_keyset_map.end()) {
+            if (t2k_it != doc.tag_2_keyset_map.getStdMap().end()) {
                 output_stream << "," << std::endl;
             }
         }
