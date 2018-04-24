@@ -88,7 +88,7 @@ namespace yuca {
 				return output_stream;
 			}
 
-			//private:
+			private:
 			std::set<T> s;
 		};
 
@@ -188,7 +188,111 @@ namespace yuca {
 			std::map<K, V> m;
 			const V default_empty_value;
 		};
-	}
+
+		template <class T>
+		class List {
+		public:
+//			explicit List(T default_empty_val) : default_empty_value(default_empty_val) {
+//			}
+
+			/** Adds element at the end */
+			void add(T t) noexcept {
+				v.push_back(t);
+			}
+
+			void add(long index, T t) noexcept {
+				v.insert(v.begin() + index, t);
+			}
+
+			void addAll(List<T> other) noexcept {
+				for (auto const& t : other.v) {
+					add(t);
+				}
+			}
+
+			void addAll(Set<T> other) noexcept {
+				for (auto const& t : other.getStdSet()) {
+					add(t);
+				}
+			}
+
+			void clear() noexcept {
+				v.clear();
+			}
+
+			/** Returns the index of the first occurrence of the specified element in this list, or -1 if this list does not contain the element. */
+			long indexOf(T t) const noexcept {
+				long i=0;
+				for (auto const& e : v) {
+					if (e == t) {
+						return i;
+					}
+					i++;
+				}
+				return -1;
+			}
+
+			bool contains(T t) noexcept {
+				return indexOf(t) > -1;
+			}
+
+			T get(long index) const noexcept(false) {
+				if (index >= v.size()) {
+					throw("get(long index): index out of bounds exception");
+				}
+				return v.at(index);
+			}
+
+			long size() const noexcept {
+				return v.size();
+			}
+
+			bool isEmpty() const noexcept {
+				return v.size() == 0;
+			}
+
+			/** Replaces the element at the specified position in this list with the specified element (optional operation). */
+            T set(long index, T t) noexcept(false) {
+				if (index >= v.size()) {
+					throw("set(long index, T t): index out of bounds exception");
+				}
+				T old_value = v.at(index);
+				v.at(index) = t;
+				return old_value;
+			}
+
+			T removeAt(long index) noexcept(false) {
+				if (index >= v.size()) {
+					throw ("set(long index): index out of bounds exception");
+				}
+
+				T old_value = v.at(index);
+				v.erase(v.begin() + index);
+				return old_value;
+			}
+
+			bool remove(T t) noexcept {
+				long index = indexOf(t);
+				if (index == -1) {
+					return false;
+				}
+				removeAt(index);
+				return true;
+			}
+
+			bool removeAll(List<T> other) {
+				long original_size = v.size();
+				for (auto const &t : other.v) {
+					remove(t);
+				}
+				return original_size > v.size();
+			}
+
+		private:
+			std::vector<T> v;
+            //const T default_empty_value;
+		};
+	};
 }
 
 #endif //YUCA_UTILS_HPP
