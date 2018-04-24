@@ -33,10 +33,10 @@ target_link_libraries(yuca_demo yuca)
 
 # unit test with catch 2 (files are checked in the order they are declared, the ones on top first)
 set(TEST_FILES
-    tests/tests_main.cpp
     tests/utils_tests.cpp
     tests/document_tests.cpp
-    tests/indexer_tests.cpp)
+    tests/indexer_tests.cpp
+    tests/tests_main.cpp)
 
 add_executable(yuca_tests ${SOURCE_FILES} ${TEST_FILES})
 set_target_properties(yuca_tests PROPERTIES LINKER_LANGUAGE CXX)
