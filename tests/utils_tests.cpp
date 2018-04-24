@@ -5,6 +5,8 @@
 #ifndef YUCA_UTILS_TESTS_H
 #define YUCA_UTILS_TESTS_H
 
+#include "tests_includes.hpp"
+
 TEST_CASE("yuca::utils::Set (add, size, contains, isEmpty, clear)") {
 	yuca::utils::Set<std::string> set;
 	REQUIRE(set.size() == 0);
@@ -36,8 +38,8 @@ TEST_CASE("yuca::utils::Set (addAll, containsAll, removeAll)") {
 	auto k3 = std::make_shared<yuca::Key>(3, three_tag);
 	auto k4 = std::make_shared<yuca::Key>(4, four_tag);
 
-	yuca::utils::Set<std::shared_ptr<Key>> set1;
-	yuca::utils::Set<std::shared_ptr<Key>> set2;
+	yuca::utils::Set<std::shared_ptr<yuca::Key>> set1;
+	yuca::utils::Set<std::shared_ptr<yuca::Key>> set2;
 
 	// Set1 = { k1, k2, k3 }
 	// Set2 = { <empty> }

@@ -33,7 +33,7 @@ namespace yuca {
 
         void indexDocument(std::shared_ptr<Document> doc);
 
-        void removeDocument(std::shared_ptr<Document> doc); // TODO
+        void removeDocument(std::shared_ptr<Document> doc);
 
 	    /** Given a key, it finds all related documents to its tag */
 	    DocumentSet findDocuments(std::shared_ptr<Key> key) const;

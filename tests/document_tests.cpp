@@ -4,7 +4,19 @@
 #ifndef YUCA_DOCUMENT_TESTS_H
 #define YUCA_DOCUMENT_TESTS_H
 
+#include "tests_includes.hpp"
+
+extern std::string foo_tag;
+extern std::string bar_tag;
+
+void initDocumentTests() {
+	foo_tag = std::string(":foo");
+	bar_tag = std::string(":bar");
+}
+
 TEST_CASE("Test If Key Can Be Added") {
+    initDocumentTests();
+
 	auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
 	auto bar_key_sp = std::make_shared<Key>(111, bar_tag);
 	auto bar_key2_sp = std::make_shared<Key>(222, bar_tag);
@@ -42,6 +54,8 @@ TEST_CASE("Test If Key Can Be Added") {
 
 
 TEST_CASE("Test if a single Key can be removed") {
+	initDocumentTests();
+
 	const auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
 	const auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
 	const auto bar_key2_sp = std::make_shared<Key>(2, bar_tag);

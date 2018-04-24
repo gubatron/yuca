@@ -5,13 +5,22 @@
 #ifndef YUCA_INDEXER_TESTS_H
 #define YUCA_INDEXER_TESTS_H
 
-#include <yuca/indexer.hpp>
-
 // A Document can have many keys.
 // Each key has to have a tag, which serves as a search dimension/partition parameter
 // The indexer indexes documents with its keys.
 // Documents store their own keys
 // And the indexer keeps a reverse index which maps keys to sets of documents.
+
+#include "tests_includes.hpp"
+
+std::string foo_tag;
+std::string bar_tag;
+auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
+auto foo_key2_sp = std::make_shared<Key>(2, foo_tag);
+auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
+std::shared_ptr<Document> document_foo_sp;
+std::shared_ptr<Document> document_bar_sp;
+std::shared_ptr<Document> document_foo_bar_sp;
 
 void initIndexerTests() {
 	document_foo_sp = std::make_shared<Document>();
