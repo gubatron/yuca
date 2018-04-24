@@ -16,6 +16,8 @@ namespace yuca {
 
         void putDocument(std::shared_ptr<Key> key, std::shared_ptr<Document> doc);
 
+        void removeDocument(std::shared_ptr<Key> key, std::shared_ptr<Document> doc);
+
         auto hasDocuments(std::shared_ptr<Key> key) const -> bool;
 
 	    DocumentSet getDocuments(std::shared_ptr<Key> key) const;

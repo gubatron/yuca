@@ -12,6 +12,20 @@ namespace yuca {
         index.put(key,docs);
     }
 
+    void ReverseIndex::removeDocument(std::shared_ptr<Key> key, std::shared_ptr<Document> doc) {
+        if (!hasDocuments(key)) {
+            return;
+        }
+
+        DocumentSet docs = index.get(key);
+        docs.remove(doc);
+        index.remove(key);
+
+        if (!docs.isEmpty()) {
+            index.put(key, docs);
+        }
+    }
+
     auto ReverseIndex::hasDocuments(std::shared_ptr<Key> key) const -> bool {
         return index.containsKey(key);
     }
@@ -80,7 +94,14 @@ namespace yuca {
     }
 
     void Indexer::removeDocument(std::shared_ptr<Document> doc) {
-
+        std::set<std::string> tags = doc->getTags();
+        for (auto const& tag : tags) {
+            auto reverse_index = getReverseIndex(tag);
+            KeySet key_set = doc.get()->getTagKeys(tag);
+            for (auto const& key : key_set.getStdSet()) {
+                reverse_index->removeDocument(key, doc);
+            }
+        }
     }
 
     DocumentSet Indexer::findDocuments(std::shared_ptr<Key> key) const {
