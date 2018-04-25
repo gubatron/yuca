@@ -255,6 +255,31 @@ TEST_CASE("yuca::utils::List  isEmpty, size, add, add(i,t), addAll(List), addAll
 	intList.clear();
 	REQUIRE(intList.size() == 0);
 	REQUIRE(!intList.contains(333));
+
+	yuca::utils::List<yuca::Key> keyList;
+	std::string title_tag(":title");
+	Key k1(1, title_tag);
+	keyList.add(k1);
+	keyList.add(k1);
+	keyList.add(k1);
+	REQUIRE(keyList.size() == 3);
+	keyList.remove(k1);
+	REQUIRE(keyList.size() == 2);
+	keyList.remove(k1);
+	REQUIRE(keyList.size() == 1);
+
+	yuca::utils::List<std::shared_ptr<Key>> spKeyList;
+	auto sp_k1 = std::make_shared<Key>(k1);
+	auto sp_k2 = std::make_shared<Key>(Key(2, title_tag));
+	spKeyList.add(sp_k1);
+	spKeyList.add(sp_k2);
+	REQUIRE(spKeyList.indexOf(sp_k1) == 0);
+	REQUIRE(spKeyList.indexOf(sp_k2) == 1);
+	REQUIRE(spKeyList.get(0) == sp_k1);
+	REQUIRE(spKeyList.get(1) == sp_k2);
+
+	auto sp_k2_prime = spKeyList.get(1);
+	REQUIRE(sp_k2 == sp_k2_prime);
 }
 
 #endif

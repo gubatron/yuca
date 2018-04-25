@@ -86,7 +86,7 @@ namespace yuca {
             output_stream << std::endl << "   tag=<" << tag << "> = ";
             auto keys_it = keys.getStdSet().begin();
             while (keys_it != keys.getStdSet().end()) {
-                output_stream << *(*keys_it).get();
+                output_stream << **keys_it;
                 keys_it++;
                 if (keys_it != keys.getStdSet().end()) {
                     output_stream << ", ";

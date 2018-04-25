@@ -65,12 +65,9 @@ TEST_CASE("Indexer Basic Tests") {
 
 		// Notes on shared_pointers.
 		//   sp.get() -> pointer to object (*Object)
-		//   *sp.get() -> dereferences the pointer to the object (Object)
-
-	//	std::cout << "**foo_it -> " << std::endl << **foo_it << std::endl;
-	//	std::cout << "*document_foo_sp.get() -> " << std::endl << *document_foo_sp.get() << std::endl;
-		REQUIRE(**foo_it == *document_foo_sp.get());
-		REQUIRE(false == (**foo_it == *document_bar_sp.get()));
+		//   *sp == *sp.get() -> dereferences the pointer to the object (Object)
+		REQUIRE(**foo_it == *document_foo_sp);
+		REQUIRE(false == (**foo_it == *document_bar_sp));
 
 		DocumentSet bar_found_docs = indexer.findDocuments(bar_key_sp);
 		REQUIRE(!bar_found_docs.isEmpty());

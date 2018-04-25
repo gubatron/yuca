@@ -97,7 +97,7 @@ namespace yuca {
         std::set<std::string> tags = doc->getTags();
         for (auto const& tag : tags) {
             auto reverse_index = getReverseIndex(tag);
-            KeySet key_set = doc.get()->getTagKeys(tag);
+            KeySet key_set = doc->getTagKeys(tag);
             for (auto const& key : key_set.getStdSet()) {
                 reverse_index->removeDocument(key, doc);
             }
