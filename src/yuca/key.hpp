@@ -37,7 +37,7 @@ namespace yuca {
         long id;
     };
 
-    class StringKey : public virtual Key {
+    class StringKey : public Key {
     public:
         explicit StringKey(std::string &string_key, std::string &my_tag) :
         Key(std::hash<std::string>{}(string_key), my_tag), str_key(string_key) {

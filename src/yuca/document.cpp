@@ -86,8 +86,15 @@ namespace yuca {
             output_stream << std::endl << "   tag=<" << tag << "> = ";
             std::cout << "[ ";
             int j=0;
-            for (auto const& key : keys.getStdSet()) {
-                output_stream << *key;
+            for (auto const& key_sp : keys.getStdSet()) {
+            	// bad design hack, this should happen automatically, it should
+	            // use the << operator of the child Key class
+            	auto cast_key = std::dynamic_pointer_cast<StringKey>(key_sp);
+            	if (cast_key != nullptr) {
+            	    output_stream << *cast_key;
+            	} else {
+		            output_stream << *key_sp;
+	            }
                 if (j < keys.size() - 1) {
                     output_stream << ", ";
                 }
