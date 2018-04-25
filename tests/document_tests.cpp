@@ -17,7 +17,8 @@ void initDocumentTests() {
 TEST_CASE("Test If Key Can Be Added") {
     initDocumentTests();
 
-	auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
+	std::string foo_1_str = "foo 1";
+	auto foo_key_sp = std::make_shared<StringKey>(foo_1_str, foo_tag);
 	auto bar_key_sp = std::make_shared<Key>(111, bar_tag);
 	auto bar_key2_sp = std::make_shared<Key>(222, bar_tag);
 	auto document_sp = std::make_shared<Document>();
@@ -42,6 +43,7 @@ TEST_CASE("Test If Key Can Be Added") {
 	REQUIRE(bar_keys.size() == 2);
 
 	// make sure it's the same one we've added
+	//REQUIRE(foo_keys.contains(std::dynamic_pointer_cast<Key,StringKey>(foo_key_sp)));
 	REQUIRE(foo_keys.contains(foo_key_sp));
 	REQUIRE(bar_keys.contains(bar_key_sp));
 	REQUIRE(bar_keys.contains(bar_key2_sp));

@@ -39,4 +39,10 @@ namespace yuca {
         output_stream.flush();
         return output_stream;
     }
+
+    std::ostream &operator<<(std::ostream &output_stream, StringKey &key) {
+        output_stream << "StringKey(@" << ((long) &key % 10000) << ", str_key=" << key.str_key << ", id=" << key.id << ", tag=" << key.tag << ")";
+        output_stream.flush();
+        return output_stream;
+    }
 }
