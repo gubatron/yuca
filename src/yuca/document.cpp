@@ -78,25 +78,26 @@ namespace yuca {
         output_stream.flush();
 
         // tags_2_keys_map
-        auto t2k_it = doc.tag_2_keyset_map.getStdMap().begin();
         output_stream << " tag_2_keyset_map={";
-        while (t2k_it != doc.tag_2_keyset_map.getStdMap().end()) {
-            std::string tag(t2k_it->first);
-            KeySet keys(t2k_it->second);
+        int i = 0;
+        yuca::utils::Set<std::string> doc_tags = doc.tag_2_keyset_map.keySet();
+        for (auto const& tag : doc_tags.getStdSet()) {
+            KeySet keys(doc.tag_2_keyset_map.get(tag));
             output_stream << std::endl << "   tag=<" << tag << "> = ";
-            auto keys_it = keys.getStdSet().begin();
-            while (keys_it != keys.getStdSet().end()) {
-                output_stream << **keys_it;
-                keys_it++;
-                if (keys_it != keys.getStdSet().end()) {
+            std::cout << "[ ";
+            int j=0;
+            for (auto const& key : keys.getStdSet()) {
+                output_stream << *key;
+                if (j < keys.size() - 1) {
                     output_stream << ", ";
                 }
+                j++;
             }
             output_stream << " ]";
-            t2k_it++;
-            if (t2k_it != doc.tag_2_keyset_map.getStdMap().end()) {
+            if (i < doc_tags.size() - 1) {
                 output_stream << "," << std::endl;
             }
+            i++;
         }
         output_stream << std::endl << " }";
         output_stream.flush();

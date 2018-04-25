@@ -8,6 +8,7 @@
 
 #include <set>
 #include <map>
+#include <vector>
 #include <ostream>
 #include <iostream>
 
@@ -291,6 +292,10 @@ namespace yuca {
 		private:
 			std::vector<T> v;
             //const T default_empty_value;
+		};
+
+		inline int maxRand(int maxInclusive) {
+			return std::rand()/((RAND_MAX + 1u)/maxInclusive);
 		};
 	};
 }

@@ -38,6 +38,7 @@ TEST_CASE("Test If Key Can Be Added") {
 
 	document_sp->addKey(bar_key_sp);
 	document_sp->addKey(bar_key2_sp);
+	std::cout << *document_sp << std::endl;
 
 	KeySet bar_keys = document_sp->getTagKeys(bar_tag);
 	REQUIRE(bar_keys.size() == 2);

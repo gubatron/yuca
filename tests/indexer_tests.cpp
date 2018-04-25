@@ -156,24 +156,6 @@ TEST_CASE("Indexer Basic Tests") {
 }
 
 /** generates a random integer in the interval [0,maxInclusive] */
-int maxRand(int maxInclusive) {
-	return std::rand()/((RAND_MAX + 1u)/maxInclusive);
-};
-
-
-std::string generateRandomPhrase(List<std::string> dictionary, int words) {
-    std::string query;
-    int max_index = dictionary.size() - 1;
-    for (int i=0; i < words; i++) {
-    	query.append(dictionary.get(maxRand(max_index)));
-
-    	if (i != words - 1) {
-    		query.append(" ");
-    	}
-    }
-    return query;
-}
-
 struct file {
 	std::string title;
 	std::string ext;
@@ -184,8 +166,23 @@ struct file {
 		full.append(ext);
 		return full;
 	}
+
+	// todo: generate document out of file get_doc()
+	// it should include all it's :title StringKeys and its :ext StringKey
 };
 
+std::string generateRandomPhrase(List<std::string> dictionary, int words) {
+	std::string query;
+	int max_index = dictionary.size() - 1;
+	for (int i=0; i < words; i++) {
+		query.append(dictionary.get(yuca::utils::maxRand(max_index)));
+
+		if (i != words - 1) {
+			query.append(" ");
+		}
+	}
+	return query;
+};
 
 file generateRandomFile(List<std::string> title_dict,
                                    List<std::string> ext_dict,
@@ -212,6 +209,28 @@ TEST_CASE("Indexer Search Tests") {
 	title_dict.add("dynamic");
 	title_dict.add("polish");
 	title_dict.add("yuca");
+	title_dict.add("cure");
+	title_dict.add("disease");
+	title_dict.add("forest");
+	title_dict.add("customs");
+	title_dict.add("passport");
+	title_dict.add("country");
+	title_dict.add("airport");
+	title_dict.add("plane");
+	title_dict.add("boat");
+	title_dict.add("car");
+	title_dict.add("the");
+	title_dict.add("it");
+	title_dict.add("some");
+	title_dict.add("love");
+	title_dict.add("hate");
+	title_dict.add("fear");
+	title_dict.add("lullaby");
+	title_dict.add("player");
+	title_dict.add("locations");
+	title_dict.add("cost");
+
+
 
 	List<std::string> ext_dict;
 	ext_dict.add("txt");
