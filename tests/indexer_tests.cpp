@@ -22,6 +22,8 @@ std::shared_ptr<Document> document_foo_sp;
 std::shared_ptr<Document> document_bar_sp;
 std::shared_ptr<Document> document_foo_bar_sp;
 
+using namespace yuca::utils;
+
 void initIndexerTests() {
 	document_foo_sp = std::make_shared<Document>();
 	document_foo_sp->addKey(foo_key_sp);
@@ -151,6 +153,83 @@ TEST_CASE("Indexer Basic Tests") {
 	    REQUIRE(bar_docs.size() == 1);
 	    REQUIRE(multi_index_doc_set.size() == 1);
     }
+}
+
+/** generates a random integer in the interval [0,maxInclusive] */
+int maxRand(int maxInclusive) {
+	return std::rand()/((RAND_MAX + 1u)/maxInclusive);
+};
+
+
+std::string generateRandomPhrase(List<std::string> dictionary, int words) {
+    std::string query;
+    int max_index = dictionary.size() - 1;
+    for (int i=0; i < words; i++) {
+    	query.append(dictionary.get(maxRand(max_index)));
+
+    	if (i != words - 1) {
+    		query.append(" ");
+    	}
+    }
+    return query;
+}
+
+struct file {
+	std::string title;
+	std::string ext;
+	std::string full_name() {
+		std::string full;
+		full.append(title);
+		full.append(".");
+		full.append(ext);
+		return full;
+	}
+};
+
+
+file generateRandomFile(List<std::string> title_dict,
+                                   List<std::string> ext_dict,
+                                   int min_words,
+                                   int max_words) {
+	file f;
+    f.title = generateRandomPhrase(title_dict, min_words + maxRand(max_words - min_words));
+	f.ext = ext_dict.get(maxRand(static_cast<int>(ext_dict.size() - 1)));
+    return f;
+}
+
+TEST_CASE("Indexer Search Tests") {
+	List<std::string> title_dict;
+	title_dict.add("troy");
+	title_dict.add("paris");
+	title_dict.add("hector");
+	title_dict.add("aquiles");
+	title_dict.add("helen");
+	title_dict.add("agamenon");
+	title_dict.add("apollo");
+	title_dict.add("aphrodite");
+	title_dict.add("xeon");
+	title_dict.add("amazons");
+	title_dict.add("dynamic");
+	title_dict.add("polish");
+	title_dict.add("yuca");
+
+	List<std::string> ext_dict;
+	ext_dict.add("txt");
+	ext_dict.add("dat");
+	ext_dict.add("gif");
+	ext_dict.add("m4a");
+	ext_dict.add("mp3");
+	ext_dict.add("jpg");
+	ext_dict.add("ogg");
+	ext_dict.add("pdf");
+
+	std::srand(444);
+
+	int queries = 100;
+	for (int i = 0; i < queries; i++) {
+		file f = generateRandomFile(title_dict, ext_dict, 4, 7);
+		std::cout << i << ". [" << f.full_name() << "]" << std::endl;
+	}
 }
 
 #endif
