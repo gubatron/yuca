@@ -202,6 +202,20 @@ namespace yuca {
 				return v;
 			}
 
+			friend std::ostream &operator<<(std::ostream &output_stream, List<T> list) {
+				output_stream << "[";
+				auto it = list.v.begin();
+				for (auto const &item : list.v) {
+					output_stream << item;
+					it++;
+					if (it != list.v.end()) {
+						output_stream << ", ";
+					}
+				}
+				output_stream << "]";
+				return output_stream;
+			}
+
 		private:
 			std::vector<T> v;
 			//const T default_empty_value;
