@@ -21,6 +21,25 @@ auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
 std::shared_ptr<Document> document_foo_sp;
 std::shared_ptr<Document> document_bar_sp;
 std::shared_ptr<Document> document_foo_bar_sp;
+std::string title_tag = ":title";
+std::string file_name_tag = ":filename";
+std::string keyword_tag = ":keyword";
+std::string extension_tag = ":extension";
+
+
+/**
+ * We cache StringKeys.
+ * map {
+ *      :<tag> -> map {
+ *                     :<word> -> StringKey(:<word>, :<tag>)
+ *                    }
+ *     }
+ *
+ */
+std::string empty_string = "";
+std::shared_ptr<StringKey> empty_string_key = std::make_shared<StringKey>(empty_string,empty_string);
+yuca::utils::Map<std::string, std::shared_ptr<StringKey>> empty_word_to_StringKey_map(empty_string_key);
+yuca::utils::Map<std::string, yuca::utils::Map<std::string, std::shared_ptr<StringKey>>>string_key_cache(empty_word_to_StringKey_map);
 
 using namespace yuca::utils;
 
@@ -155,10 +174,35 @@ TEST_CASE("Indexer Basic Tests") {
     }
 }
 
+/** We reuse the StringKey objects with shared_ptr's */
+std::shared_ptr<StringKey> cache_get_StringKey(std::string &str, std::string &tag) {
+	auto tag_word_map = string_key_cache.get(tag);
+	if (tag_word_map == empty_word_to_StringKey_map) {
+		Map<std::string, std::shared_ptr<StringKey>> word_to_stringKey_map(empty_string_key);
+		auto result_sp = std::make_shared<StringKey>(str, tag);
+		word_to_stringKey_map.put(str, result_sp);
+		string_key_cache.put(tag, word_to_stringKey_map);
+		return result_sp;
+	} else {
+		auto str_key_sp = tag_word_map.get(str);
+		std::shared_ptr<StringKey> result_sp;
+		if (str_key_sp == empty_string_key) {
+			result_sp = std::make_shared<StringKey>(str, tag);
+			tag_word_map.put(str, result_sp);
+			string_key_cache.put(tag, tag_word_map);
+			return result_sp;
+		} else {
+			return str_key_sp;
+		}
+	}
+}
+
 /** generates a random integer in the interval [0,maxInclusive] */
 struct file {
 	std::string title;
 	std::string ext;
+	List<std::string> title_tokens;
+	std::shared_ptr<Document> document_sp = nullptr;
 	std::string full_name() {
 		std::string full;
 		full.append(title);
@@ -166,22 +210,53 @@ struct file {
 		full.append(ext);
 		return full;
 	}
+	std::shared_ptr<Document> get_document() {
+		if (document_sp == nullptr) {
+			document_sp = std::make_shared<Document>();
+			std::shared_ptr<StringKey> title_key = cache_get_StringKey(title, title_tag);
+			document_sp->addKey(title_key);
+
+			std::string full_filename = full_name();
+			std::shared_ptr<StringKey> filename_key = cache_get_StringKey(full_filename, file_name_tag);
+			document_sp->addKey(filename_key);
+
+			std::string extension = ext;
+			std::shared_ptr<StringKey> extension_key = cache_get_StringKey(extension, extension_tag);
+			document_sp->addKey(extension_key);
+
+			for (long i = 0; i < title_tokens.size(); i++) {
+				std::string token = title_tokens.get(i);
+				std::shared_ptr<StringKey> token_key = cache_get_StringKey(token, keyword_tag);
+				document_sp->addKey(token_key);
+			}
+		}
+		return document_sp;
+	}
 
 	// todo: generate document out of file get_doc()
 	// it should include all it's :title StringKeys and its :ext StringKey
 };
 
-std::string generateRandomPhrase(List<std::string> dictionary, int words) {
-	std::string query;
-	int max_index = dictionary.size() - 1;
+/**
+ * @param dictionary
+ * @param words
+ * @return The first element contains the entire phrase, the rest each word that helps make the phrase
+ */
+List<std::string> generateRandomPhrase(List<std::string> dictionary, int words) {
+	std::string phrase;
+	List<std::string> result;
+	long max_index = dictionary.size() - 1;
 	for (int i=0; i < words; i++) {
-		query.append(dictionary.get(yuca::utils::maxRand(max_index)));
+		std::string random_word = dictionary.get(yuca::utils::maxRand(max_index));
+		result.add(random_word);
+		phrase.append(random_word);
 
 		if (i != words - 1) {
-			query.append(" ");
+			phrase.append(" ");
 		}
 	}
-	return query;
+	result.add(0, phrase);
+	return result;
 };
 
 file generateRandomFile(List<std::string> title_dict,
@@ -189,7 +264,9 @@ file generateRandomFile(List<std::string> title_dict,
                                    int min_words,
                                    int max_words) {
 	file f;
-    f.title = generateRandomPhrase(title_dict, min_words + maxRand(max_words - min_words));
+	List<std::string> phrase_n_tokens = generateRandomPhrase(title_dict, min_words + maxRand(max_words - min_words));
+	f.title = phrase_n_tokens.get(0);
+	f.title_tokens = phrase_n_tokens.subList(1, phrase_n_tokens.size() - 1);
 	f.ext = ext_dict.get(maxRand(static_cast<int>(ext_dict.size() - 1)));
     return f;
 }
@@ -229,8 +306,8 @@ TEST_CASE("Indexer Search Tests") {
 	title_dict.add("player");
 	title_dict.add("locations");
 	title_dict.add("cost");
-
-
+	title_dict.add("cube");
+    title_dict.add("rifle");
 
 	List<std::string> ext_dict;
 	ext_dict.add("txt");
@@ -241,13 +318,19 @@ TEST_CASE("Indexer Search Tests") {
 	ext_dict.add("jpg");
 	ext_dict.add("ogg");
 	ext_dict.add("pdf");
+	ext_dict.add("png");
+	ext_dict.add("avi");
 
 	std::srand(444);
 
 	int queries = 100;
+	Indexer indexer;
 	for (int i = 0; i < queries; i++) {
 		file f = generateRandomFile(title_dict, ext_dict, 4, 7);
-		std::cout << i << ". [" << f.full_name() << "]" << std::endl;
+		std::shared_ptr<Document> doc = f.get_document();
+		indexer.indexDocument(doc);
+		std::cout << *doc << std::endl;
+		std::cout << i << ". [" << f.full_name() << "]" << std::endl << std::endl;
 	}
 }
 
