@@ -171,6 +171,10 @@ namespace yuca {
 				return m;
 			}
 
+			bool operator==(const Map<K,V> &other) const {
+			    return this == &other;
+			}
+
 			friend std::ostream &operator<<(std::ostream &output_stream, Map<K, V> map) {
 				output_stream << "{";
 				auto it = map.m.begin();
@@ -244,6 +248,14 @@ namespace yuca {
 				return v.at(index);
 			}
 
+			List<T> subList(long start, long length) {
+				List<T> result;
+				for (long i=0; i < length; i++) {
+					result.add(get(start + i));
+				}
+				return result;
+			}
+
 			long size() const noexcept {
 				return v.size();
 			}
@@ -288,6 +300,10 @@ namespace yuca {
 				}
 				return original_size > v.size();
 			}
+
+			std::vector<T> getStdVector() {
+            	return v;
+            }
 
 		private:
 			std::vector<T> v;
