@@ -27,6 +27,38 @@ namespace yuca {
 	    friend std::ostream& operator<<(std::ostream &output_stream, ReverseIndex &rindex);
     };
 
+	struct TaggedKeywords {
+		TaggedKeywords(std::string &query) : q(query), tag_keywords_map(yuca::utils::List<std::string>()) {
+			std::string tag_prefix(":");
+			yuca::utils::List<std::string> keywords = yuca::utils::split(query);
+			std::string keyword_tag = ":keyword";
+			std::string current_tag = ":keyword";
+			for (auto keyword : keywords.getStdVector()) {
+				if (yuca::utils::startsWith(keyword, tag_prefix)) {
+					current_tag = keyword;
+					continue;
+				}
+				auto tag_keywords = tag_keywords_map.get(current_tag);
+				tag_keywords.add(keyword);
+				tag_keywords_map.put(current_tag, tag_keywords);
+
+				if (current_tag != keyword_tag) {
+					auto keywords = tag_keywords_map.get(keyword_tag);
+					keywords.add(keyword);
+					tag_keywords_map.put(keyword_tag, keywords);
+				}
+			}
+		}
+
+		yuca::utils::List<std::string> getTags();
+
+		yuca::utils::List<std::string> getKeywords(std::string &tag);
+
+		yuca::utils::Map<std::string, yuca::utils::List<std::string>> tag_keywords_map;
+
+		const std::string q;
+	};
+
     class Indexer {
     public:
 	    Indexer() : reverseIndices(std::shared_ptr<ReverseIndex>()) {}
@@ -35,14 +67,14 @@ namespace yuca {
 
         void removeDocument(std::shared_ptr<Document> doc);
 
+        yuca::utils::List<std::shared_ptr<Document>> search(std::string &query) const;
+
+        friend std::ostream& operator<<(std::ostream &output_stream, Indexer &indexer);
+
 	    /** Given a key, it finds all related documents to its tag */
 	    DocumentSet findDocuments(std::shared_ptr<Key> key) const;
 
 	    DocumentSet findDocuments(int numKeys, std::shared_ptr<Key> keys[]) const;
-
-        friend std::ostream& operator<<(std::ostream &output_stream, Indexer &indexer);
-
-
     private:
         /**
          * The Indexer is conformed by multiple reverse indexes,

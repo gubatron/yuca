@@ -26,7 +26,6 @@ std::string file_name_tag = ":filename";
 std::string keyword_tag = ":keyword";
 std::string extension_tag = ":extension";
 
-
 /**
  * We cache StringKeys.
  * map {
@@ -36,10 +35,6 @@ std::string extension_tag = ":extension";
  *     }
  *
  */
-std::string empty_string = "";
-std::shared_ptr<StringKey> empty_string_key = std::make_shared<StringKey>(empty_string,empty_string);
-yuca::utils::Map<std::string, std::shared_ptr<StringKey>> empty_word_to_StringKey_map(empty_string_key);
-yuca::utils::Map<std::string, yuca::utils::Map<std::string, std::shared_ptr<StringKey>>>string_key_cache(empty_word_to_StringKey_map);
 
 using namespace yuca::utils;
 
@@ -174,35 +169,50 @@ TEST_CASE("Indexer Basic Tests") {
     }
 }
 
-/** We reuse the StringKey objects with shared_ptr's */
-std::shared_ptr<StringKey> cache_get_StringKey(std::string &str, std::string &tag) {
-	auto tag_word_map = string_key_cache.get(tag);
-	if (tag_word_map == empty_word_to_StringKey_map) {
-		Map<std::string, std::shared_ptr<StringKey>> word_to_stringKey_map(empty_string_key);
-		auto result_sp = std::make_shared<StringKey>(str, tag);
-		word_to_stringKey_map.put(str, result_sp);
-		string_key_cache.put(tag, word_to_stringKey_map);
-		return result_sp;
-	} else {
-		auto str_key_sp = tag_word_map.get(str);
-		std::shared_ptr<StringKey> result_sp;
-		if (str_key_sp == empty_string_key) {
-			result_sp = std::make_shared<StringKey>(str, tag);
-			tag_word_map.put(str, result_sp);
-			string_key_cache.put(tag, tag_word_map);
-			return result_sp;
-		} else {
-			return str_key_sp;
-		}
-	}
+TEST_CASE("Indexer TaggedKeywords struct tests") {
+	std::string keyword_tag(":keyword");
+	std::string title_tag(":title");
+	std::string extension_tag(":extension");
+	std::string simple_query("simple search with no specific tags");
+	std::string multi_tag_query(":title love is all you need :extension mp4");
+	TaggedKeywords taggedKeywords(simple_query);
+
+	List<std::string> tags = taggedKeywords.getTags();
+
+	REQUIRE(tags.size() == 1);
+	REQUIRE(tags.get(0) == keyword_tag);
+
+	List<std::string> keywords = taggedKeywords.getKeywords(keyword_tag);
+	REQUIRE(keywords.get(0) == "simple");
+	REQUIRE(keywords.get(1) == "search");
+	REQUIRE(keywords.get(2) == "with");
+	REQUIRE(keywords.get(3) == "no");
+	REQUIRE(keywords.get(4) == "specific");
+	REQUIRE(keywords.get(5) == "tags");
+
+	TaggedKeywords multiTagKeywords(multi_tag_query);
+	tags = multiTagKeywords.getTags();
+	REQUIRE(tags.size() == 4);
+	REQUIRE(tags.contains(":title"));
+    REQUIRE(tags.contains(":extension"));
+    REQUIRE(tags.contains(":keyword"));
+
+    List<std::string> title_keywords = multiTagKeywords.getKeywords(title_tag);
+    REQUIRE(title_keywords.size() == 5);
+    REQUIRE(title_keywords.get(0) == "love");
+	REQUIRE(title_keywords.get(1) == "is");
+	REQUIRE(title_keywords.get(2) == "all");
+	REQUIRE(title_keywords.get(3) == "you");
+	REQUIRE(title_keywords.get(4) == "need");
 }
 
 /** generates a random integer in the interval [0,maxInclusive] */
 struct file {
 	std::string title;
 	std::string ext;
-	List<std::string> title_tokens;
+	List<std::string> title_keywords;
 	std::shared_ptr<Document> document_sp = nullptr;
+
 	std::string full_name() {
 		std::string full;
 		full.append(title);
@@ -210,31 +220,29 @@ struct file {
 		full.append(ext);
 		return full;
 	}
+
 	std::shared_ptr<Document> get_document() {
 		if (document_sp == nullptr) {
 			document_sp = std::make_shared<Document>();
-			std::shared_ptr<StringKey> title_key = cache_get_StringKey(title, title_tag);
+			std::shared_ptr<StringKey> title_key = std::make_shared<StringKey>(title, title_tag);
 			document_sp->addKey(title_key);
 
 			std::string full_filename = full_name();
-			std::shared_ptr<StringKey> filename_key = cache_get_StringKey(full_filename, file_name_tag);
+			std::shared_ptr<StringKey> filename_key = std::make_shared<StringKey>(full_filename, file_name_tag);
 			document_sp->addKey(filename_key);
 
 			std::string extension = ext;
-			std::shared_ptr<StringKey> extension_key = cache_get_StringKey(extension, extension_tag);
+			std::shared_ptr<StringKey> extension_key = std::make_shared<StringKey>(extension, extension_tag);
 			document_sp->addKey(extension_key);
 
-			for (long i = 0; i < title_tokens.size(); i++) {
-				std::string token = title_tokens.get(i);
-				std::shared_ptr<StringKey> token_key = cache_get_StringKey(token, keyword_tag);
-				document_sp->addKey(token_key);
+			for (long i = 0; i < title_keywords.size(); i++) {
+				std::string token = title_keywords.get(i);
+				std::shared_ptr<StringKey> keyword_key = std::make_shared<StringKey>(token, keyword_tag);
+				document_sp->addKey(keyword_key);
 			}
 		}
 		return document_sp;
 	}
-
-	// todo: generate document out of file get_doc()
-	// it should include all it's :title StringKeys and its :ext StringKey
 };
 
 /**
@@ -266,7 +274,7 @@ file generateRandomFile(List<std::string> title_dict,
 	file f;
 	List<std::string> phrase_n_tokens = generateRandomPhrase(title_dict, min_words + maxRand(max_words - min_words));
 	f.title = phrase_n_tokens.get(0);
-	f.title_tokens = phrase_n_tokens.subList(1, phrase_n_tokens.size() - 1);
+	f.title_keywords = phrase_n_tokens.subList(1, phrase_n_tokens.size() - 1);
 	f.ext = ext_dict.get(maxRand(static_cast<int>(ext_dict.size() - 1)));
     return f;
 }
@@ -329,8 +337,8 @@ TEST_CASE("Indexer Search Tests") {
 		file f = generateRandomFile(title_dict, ext_dict, 4, 7);
 		std::shared_ptr<Document> doc = f.get_document();
 		indexer.indexDocument(doc);
-		std::cout << *doc << std::endl;
-		std::cout << i << ". [" << f.full_name() << "]" << std::endl << std::endl;
+		//std::cout << *doc << std::endl;
+		//std::cout << i << ". [" << f.full_name() << "]" << std::endl << std::endl;
 	}
 }
 

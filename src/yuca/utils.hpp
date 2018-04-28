@@ -335,6 +335,10 @@ namespace yuca {
 		inline List<std::string> split(std::string &str) {
 			return split(str, ' ');
 		}
+
+		inline bool startsWith(std::string &source, std::string &target) {
+			return source.compare(0, target.length(), target) == 0;
+		}
 	};
 }
 

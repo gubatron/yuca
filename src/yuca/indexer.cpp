@@ -30,6 +30,14 @@ namespace yuca {
         return index.containsKey(key);
     }
 
+    yuca::utils::List<std::string> TaggedKeywords::getTags() {
+        return tag_keywords_map.keyList();
+    }
+
+    yuca::utils::List<std::string> TaggedKeywords::getKeywords(std::string &tag) {
+        return tag_keywords_map.get(tag);
+    }
+
     DocumentSet ReverseIndex::getDocuments(std::shared_ptr<Key> key) const {
         if (!hasDocuments(key)) {
             return DocumentSet();
@@ -102,6 +110,12 @@ namespace yuca {
                 reverse_index->removeDocument(key, doc);
             }
         }
+    }
+
+    yuca::utils::List<std::shared_ptr<Document>> Indexer::search(std::string &query) const {
+        utils::List<std::shared_ptr<Document>> results;
+
+        return results;
     }
 
     DocumentSet Indexer::findDocuments(std::shared_ptr<Key> key) const {

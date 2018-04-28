@@ -142,10 +142,18 @@ TEST_CASE("yuca::utils::Map") {
 			REQUIRE(m1.containsKey(k));
 			REQUIRE(m1.get(k) == m2.get(k));
 		}
+
+		auto m2_keylist = m2.keyList();
+		for (int i = 0; i < m2_keylist.size(); i++) {
+			auto k = m2_keylist.get(i);
+			REQUIRE(m1.containsKey(k));
+			REQUIRE(m1.get(k) == m2.get(k));
+		}
 	}
 }
 
-TEST_CASE("yuca::utils::List  isEmpty, size, add, add(i,t), addAll(List), addAll(Set), indexOf, contains, get, removeAt, removeAll") {
+TEST_CASE(
+"yuca::utils::List  isEmpty, size, add, add(i,t), addAll(List), addAll(Set), indexOf, contains, get, removeAt, removeAll") {
 	yuca::utils::List<int> intList;
 	REQUIRE(intList.size() == 0);
 	REQUIRE(intList.isEmpty());
@@ -280,6 +288,18 @@ TEST_CASE("yuca::utils::List  isEmpty, size, add, add(i,t), addAll(List), addAll
 
 	auto sp_k2_prime = spKeyList.get(1);
 	REQUIRE(sp_k2 == sp_k2_prime);
+}
+
+TEST_CASE("yuca:utils static functions") {
+	SECTION("yuca::utils split") {
+		std::string foo_query = "one two three four";
+		auto list = yuca::utils::split(foo_query);
+		REQUIRE(list.size() == 4);
+		REQUIRE(list.get(0) == "one");
+		REQUIRE(list.get(1) == "two");
+		REQUIRE(list.get(2) == "three");
+		REQUIRE(list.get(3) == "four");
+	}
 }
 
 #endif
