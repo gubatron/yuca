@@ -9,8 +9,9 @@
 #include <memory>
 
 namespace yuca {
+	/** Maps *Key -> [Document Set] */
     struct ReverseIndex {
-    	ReverseIndex() : index(DocumentSet()) {}
+    	ReverseIndex() : index(DocumentSet()), key_cache(nullptr) {}
 
         yuca::utils::Map<std::shared_ptr<Key>, DocumentSet> index;
 
@@ -25,6 +26,13 @@ namespace yuca {
         long getKeyCount() const;
 
 	    friend std::ostream& operator<<(std::ostream &output_stream, ReverseIndex &rindex);
+    private:
+	    /** Given an equivalent shared_ptr<Key> gets the corresponding shared_ptr<Key> we have stored already */
+	    std::shared_ptr<Key> keyCacheGet(std::shared_ptr<Key>) const;
+
+	    void keyCachePut(std::shared_ptr<Key> key);
+
+	    yuca::utils::Map<long, std::shared_ptr<Key>> key_cache;
     };
 
 	struct TaggedKeywords {
@@ -41,7 +49,6 @@ namespace yuca {
 				auto tag_keywords = tag_keywords_map.get(current_tag);
 				tag_keywords.add(keyword);
 				tag_keywords_map.put(current_tag, tag_keywords);
-
 				if (current_tag != keyword_tag) {
 					auto keywords = tag_keywords_map.get(keyword_tag);
 					keywords.add(keyword);
@@ -74,7 +81,7 @@ namespace yuca {
 	    /** Given a key, it finds all related documents to its tag */
 	    DocumentSet findDocuments(std::shared_ptr<Key> key) const;
 
-	    DocumentSet findDocuments(int numKeys, std::shared_ptr<Key> keys[]) const;
+	    DocumentSet findDocuments(yuca::utils::List<std::shared_ptr<Key>> keys) const;
     private:
         /**
          * The Indexer is conformed by multiple reverse indexes,

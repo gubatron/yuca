@@ -92,7 +92,7 @@ TEST_CASE("yuca::utils::Map") {
 		REQUIRE(m.get("angel") == (val + 1));
 		int last_val = m.remove("angel");
 		REQUIRE(m.isEmpty());
-		REQUIRE(last_val == val + 1); // 2
+		REQUIRE(last_val == val + 1);
 		m.put("desmond", 1);
 		m.put("sarah", 2);
 		m.put("paulina", 3);
@@ -106,6 +106,39 @@ TEST_CASE("yuca::utils::Map") {
 		m.clear();
 		key_set = m.keySet();
 		REQUIRE(key_set.isEmpty());
+	}
+
+	SECTION("yuca::utils::Map tests with shared pointers") {
+		yuca::utils::Map<std::shared_ptr<StringKey>, std::shared_ptr<Document>> m(nullptr);
+		std::string foo("foo");
+		std::string tag(":tag");
+		auto foo_key_sp = std::make_shared<StringKey>(foo,tag);
+		auto doc = std::make_shared<Document>();
+		doc->addKey(foo_key_sp);
+
+		m.put(foo_key_sp, doc);
+		REQUIRE(m.size() == 1);
+		REQUIRE(m.containsKey(foo_key_sp));
+		REQUIRE(m.get(foo_key_sp) == doc);
+
+		// copies of shared_ptr keys can't be found
+		std::string foo_prime("foo");
+		std::string tag_prime(":tag");
+		auto foo_prime_key_sp = std::make_shared<StringKey>(foo_prime, tag_prime);
+		REQUIRE(!m.containsKey(foo_prime_key_sp));
+		REQUIRE(m.get(foo_prime_key_sp) != doc);
+
+
+		yuca::utils::Map<StringKey, std::shared_ptr<Document>> m2(nullptr);
+		StringKey foo_key(foo, tag);
+		StringKey foo_prime_key(foo, tag);
+		auto doc2 = std::make_shared<Document>();
+		doc2->addKey(std::make_shared<StringKey>(foo_key));
+		m2.put(foo_key, doc2);
+		REQUIRE(m2.containsKey(foo_key));
+		REQUIRE(m2.get(foo_key) == doc2);
+		REQUIRE(m2.containsKey(foo_prime_key));
+		REQUIRE(m2.get(foo_prime_key) == doc2);
 	}
 
 	SECTION("yuca::utils::Map (putAll, entrySet)") {

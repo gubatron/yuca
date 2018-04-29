@@ -13,8 +13,8 @@
 
 #include "tests_includes.hpp"
 
-std::string foo_tag;
-std::string bar_tag;
+std::string foo_tag(":foo");
+std::string bar_tag(":bar");
 auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
 auto foo_key2_sp = std::make_shared<Key>(2, foo_tag);
 auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
@@ -25,16 +25,6 @@ std::string title_tag = ":title";
 std::string file_name_tag = ":filename";
 std::string keyword_tag = ":keyword";
 std::string extension_tag = ":extension";
-
-/**
- * We cache StringKeys.
- * map {
- *      :<tag> -> map {
- *                     :<word> -> StringKey(:<word>, :<tag>)
- *                    }
- *     }
- *
- */
 
 using namespace yuca::utils;
 
@@ -141,8 +131,10 @@ TEST_CASE("Indexer Basic Tests") {
 		    indexed_docs_checker.add(sh_ptr_doc);
 	    }
 	    n_docs_indexed = indexed_docs_checker.size();
-	    std::shared_ptr<Key> keys[] = {foo_key_sp, bar_key_sp};
-	    DocumentSet multi_index_doc_set = indexer_multi_key.findDocuments(2, keys);
+	    List<std::shared_ptr<Key>> keys;
+	    keys.add(foo_key_sp);
+	    keys.add(bar_key_sp);
+	    DocumentSet multi_index_doc_set = indexer_multi_key.findDocuments(keys);
 
 	    REQUIRE(multi_index_doc_set.size() == n_docs_indexed);
 	    REQUIRE(3 == n_docs_indexed);
@@ -158,11 +150,14 @@ TEST_CASE("Indexer Basic Tests") {
 	    bar_docs = indexer_multi_key.findDocuments(bar_key_sp);
 	    REQUIRE(foo_docs.size() == 1);
 	    REQUIRE(bar_docs.size() == 2);
+//	    for (auto const& bar_doc : bar_docs.getStdSet()) {
+//	    	std::cout << *bar_doc << std::endl;
+//	    }
 
 	    indexer_multi_key.removeDocument(document_bar_sp);
 	    foo_docs = indexer_multi_key.findDocuments(foo_key_sp);
 	    bar_docs = indexer_multi_key.findDocuments(bar_key_sp);
-	    multi_index_doc_set = indexer_multi_key.findDocuments(2, keys);
+	    multi_index_doc_set = indexer_multi_key.findDocuments(keys);
 	    REQUIRE(foo_docs.size() == 1);
 	    REQUIRE(bar_docs.size() == 1);
 	    REQUIRE(multi_index_doc_set.size() == 1);
@@ -192,7 +187,7 @@ TEST_CASE("Indexer TaggedKeywords struct tests") {
 
 	TaggedKeywords multiTagKeywords(multi_tag_query);
 	tags = multiTagKeywords.getTags();
-	REQUIRE(tags.size() == 4);
+	REQUIRE(tags.size() == 3);
 	REQUIRE(tags.contains(":title"));
     REQUIRE(tags.contains(":extension"));
     REQUIRE(tags.contains(":keyword"));
@@ -331,14 +326,32 @@ TEST_CASE("Indexer Search Tests") {
 
 	std::srand(444);
 
-	int queries = 100;
+	int queries = 1;
 	Indexer indexer;
 	for (int i = 0; i < queries; i++) {
 		file f = generateRandomFile(title_dict, ext_dict, 4, 7);
 		std::shared_ptr<Document> doc = f.get_document();
+		KeySet ext_keys = doc->getTagKeys(extension_tag);
+//		for (auto &k : ext_keys.getStdSet()) {
+//			auto stringkey_sp = std::dynamic_pointer_cast<StringKey>(k);
+//			std::cout << *stringkey_sp << ", " << std::endl;
+//		}
+//		std::cout << std::endl;
+//		std::cout << "about do index Doc -> " << *doc << std::endl;
 		indexer.indexDocument(doc);
-		//std::cout << *doc << std::endl;
-		//std::cout << i << ". [" << f.full_name() << "]" << std::endl << std::endl;
+		std::cout << *doc << std::endl;
+		std::cout << i << ". [" << f.full_name() << "]" << std::endl << std::endl;
+	}
+
+	std::string q1("cure");
+	std::shared_ptr<StringKey> cureKey = std::make_shared<StringKey>(q1,keyword_tag);
+	DocumentSet cureDocs = indexer.findDocuments(cureKey);
+	std::cout << "cureKey -> " << *cureKey << std::endl;
+	std::cout << "cureDocs -> " << cureDocs.size() << std::endl;
+	List<std::shared_ptr<Document>> search_results_1 = indexer.search(q1);
+	std::cout << "Found: " << search_results_1.size() << " docs" << std::endl;
+	for (auto const& doc_ptr : search_results_1.getStdVector()) {
+		std::cout << *doc_ptr <<  std::endl;
 	}
 }
 

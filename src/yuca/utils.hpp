@@ -273,7 +273,8 @@ namespace yuca {
 				if (m.empty()) {
 					return false;
 				}
-				return m.find(key) != m.end();
+				bool r = m.find(key) != m.end();
+				return r;
 			}
 
 			V remove(K key) {
