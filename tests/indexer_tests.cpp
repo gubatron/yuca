@@ -326,9 +326,9 @@ TEST_CASE("Indexer Search Tests") {
 
 	std::srand(444);
 
-	int queries = 1;
+	int files = 100;
 	Indexer indexer;
-	for (int i = 0; i < queries; i++) {
+	for (int i = 0; i < files; i++) {
 		file f = generateRandomFile(title_dict, ext_dict, 4, 7);
 		std::shared_ptr<Document> doc = f.get_document();
 		KeySet ext_keys = doc->getTagKeys(extension_tag);

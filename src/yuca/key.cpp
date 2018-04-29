@@ -10,11 +10,6 @@ namespace yuca {
         return id < right_side.id;
     }
 
-	bool Key::operator<(const std::shared_ptr<Key> &right_side) const {
-    	std::cout << "Key < shared_ptr<Key> use" << std::endl;
-    	return this->id < right_side->id;
-    }
-
     bool Key::operator<=(const Key &right_side) const {
         return id <= right_side.id;
     }
@@ -30,14 +25,6 @@ namespace yuca {
     bool Key::operator==(const Key &other) const {
         return id == other.id && tag == other.tag;
     }
-
-	bool StringKey::operator<(const StringKey &right_side) const {
-		return id < right_side.id;
-	}
-
-	bool StringKey::operator==(const StringKey &other) const {
-		return id == other.id && tag == other.tag;
-	}
 
     std::string Key::getTag() const {
         return tag;

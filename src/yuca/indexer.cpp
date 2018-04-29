@@ -3,14 +3,6 @@
 
 namespace yuca {
 
-	std::shared_ptr<Key> ReverseIndex::keyCacheGet(std::shared_ptr<Key> key) const {
-		return key_cache.get(key->getId());
-	}
-
-	void ReverseIndex::keyCachePut(std::shared_ptr<Key> key) {
-        key_cache.put(key->getId(), key);
-	}
-
 	void ReverseIndex::putDocument(std::shared_ptr<Key> key, std::shared_ptr<Document> doc) {
 		if (!hasDocuments(key)) {
 			DocumentSet newDocSet;
@@ -41,6 +33,14 @@ namespace yuca {
 	auto ReverseIndex::hasDocuments(std::shared_ptr<Key> key) const -> bool {
 		auto cached_key_sp = keyCacheGet(key);
 		return index.containsKey(cached_key_sp);
+	}
+
+	std::shared_ptr<Key> ReverseIndex::keyCacheGet(std::shared_ptr<Key> key) const {
+		return key_cache.get(key->getId());
+	}
+
+	void ReverseIndex::keyCachePut(std::shared_ptr<Key> key) {
+		key_cache.put(key->getId(), key);
 	}
 
 	yuca::utils::List<std::string> TaggedKeywords::getTags() {

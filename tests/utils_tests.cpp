@@ -128,10 +128,11 @@ TEST_CASE("yuca::utils::Map") {
 		REQUIRE(!m.containsKey(foo_prime_key_sp));
 		REQUIRE(m.get(foo_prime_key_sp) != doc);
 
-
 		yuca::utils::Map<StringKey, std::shared_ptr<Document>> m2(nullptr);
 		StringKey foo_key(foo, tag);
 		StringKey foo_prime_key(foo, tag);
+		std::cout << "foo_key => " << foo_key << std::endl;
+		std::cout << "foo_prime_key => " << foo_prime_key << std::endl;
 		auto doc2 = std::make_shared<Document>();
 		doc2->addKey(std::make_shared<StringKey>(foo_key));
 		m2.put(foo_key, doc2);

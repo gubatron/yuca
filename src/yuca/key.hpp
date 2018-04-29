@@ -18,8 +18,6 @@ namespace yuca {
         // THIS OPERATOR IS USED FOR std::set.find()
         virtual bool operator<(const Key &right_side) const;
 
-        virtual bool operator<(const std::shared_ptr<Key> &right_side) const;
-
         virtual bool operator<=(const Key &right_side) const;
 
         virtual bool operator>(const Key &right_side) const;
@@ -36,17 +34,14 @@ namespace yuca {
 
     protected:
         std::string tag;
-        long id;
+        long id{};
     };
 
     class StringKey : public Key {
     public:
         explicit StringKey(std::string &string_key, std::string &my_tag) :
-        Key(std::hash<std::string>{}(string_key), my_tag), str_key(string_key) {}
-
-        virtual bool operator<(const StringKey &right_side) const;
-
-        virtual bool operator==(const StringKey &other) const;
+        Key(std::hash<std::string>{}(my_tag + string_key), my_tag), str_key(string_key) {
+        }
 
         friend std::ostream& operator<<(std::ostream &output_stream, StringKey &key);
     private:
