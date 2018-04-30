@@ -326,7 +326,7 @@ TEST_CASE("Indexer Search Tests") {
 
 	std::srand(444);
 
-	int files = 100;
+	int files = 10;
 	Indexer indexer;
 	for (int i = 0; i < files; i++) {
 		file f = generateRandomFile(title_dict, ext_dict, 4, 7);
@@ -339,15 +339,11 @@ TEST_CASE("Indexer Search Tests") {
 //		std::cout << std::endl;
 //		std::cout << "about do index Doc -> " << *doc << std::endl;
 		indexer.indexDocument(doc);
-		std::cout << *doc << std::endl;
 		std::cout << i << ". [" << f.full_name() << "]" << std::endl << std::endl;
 	}
 
-	std::string q1("cure");
+	std::string q1(":extension ogg");
 	std::shared_ptr<StringKey> cureKey = std::make_shared<StringKey>(q1,keyword_tag);
-	DocumentSet cureDocs = indexer.findDocuments(cureKey);
-	std::cout << "cureKey -> " << *cureKey << std::endl;
-	std::cout << "cureDocs -> " << cureDocs.size() << std::endl;
 	List<std::shared_ptr<Document>> search_results_1 = indexer.search(q1);
 	std::cout << "Found: " << search_results_1.size() << " docs" << std::endl;
 	for (auto const& doc_ptr : search_results_1.getStdVector()) {
