@@ -5,14 +5,15 @@ namespace yuca {
 
 	void ReverseIndex::putDocument(std::shared_ptr<Key> key, std::shared_ptr<Document> doc) {
 		if (!hasDocuments(key)) {
+			keyCachePut(key);
 			DocumentSet newDocSet;
 			newDocSet.add(doc);
-			keyCachePut(key);
 			index.put(key, newDocSet);
 		} else {
-			DocumentSet oldDocSet = getDocuments(key);
+			auto cached_key = keyCacheGet(key);
+			DocumentSet oldDocSet = getDocuments(cached_key);
 			oldDocSet.add(doc);
-			index.put(key, oldDocSet);
+			index.put(cached_key, oldDocSet);
 		}
 	}
 
@@ -20,13 +21,13 @@ namespace yuca {
 		if (!hasDocuments(key)) {
 			return;
 		}
-
-		DocumentSet docs = index.get(key);
+		auto cached_key = keyCacheGet(key);
+		DocumentSet docs = index.get(cached_key);
 		docs.remove(doc);
-		index.remove(key);
+		index.remove(cached_key);
 
 		if (!docs.isEmpty()) {
-			index.put(key, docs);
+			index.put(cached_key, docs);
 		}
 	}
 
