@@ -11,7 +11,7 @@ namespace yuca {
         if (tag_2_keyset_map.isEmpty()) {
             return tags_out;
         }
-        return tags.getStdSet();
+        return tag_2_keyset_map.keySet().getStdSet();
     }
 
     KeySet Document::getTagKeys(std::string const &tag) const {
@@ -29,8 +29,6 @@ namespace yuca {
         KeySet key_set = tag_2_keyset_map.get(tag);
         key_set.add(key);
         tag_2_keyset_map.put(tag, key_set);
-
-        tags.add(tag);
     }
 
     void Document::removeKey(std::string const &tag, std::shared_ptr<Key> key) {
@@ -39,7 +37,7 @@ namespace yuca {
         }
         KeySet keys = getTagKeys(tag);
         keys.remove(key);
-        tag_2_keyset_map.remove(tag);
+        //tag_2_keyset_map.remove(tag);
         tag_2_keyset_map.put(tag, keys);
 
         // once we know the keySet has been cleared we remove it altogether from our { string -> [key0, key1] } map.
@@ -60,7 +58,6 @@ namespace yuca {
         }
         tag_2_keyset_map.get(tag).clear();
         tag_2_keyset_map.remove(tag);
-        tags.remove(tag);
     }
 
 	void Document::boolProperty(std::string const &key, bool value) {
@@ -149,7 +146,18 @@ namespace yuca {
     std::ostream& operator<<(std::ostream &output_stream, const Document &doc) {
         output_stream << "Document(@" << ((long) &doc % 10000) << ", ts=" << doc.creation_timestamp << "):" << std::endl;
         // tags
-        output_stream << " tags={" << doc.tags << "}" << std::endl;
+	    output_stream << " tags=(";
+	    auto tags_set = doc.getTags();
+	    auto it = tags_set.begin();
+	    auto tags_end = tags_set.end();
+	    for (auto const &tag : tags_set) {
+		    output_stream << tag;
+		    it++;
+		    if (it != tags_end) {
+			    output_stream << ", ";
+		    }
+	    }
+        output_stream << ")" << std::endl;
         output_stream.flush();
 
         // tags_2_keys_map

@@ -142,7 +142,6 @@ namespace yuca {
 
         // maps tags to set<Key>
         yuca::utils::Map<std::string, KeySet> tag_2_keyset_map;
-        yuca::utils::Set<std::string> tags;
 
         // docs can have unique properties that are not necessarily indexed keys
         // but which are meant to be retrieved once they appear in search results
