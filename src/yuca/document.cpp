@@ -63,6 +63,81 @@ namespace yuca {
         tags.remove(tag);
     }
 
+	void Document::boolProperty(std::string const &key, bool value) {
+		bool_properties.put(key, value);
+	}
+
+	bool Document::boolProperty(std::string const &key) const {
+		return bool_properties.get(key);
+	}
+
+	void Document::removeBoolProperty(std::string const &key) {
+		bool_properties.remove(key);
+	}
+
+	void Document::byteProperty(std::string const &key, char value) {
+		byte_properties.put(key, value);
+	}
+
+	char Document::byteProperty(std::string const &key) const {
+		return byte_properties.get(key);
+	}
+
+	void Document::removeByteProperty(std::string const &key) {
+		byte_properties.remove(key);
+	}
+
+	void Document::intProperty(std::string const &key, int value) {
+		int_properties.put(key, value);
+	}
+
+	int Document::intProperty(std::string const &key) const {
+		return int_properties.get(key);
+	}
+
+	void Document::removeIntProperty(std::string const &key) {
+		int_properties.remove(key);
+	}
+
+	void Document::longProperty(std::string const &key, long value) {
+		long_properties.put(key, value);
+	}
+
+	long Document::longProperty(std::string const &key) const {
+		return long_properties.get(key);
+	}
+
+	void Document::removeLongProperty(std::string const &key) {
+		long_properties.remove(key);
+	}
+
+    void Document::stringProperty(std::string const &key, std::string const &value) {
+        string_properties.put(key, value);
+    }
+
+    std::string Document::stringProperty(std::string const &key) const {
+        return string_properties.get(key);
+    }
+
+    void Document::removeStringProperty(std::string const &key) {
+        string_properties.remove(key);
+    }
+
+	yuca::utils::List<std::string> Document::propertyKeys(PropertyType type) const {
+		switch (type) {
+			case BOOL:
+				return bool_properties.keyList();
+			case BYTE:
+				return byte_properties.keyList();
+			case INT:
+				return int_properties.keyList();
+			case LONG:
+				return long_properties.keyList();
+			case STRING:
+				return string_properties.keyList();
+		}
+	}
+
     bool Document::operator<(const Document &other) const {
         return creation_timestamp < other.creation_timestamp;
     }
@@ -84,7 +159,7 @@ namespace yuca {
         for (auto const& tag : doc_tags.getStdSet()) {
             KeySet keys(doc.tag_2_keyset_map.get(tag));
             output_stream << std::endl << "   tag=<" << tag << "> = ";
-            std::cout << "[ ";
+            output_stream << "[ ";
             int j=0;
             for (auto const& key_sp : keys.getStdSet()) {
             	// bad design hack, this should happen automatically, it should

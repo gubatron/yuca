@@ -113,7 +113,6 @@ TEST_CASE("Test Get Tags") {
 
 	// elements will be sorted as they're inserted in the set
 	// they are not in the set in the order they were inserted.
-	it = tags.begin();
 	REQUIRE(*it++ == bar_tag);
 	REQUIRE(*it++ == foo_tag);
 	REQUIRE(*it == zee_tag);
@@ -144,5 +143,111 @@ TEST_CASE("Test Removing a Tag") {
 	document_sp->removeTag(bar_key_sp->getTag());
 	bar_keys = document_sp->getTagKeys(bar_key_sp->getTag());
 	REQUIRE(bar_keys.isEmpty());
+}
+
+TEST_CASE("Document properties tests") {
+	Document doc;
+	Document doc2;
+	doc.stringProperty("file_name", "foo.txt");
+	doc2.stringProperty("file_name", "bar.txt");
+
+	SECTION("Document bool properties tests") {
+		doc.boolProperty("is_cool", true);
+		doc.boolProperty("is_directory", false);
+		REQUIRE(doc.propertyKeys(PropertyType::BOOL).size() == 2);
+		REQUIRE(!doc.boolProperty("is_directory"));
+		REQUIRE(doc.boolProperty("is_cool"));
+		REQUIRE(doc.boolProperty("unset_property") == false);
+		doc.removeBoolProperty("is_cool");
+		REQUIRE(!doc.boolProperty("is_cool"));
+		REQUIRE(doc.propertyKeys(PropertyType::BOOL).size() == 1);
+	}
+
+	SECTION("Document byte properties tests") {
+		REQUIRE(doc.propertyKeys(PropertyType::BOOL).size() == 0);
+		REQUIRE(doc.propertyKeys(PropertyType::STRING).size() == 1);
+		REQUIRE(doc.propertyKeys(PropertyType::BYTE).size() == 0);
+
+		doc.byteProperty("merkle_root_prefix", 'A');
+		REQUIRE(doc.byteProperty("merkle_root_prefix") ==  65);
+		REQUIRE(doc.byteProperty("unknown_prop") == 0);
+		REQUIRE(doc.propertyKeys(PropertyType::BYTE).size() == 1);
+		REQUIRE(doc.propertyKeys(PropertyType::BYTE).get(0) == "merkle_root_prefix");
+		doc.byteProperty("merkle_root_prefix", 2);
+		REQUIRE(doc.byteProperty("merkle_root_prefix") != 65);
+		REQUIRE(doc.byteProperty("merkle_root_prefix") ==  2);
+		doc.removeByteProperty("merkle_root_prefix");
+		REQUIRE(doc.propertyKeys(PropertyType::BYTE).size() == 0);
+		REQUIRE(doc.byteProperty("merkle_root_prefix") ==  0);
+	}
+
+	SECTION("Document int properties tests") {
+		REQUIRE(doc.propertyKeys(PropertyType::BOOL).size() == 0);
+		REQUIRE(doc.propertyKeys(PropertyType::STRING).size() == 1);
+		REQUIRE(doc.propertyKeys(PropertyType::BYTE).size() == 0);
+		REQUIRE(doc.propertyKeys(PropertyType::INT).size() == 0);
+		doc.intProperty("modes", 777);
+		REQUIRE(doc.intProperty("modes") == 777);
+		doc.intProperty("modes", 1 + doc.intProperty("modes"));
+		REQUIRE(doc.intProperty("modes") == 778);
+		doc.intProperty("modes", -777);
+		REQUIRE(doc.intProperty("modes") == -777);
+		doc.removeIntProperty("modes");
+		REQUIRE(doc.intProperty("modes") == -1);
+		doc.intProperty("wont_fit", 6301973179050681573);
+		REQUIRE(doc.intProperty("wont_fit") == -1856314139);
+	}
+
+	SECTION("Document long properties tests") {
+		REQUIRE(doc.propertyKeys(PropertyType::BOOL).size() == 0);
+		REQUIRE(doc.propertyKeys(PropertyType::STRING).size() == 1);
+		REQUIRE(doc.propertyKeys(PropertyType::BYTE).size() == 0);
+		REQUIRE(doc.propertyKeys(PropertyType::INT).size() == 0);
+		REQUIRE(doc.propertyKeys(PropertyType::LONG).size() == 0);
+		doc.longProperty("size", 6301973179050681573l);
+		REQUIRE(doc.longProperty("size") == 6301973179050681573l);
+		doc.longProperty("size", 1 + doc.longProperty("size"));
+		REQUIRE(doc.longProperty("size") == 6301973179050681574l);
+		doc.longProperty("size", -6301973179050681574);
+		REQUIRE(doc.longProperty("size") == -6301973179050681574l);
+		doc.removeLongProperty("size");
+		REQUIRE(doc.longProperty("size") == -1);
+	}
+
+	SECTION("Document string props tests") {
+		// TEST CASE runs from start when section starts
+		REQUIRE(doc.propertyKeys(PropertyType::BOOL).size() == 0);
+		REQUIRE(doc.propertyKeys(PropertyType::STRING).size() == 1);
+
+		REQUIRE(doc.stringProperty("file_name") == "foo.txt");
+		REQUIRE(doc.stringProperty("file_ext") == "");
+
+		REQUIRE(doc.propertyKeys(PropertyType::STRING).size() == 1);
+		REQUIRE(doc.propertyKeys(PropertyType::BOOL).size() == 0);
+		REQUIRE(doc.propertyKeys(PropertyType::BYTE).size() == 0);
+		REQUIRE(doc.propertyKeys(PropertyType::INT).size() == 0);
+		REQUIRE(doc.propertyKeys(PropertyType::LONG).size() == 0);
+
+		doc.stringProperty("file_ext", "txt");
+		REQUIRE(doc.propertyKeys(PropertyType::STRING).size() == 2);
+
+		for (auto const &prop_key : doc.propertyKeys(PropertyType::STRING).getStdVector()) {
+			if (prop_key == "file_name") {
+				REQUIRE(doc.stringProperty(prop_key) == "foo.txt");
+			} else if (prop_key == "file_ext") {
+				REQUIRE(doc.stringProperty(prop_key) == "txt");
+			}
+		}
+
+		doc.removeStringProperty("file_name");
+		REQUIRE(doc.stringProperty("file_name") == "");
+		REQUIRE(doc.propertyKeys(PropertyType::STRING).size() == 1);
+		REQUIRE(doc2.propertyKeys(PropertyType::STRING).size() == 1);
+		doc.removeStringProperty("file_ext");
+		REQUIRE(doc.propertyKeys(PropertyType::STRING).size() == 0);
+		REQUIRE(doc2.propertyKeys(PropertyType::STRING).size() == 1);
+		REQUIRE(doc2.stringProperty("file_name") == "bar.txt");
+		doc.removeStringProperty("garbage");
+	}
 }
 #endif
