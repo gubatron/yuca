@@ -70,20 +70,24 @@ namespace yuca {
 			output_stream << "<empty>" << std::endl;
 		} else {
 			// index = { Key => DocumentSet }
-			while (it != rindex.index.getStdMap().end()) {
+			auto key_set = rindex.index.keySet();
+			auto index_map = rindex.index.getStdMap();
+			for (auto const& key_sp : key_set.getStdSet()) {
 				output_stream << " ";
-				output_stream << (*it).first;
+				output_stream << *key_sp;
 				output_stream << " => ";
-				auto docset_it = (*it).second.getStdSet().begin();
-				output_stream << "(" << (*it).second.size() << ") ";
-				if (docset_it == (*it).second.getStdSet().end()) {
+				auto docset = rindex.index.get(key_sp);
+				output_stream << "(" << docset.size() << ") ";
+				if (docset.isEmpty()) {
 					output_stream << "<empty>" << std::endl;
 				} else {
 					output_stream << "[";
-					while (docset_it != (*it).second.getStdSet().end()) {
-						output_stream << *docset_it;
+					auto docset_it = docset.getStdSet().begin();
+					auto docset_it_end = docset.getStdSet().end();
+					for (auto const& doc_sp : docset.getStdSet()) {
+						output_stream << *doc_sp;
 						docset_it++;
-						if (docset_it != (*it).second.getStdSet().end()) {
+						if (docset_it != docset_it_end) {
 							output_stream << ", ";
 						}
 					}
@@ -189,17 +193,15 @@ namespace yuca {
 
 	std::ostream &operator<<(std::ostream &output_stream, Indexer &indexer) {
 		output_stream << "Indexer(@" << ((long) &indexer % 10000) << "): " << std::endl;
-		output_stream << " reverseIndices = { ";
+		output_stream << " reverseIndices = { " << std::endl;
 
-		auto it = indexer.reverseIndices.getStdMap().begin();
-		if (it == indexer.reverseIndices.getStdMap().end()) {
+		if (indexer.reverseIndices.isEmpty()) {
 			output_stream << "<empty>";
 		} else {
-			while (it != indexer.reverseIndices.getStdMap().end()) {
-				output_stream << "   " << (*it).first << " => ";
-				output_stream << (*it).second; // second is the ReverseIndex
+			for (auto const& r_index_tag : indexer.reverseIndices.keySet().getStdSet()) {
+				output_stream << "   " << r_index_tag << " => ";
+				output_stream << *indexer.reverseIndices.get(r_index_tag);
 				output_stream << std::endl;
-				it++;
 			}
 		}
 		output_stream << "}";

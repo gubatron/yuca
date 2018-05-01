@@ -36,8 +36,7 @@ namespace yuca {
             return;
         }
         KeySet keys = getTagKeys(tag);
-        keys.remove(key);
-        //tag_2_keyset_map.remove(tag);
+        keys.remove(std::move(key));
         tag_2_keyset_map.put(tag, keys);
 
         // once we know the keySet has been cleared we remove it altogether from our { string -> [key0, key1] } map.
@@ -46,7 +45,6 @@ namespace yuca {
             removeTag(tag);
         }
     }
-
 
     bool Document::hasKeys(std::string const &tag) const {
         return tag_2_keyset_map.containsKey(tag);
@@ -133,6 +131,7 @@ namespace yuca {
 			case STRING:
 				return string_properties.keyList();
 		}
+		return utils::List<std::string>();
 	}
 
     bool Document::operator<(const Document &other) const {
