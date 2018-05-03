@@ -42,7 +42,9 @@ namespace yuca {
         explicit StringKey(std::string &string_key, std::string &my_tag) :
         Key(std::hash<std::string>{}(my_tag + string_key), my_tag), str_key(string_key) {
         }
-
+        std::string getString() const {
+            return str_key;
+        }
         friend std::ostream& operator<<(std::ostream &output_stream, StringKey &key);
     private:
         std::string str_key;

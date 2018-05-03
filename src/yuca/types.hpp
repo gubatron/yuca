@@ -14,8 +14,8 @@ namespace yuca {
     class Key;
     class Document;
 
-    typedef yuca::utils::Set<std::shared_ptr<Key>> KeySet;
-    typedef yuca::utils::Set<std::shared_ptr<Document>> DocumentSet;
+    typedef yuca::utils::Set<std::shared_ptr<Key>> SPKeySet;
+    typedef yuca::utils::Set<std::shared_ptr<Document>> SPDocumentSet;
 }
 
 #endif //YUCA_TYPES_HPP

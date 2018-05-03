@@ -48,15 +48,15 @@ TEST_CASE("Indexer Basic Tests") {
 		// Index one doc with 'foo' tagged keys and find it.
 		Indexer indexer;
 		indexer.indexDocument(document_foo_sp);
-		DocumentSet foo_key_docs = indexer.findDocuments(foo_key_sp);
+		SPDocumentSet foo_key_docs = indexer.findDocuments(foo_key_sp);
 		REQUIRE(foo_key_docs.size() == 1);
 
 		// Look for a bar doc and find none.
-		DocumentSet bar_key_docs = indexer.findDocuments(bar_key_sp);
+		SPDocumentSet bar_key_docs = indexer.findDocuments(bar_key_sp);
 		REQUIRE(bar_key_docs.size() == 0);
 
 		// Look for the same doc using another key that also has a 'foo' tag
-		DocumentSet foo_key2_docs = indexer.findDocuments(foo_key2_sp);
+		SPDocumentSet foo_key2_docs = indexer.findDocuments(foo_key2_sp);
 		REQUIRE(foo_key2_docs.size() == 1);
 
 		// Index a document with 'bar' tagged key and find it
@@ -65,7 +65,7 @@ TEST_CASE("Indexer Basic Tests") {
 		REQUIRE(bar_key_docs.size() == 1);
 
 		// search by the first key (fooKey)
-		DocumentSet foo_found_docs = indexer.findDocuments(foo_key_sp);
+		SPDocumentSet foo_found_docs = indexer.findDocuments(foo_key_sp);
 		auto foo_it = foo_found_docs.getStdSet().begin();
 		REQUIRE(foo_it != foo_found_docs.getStdSet().end()); // non-empty search results
 
@@ -75,7 +75,7 @@ TEST_CASE("Indexer Basic Tests") {
 		REQUIRE(**foo_it == *document_foo_sp);
 		REQUIRE(false == (**foo_it == *document_bar_sp));
 
-		DocumentSet bar_found_docs = indexer.findDocuments(bar_key_sp);
+		SPDocumentSet bar_found_docs = indexer.findDocuments(bar_key_sp);
 		REQUIRE(!bar_found_docs.isEmpty());
 		auto bar_it = bar_found_docs.getStdSet().begin();
 		REQUIRE(bar_it != bar_found_docs.getStdSet().end());
@@ -91,11 +91,11 @@ TEST_CASE("Indexer Basic Tests") {
 
 		// add foo and bar key doc, index should now return 2 results by both keys
 		indexer.indexDocument(document_foo_bar_sp);
-		DocumentSet foo_docs = indexer.findDocuments(foo_key_sp);
+		SPDocumentSet foo_docs = indexer.findDocuments(foo_key_sp);
 		REQUIRE(foo_docs.size() == 2);
 		//////////////////////////////////////////////////////////////////
 
-		DocumentSet bar_docs = indexer.findDocuments(bar_key_sp);
+		SPDocumentSet bar_docs = indexer.findDocuments(bar_key_sp);
 		// bar_docs = { document_bar_sp, document_foo_bar_sp }
 		REQUIRE(bar_docs.size() == 2);
 	}
@@ -111,14 +111,14 @@ TEST_CASE("Indexer Basic Tests") {
 	    indexer.indexDocument(document_bar_sp);
 	    indexer.indexDocument(document_foo_bar_sp);
 
-	    DocumentSet foo_docs = indexer.findDocuments(foo_key_sp);
-	    DocumentSet bar_docs = indexer.findDocuments(bar_key_sp);
+	    SPDocumentSet foo_docs = indexer.findDocuments(foo_key_sp);
+	    SPDocumentSet bar_docs = indexer.findDocuments(bar_key_sp);
 
 	    REQUIRE(foo_docs.size() == 2);
 	    REQUIRE(bar_docs.size() == 2);
 
 	    Indexer indexer_multi_key;
-	    DocumentSet indexed_docs_checker;
+	    SPDocumentSet indexed_docs_checker;
 	    int n_docs_indexed = 0;
 
 	    // add foo documents
@@ -134,7 +134,7 @@ TEST_CASE("Indexer Basic Tests") {
 	    List<std::shared_ptr<Key>> keys;
 	    keys.add(foo_key_sp);
 	    keys.add(bar_key_sp);
-	    DocumentSet multi_index_doc_set = indexer_multi_key.findDocuments(keys);
+	    SPDocumentSet multi_index_doc_set = indexer_multi_key.findDocuments(keys);
 
 	    REQUIRE(multi_index_doc_set.size() == n_docs_indexed);
 	    REQUIRE(3 == n_docs_indexed);
@@ -164,41 +164,52 @@ TEST_CASE("Indexer Basic Tests") {
     }
 }
 
-TEST_CASE("Indexer TaggedKeywords struct tests") {
+TEST_CASE("Indexer SearchRequest struct tests") {
 	std::string keyword_tag(":keyword");
 	std::string title_tag(":title");
 	std::string extension_tag(":extension");
 	std::string simple_query("simple search with no specific tags");
 	std::string multi_tag_query(":title love is all you need :extension mp4");
-	TaggedKeywords taggedKeywords(simple_query);
+	SearchRequest taggedKeywords(simple_query);
 
 	List<std::string> tags = taggedKeywords.getTags();
 
 	REQUIRE(tags.size() == 1);
 	REQUIRE(tags.get(0) == keyword_tag);
 
-	List<std::string> keywords = taggedKeywords.getKeywords(keyword_tag);
-	REQUIRE(keywords.get(0) == "simple");
-	REQUIRE(keywords.get(1) == "search");
-	REQUIRE(keywords.get(2) == "with");
-	REQUIRE(keywords.get(3) == "no");
-	REQUIRE(keywords.get(4) == "specific");
-	REQUIRE(keywords.get(5) == "tags");
+	List<OffsetKeyword> keywords = taggedKeywords.getOffsetKeywords(keyword_tag);
+	REQUIRE(keywords.get(0).keyword == "simple");
+	REQUIRE(keywords.get(0).offset == 0);
 
-	TaggedKeywords multiTagKeywords(multi_tag_query);
+	REQUIRE(keywords.get(1).keyword == "search");
+	REQUIRE(keywords.get(1).offset == 7);
+
+	REQUIRE(keywords.get(2).keyword == "with");
+	REQUIRE(keywords.get(2).offset == 14);
+
+	REQUIRE(keywords.get(3).keyword == "no");
+	REQUIRE(keywords.get(3).offset == 19);
+
+	REQUIRE(keywords.get(4).keyword == "specific");
+	REQUIRE(keywords.get(4).offset == 22);
+
+	REQUIRE(keywords.get(5).keyword == "tags");
+	REQUIRE(keywords.get(5).offset == 31);
+
+	SearchRequest multiTagKeywords(multi_tag_query);
 	tags = multiTagKeywords.getTags();
 	REQUIRE(tags.size() == 3);
 	REQUIRE(tags.contains(":title"));
     REQUIRE(tags.contains(":extension"));
     REQUIRE(tags.contains(":keyword"));
 
-    List<std::string> title_keywords = multiTagKeywords.getKeywords(title_tag);
+    List<OffsetKeyword> title_keywords = multiTagKeywords.getOffsetKeywords(title_tag);
     REQUIRE(title_keywords.size() == 5);
-    REQUIRE(title_keywords.get(0) == "love");
-	REQUIRE(title_keywords.get(1) == "is");
-	REQUIRE(title_keywords.get(2) == "all");
-	REQUIRE(title_keywords.get(3) == "you");
-	REQUIRE(title_keywords.get(4) == "need");
+    REQUIRE(title_keywords.get(0).keyword == "love");
+	REQUIRE(title_keywords.get(1).keyword == "is");
+	REQUIRE(title_keywords.get(2).keyword == "all");
+	REQUIRE(title_keywords.get(3).keyword == "you");
+	REQUIRE(title_keywords.get(4).keyword == "need");
 }
 
 /** generates a random integer in the interval [0,maxInclusive] */
@@ -262,13 +273,13 @@ List<std::string> generateRandomPhrase(List<std::string> dictionary, int words) 
 	return result;
 };
 
-file generateRandomFile(List<std::string> title_dict,
-                                   List<std::string> ext_dict,
-                                   int min_words,
-                                   int max_words) {
+file generateRandomFile(const List<std::string> title_dict,
+                        const List<std::string> ext_dict,
+                        int min_words,
+                        int max_words) {
 	file f;
 	List<std::string> phrase_n_tokens = generateRandomPhrase(title_dict, min_words + maxRand(max_words - min_words));
-	f.title = phrase_n_tokens.get(0);
+	f.title = phrase_n_tokens.get(0); // first element has full phrase as one string
 	f.title_keywords = phrase_n_tokens.subList(1, phrase_n_tokens.size() - 1);
 	f.ext = ext_dict.get(maxRand(static_cast<int>(ext_dict.size() - 1)));
     return f;
@@ -326,28 +337,33 @@ TEST_CASE("Indexer Search Tests") {
 
 	std::srand(444);
 
-	int files = 10;
+	int files = 1000;
 	Indexer indexer;
+	std::cout <<  std::endl << "Generating " << files << " random files:" << std::endl <<  std::endl;
 	for (int i = 0; i < files; i++) {
 		file f = generateRandomFile(title_dict, ext_dict, 4, 7);
 		std::shared_ptr<Document> doc = f.get_document();
-		KeySet ext_keys = doc->getTagKeys(extension_tag);
-//		for (auto &k : ext_keys.getStdSet()) {
-//			auto stringkey_sp = std::dynamic_pointer_cast<StringKey>(k);
-//			std::cout << *stringkey_sp << ", " << std::endl;
-//		}
-//		std::cout << std::endl;
-//		std::cout << "about do index Doc -> " << *doc << std::endl;
+		doc->intProperty("id", i);
+		doc->stringProperty("full_name",f.full_name());
+		SPKeySet ext_keys = doc->getTagKeys(extension_tag);
 		indexer.indexDocument(doc);
-		std::cout << i << ". [" << f.full_name() << "]" << std::endl << std::endl;
+		//std::cout << i << ". [" << f.full_name() << "]" << std::endl << std::endl;
 	}
 
-	std::string q1(":extension ogg");
+	std::string q1("aquiles the polish :extension ogg");
+	std::cout << "Searching for: <" << q1 << ">" << std::endl;
 	std::shared_ptr<StringKey> cureKey = std::make_shared<StringKey>(q1,keyword_tag);
-	List<std::shared_ptr<Document>> search_results_1 = indexer.search(q1);
-	std::cout << "Found: " << search_results_1.size() << " docs" << std::endl;
-	for (auto const& doc_ptr : search_results_1.getStdVector()) {
-		std::cout << *doc_ptr <<  std::endl;
+	//List<std::shared_ptr<SearchResult>> search_results_1 = indexer.search(q1);
+	auto start = yuca::utils::timeInMillis();
+	List<SearchResult> search_results_1 = indexer.search(q1, 10);
+	auto end = yuca::utils::timeInMillis();
+
+	auto duration = end - start;
+	std::cout << "start: " << start << std::endl;
+	std::cout << std::endl << "==============================" << std::endl << std::endl;
+	std::cout << "Found: " << search_results_1.size() << " docs searching for '" << q1 <<  "' in " << duration << "ms" << std::endl << std::endl;
+	for (auto const& search_result_sp : search_results_1.getStdVector()) {
+		std::cout << search_result_sp.document_sp->intProperty("id") << ". [" << search_result_sp.document_sp->stringProperty("full_name") << "], score: " << search_result_sp.score << std::endl;
 	}
 }
 

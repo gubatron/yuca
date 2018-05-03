@@ -26,7 +26,7 @@ namespace yuca {
     public:
         Document() :
         creation_timestamp(std::chrono::high_resolution_clock::now().time_since_epoch().count()),
-        tag_2_keyset_map(KeySet()),
+        tag_2_keyset_map(SPKeySet()),
         bool_properties(false),
         byte_properties(0),
         int_properties(-1),
@@ -34,6 +34,8 @@ namespace yuca {
         string_properties("")
         {
         }
+
+        long getId() const;
 
         /** Associate this document to an indexing key under the given tag */
         void addKey(std::shared_ptr<Key> key);
@@ -45,7 +47,7 @@ namespace yuca {
         std::set<std::string> getTags() const;
 
         /** Returns a copy of all keys available under a given tag */
-        KeySet getTagKeys(std::string const &tag) const;
+        SPKeySet getTagKeys(std::string const &tag) const;
 
         /** Removes all keys under this tag */
         void removeTag(std::string const &tag);
@@ -141,7 +143,7 @@ namespace yuca {
         const long creation_timestamp;
 
         // maps tags to set<Key>
-        yuca::utils::Map<std::string, KeySet> tag_2_keyset_map;
+        yuca::utils::Map<std::string, SPKeySet> tag_2_keyset_map;
 
         // docs can have unique properties that are not necessarily indexed keys
         // but which are meant to be retrieved once they appear in search results

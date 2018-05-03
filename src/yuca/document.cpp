@@ -14,9 +14,13 @@ namespace yuca {
         return tag_2_keyset_map.keySet().getStdSet();
     }
 
-    KeySet Document::getTagKeys(std::string const &tag) const {
+	long Document::getId() const {
+		return creation_timestamp;
+	}
+
+	SPKeySet Document::getTagKeys(std::string const &tag) const {
         if (!hasKeys(tag)) {
-            return KeySet();
+            return SPKeySet();
         }
         return tag_2_keyset_map.get(tag);
     }
@@ -24,9 +28,9 @@ namespace yuca {
     void Document::addKey(std::shared_ptr<Key> key) {
         std::string tag(key->getTag());
         if (!hasKeys(tag)) {
-            tag_2_keyset_map.put(tag, KeySet());
+            tag_2_keyset_map.put(tag, SPKeySet());
         }
-        KeySet key_set = tag_2_keyset_map.get(tag);
+        SPKeySet key_set = tag_2_keyset_map.get(tag);
         key_set.add(key);
         tag_2_keyset_map.put(tag, key_set);
     }
@@ -35,7 +39,7 @@ namespace yuca {
         if (!hasKeys(tag)) {
             return;
         }
-        KeySet keys = getTagKeys(tag);
+        SPKeySet keys = getTagKeys(tag);
         keys.remove(std::move(key));
         tag_2_keyset_map.put(tag, keys);
 
@@ -164,7 +168,7 @@ namespace yuca {
         int i = 0;
         yuca::utils::Set<std::string> doc_tags = doc.tag_2_keyset_map.keySet();
         for (auto const& tag : doc_tags.getStdSet()) {
-            KeySet keys(doc.tag_2_keyset_map.get(tag));
+            SPKeySet keys(doc.tag_2_keyset_map.get(tag));
             output_stream << std::endl << "   tag=<" << tag << "> = ";
             output_stream << "[ ";
             int j=0;

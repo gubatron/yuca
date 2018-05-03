@@ -354,6 +354,10 @@ namespace yuca {
 		inline bool startsWith(std::string &source, std::string &target) {
 			return source.compare(0, target.length(), target) == 0;
 		}
+
+		inline unsigned long timeInMillis() {
+			return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+		}
 	};
 }
 

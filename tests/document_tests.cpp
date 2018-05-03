@@ -23,11 +23,11 @@ TEST_CASE("Test If Key Can Be Added") {
 	auto bar_key2_sp = std::make_shared<Key>(222, bar_tag);
 	auto document_sp = std::make_shared<Document>();
 
-	KeySet is_empty = document_sp->getTagKeys(foo_tag);
+	SPKeySet is_empty = document_sp->getTagKeys(foo_tag);
 	REQUIRE(is_empty.isEmpty());
 
 	document_sp->addKey(foo_key_sp);
-	KeySet foo_keys = document_sp->getTagKeys(foo_tag);
+	SPKeySet foo_keys = document_sp->getTagKeys(foo_tag);
 	REQUIRE(foo_keys.size() == 1);
 
 	if (bar_key_sp.get()->getId() < bar_key2_sp.get()->getId()) {
@@ -40,7 +40,7 @@ TEST_CASE("Test If Key Can Be Added") {
 	document_sp->addKey(bar_key2_sp);
 	//std::cout << *document_sp << std::endl;
 
-	KeySet bar_keys = document_sp->getTagKeys(bar_tag);
+	SPKeySet bar_keys = document_sp->getTagKeys(bar_tag);
 	REQUIRE(bar_keys.size() == 2);
 
 	// make sure it's the same one we've added
@@ -66,10 +66,10 @@ TEST_CASE("Test if a single Key can be removed") {
 
 	document_sp->addKey(foo_key_sp);
 	document_sp->addKey(bar_key_sp); // Doc { foo:[Key(1])], bar:[Key(1)] }
-	KeySet foo_key_set = document_sp->getTagKeys(foo_tag);
+	SPKeySet foo_key_set = document_sp->getTagKeys(foo_tag);
 	REQUIRE(foo_key_set.size() == 1);
 
-	KeySet bar_key_set = document_sp->getTagKeys(bar_tag);
+	SPKeySet bar_key_set = document_sp->getTagKeys(bar_tag);
 	REQUIRE(bar_key_set.size() == 1);
 
 	document_sp->addKey(bar_key2_sp); // Doc { foo:[Key(1)], bar:[Key(1),Key(2)] }
@@ -130,14 +130,14 @@ TEST_CASE("Test Removing a Tag") {
 	document_sp->addKey(bar_key_sp);
 	document_sp->addKey(bar_key2_sp);
 
-	KeySet name_tag_keys = document_sp->getTagKeys(":name");
+	SPKeySet name_tag_keys = document_sp->getTagKeys(":name");
 	REQUIRE(!name_tag_keys.contains(bar_key_sp));
 	REQUIRE(name_tag_keys.contains(name_key_sp));
 
 	document_sp->removeKey(name_tag, name_key_sp);
 	name_tag_keys = document_sp->getTagKeys(":name");
 	REQUIRE(name_tag_keys.isEmpty());
-	KeySet bar_keys;
+	SPKeySet bar_keys;
 	bar_keys = document_sp->getTagKeys(bar_key_sp->getTag());
 	REQUIRE(bar_keys.size() == 2);
 	document_sp->removeTag(bar_key_sp->getTag());
@@ -194,7 +194,11 @@ TEST_CASE("Document properties tests") {
 		REQUIRE(doc.intProperty("modes") == -777);
 		doc.removeIntProperty("modes");
 		REQUIRE(doc.intProperty("modes") == -1);
-		doc.intProperty("wont_fit", 6301973179050681573);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconstant-conversion"
+		doc.intProperty("wont_fit", 6301973179050681573); // (ON PURPOSE) warning: implicit conversion from 'long' to 'int'
+#pragma clang diagnostic pop
 		REQUIRE(doc.intProperty("wont_fit") == -1856314139);
 	}
 
