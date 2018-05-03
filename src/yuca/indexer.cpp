@@ -173,7 +173,6 @@ namespace yuca {
 
 		for (auto const& sr : v) {
 			results.add(sr);
-
 			if (max_search_results > 0 && results.size() == max_search_results) {
 				break;
 			}

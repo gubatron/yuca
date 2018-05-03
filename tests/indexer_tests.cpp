@@ -337,9 +337,10 @@ TEST_CASE("Indexer Search Tests") {
 
 	std::srand(444);
 
-	int files = 1000;
+	int files = 10000;
 	Indexer indexer;
-	std::cout <<  std::endl << "Generating " << files << " random files:" << std::endl <<  std::endl;
+	std::cout <<  std::endl << "Generating " << files << " random file names..." << std::endl;
+	auto start = yuca::utils::timeInMillis();
 	for (int i = 0; i < files; i++) {
 		file f = generateRandomFile(title_dict, ext_dict, 4, 7);
 		std::shared_ptr<Document> doc = f.get_document();
@@ -347,19 +348,24 @@ TEST_CASE("Indexer Search Tests") {
 		doc->stringProperty("full_name",f.full_name());
 		SPKeySet ext_keys = doc->getTagKeys(extension_tag);
 		indexer.indexDocument(doc);
+		if (i % 100 == 0) {
+			std::cout << ".";
+			std::cout.flush();
+		}
 		//std::cout << i << ". [" << f.full_name() << "]" << std::endl << std::endl;
 	}
+	auto end = yuca::utils::timeInMillis();
+	std::cout << std::endl << "Generated " << files << " random file names in " << (end-start) << "ms" << std::endl <<  std::endl;
 
 	std::string q1("aquiles the polish :extension ogg");
 	std::cout << "Searching for: <" << q1 << ">" << std::endl;
 	std::shared_ptr<StringKey> cureKey = std::make_shared<StringKey>(q1,keyword_tag);
 	//List<std::shared_ptr<SearchResult>> search_results_1 = indexer.search(q1);
-	auto start = yuca::utils::timeInMillis();
+	start = yuca::utils::timeInMillis();
 	List<SearchResult> search_results_1 = indexer.search(q1, 10);
-	auto end = yuca::utils::timeInMillis();
+	end = yuca::utils::timeInMillis();
 
 	auto duration = end - start;
-	std::cout << "start: " << start << std::endl;
 	std::cout << std::endl << "==============================" << std::endl << std::endl;
 	std::cout << "Found: " << search_results_1.size() << " docs searching for '" << q1 <<  "' in " << duration << "ms" << std::endl << std::endl;
 	for (auto const& search_result_sp : search_results_1.getStdVector()) {
