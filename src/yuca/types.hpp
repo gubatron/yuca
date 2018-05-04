@@ -12,10 +12,16 @@
 
 namespace yuca {
     class Key;
+    class StringKey;
     class Document;
 
-    typedef yuca::utils::Set<std::shared_ptr<Key>> SPKeySet;
-    typedef yuca::utils::Set<std::shared_ptr<Document>> SPDocumentSet;
+    typedef std::shared_ptr<Key> SPKey;
+    typedef std::shared_ptr<StringKey> SPStringKey;
+    typedef std::shared_ptr<Document> SPDocument;
+    typedef yuca::utils::Set<SPKey> SPKeySet;
+    typedef yuca::utils::List<SPKey> SPKeyList;
+    typedef yuca::utils::Set<SPDocument> SPDocumentSet;
+    typedef yuca::utils::List<SPDocument> SPDocumentList;
 }
 
 #endif //YUCA_TYPES_HPP
