@@ -164,6 +164,34 @@ TEST_CASE("Indexer Basic Tests") {
     }
 }
 
+TEST_CASE("Indexer non shared pointer methods tests")
+{
+    Document foo_doc;
+    std::string foo_str("foo");
+    std::string keyword_tag(":keyword");
+    StringKey stringKey(foo_str, keyword_tag);
+    //foo_doc.addKey(stringKey); //TODO: addKey(Key) methods that don't depend on shared pointers
+	SPStringKey spStringKey = std::make_shared<StringKey>(stringKey);
+	foo_doc.addKey(spStringKey);
+
+	Indexer indexer;
+	SPDocumentSet spDocSet = indexer.findDocuments(spStringKey);
+	REQUIRE(spDocSet.isEmpty());
+
+	indexer.indexDocument(foo_doc);
+
+	spDocSet = indexer.findDocuments(spStringKey);
+	REQUIRE(!spDocSet.isEmpty());
+	for (auto const& spDoc : spDocSet.getStdSet()) {
+		Document doc = *spDoc;
+		REQUIRE(doc == foo_doc);
+	}
+
+	indexer.removeDocument(foo_doc);
+	spDocSet = indexer.findDocuments(spStringKey);
+	REQUIRE(spDocSet.isEmpty());
+}
+
 TEST_CASE("Indexer SearchRequest struct tests") {
 	std::string keyword_tag(":keyword");
 	std::string title_tag(":title");
