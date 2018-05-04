@@ -55,6 +55,21 @@ TEST_CASE("Test If Key Can Be Added") {
 	REQUIRE(bar_keys.size() == 2);
 }
 
+TEST_CASE("Test with non shared pointer argument methods") {
+	Document doc;
+	std::string foo("foo");
+	std::string tag(":tag");
+	StringKey sKey(foo, tag);
+	doc.addKey(sKey);
+
+	auto spKeys = doc.getTagKeys(tag);
+	REQUIRE(spKeys.size() == 1);
+	auto it = spKeys.getStdSet().begin();
+	StringKey retrievedStringKey = static_cast<StringKey&>(**it);
+	std::cout << retrievedStringKey << std::endl;
+	REQUIRE(sKey == retrievedStringKey);
+}
+
 
 TEST_CASE("Test if a single Key can be removed") {
 	initDocumentTests();

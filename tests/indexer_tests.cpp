@@ -164,8 +164,7 @@ TEST_CASE("Indexer Basic Tests") {
     }
 }
 
-TEST_CASE("Indexer non shared pointer methods tests")
-{
+TEST_CASE("Indexer non shared pointer methods tests") {
     Document foo_doc;
     std::string foo_str("foo");
     std::string keyword_tag(":keyword");
