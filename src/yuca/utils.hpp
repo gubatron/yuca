@@ -15,8 +15,8 @@
 
 namespace yuca {
 	namespace utils {
-		const std::string VERSION = "1.0.0";
-		const std::string LAST_UPDATED = "2018/04/03"; // YYYY/MM/DD
+		const std::string VERSION = "1.0.1";
+		const std::string LAST_UPDATED = "2018/04/04"; // YYYY/MM/DD
 
 		template<class T>
 		class Set {
@@ -63,18 +63,22 @@ namespace yuca {
 				}
 			}
 
-			void clear() {
+			void clear() noexcept {
 				s.clear();
 			}
 
 			/**
 			 * @return a copied std::set<T> instance of the containing std::set<T> s
 			 */
-			std::set<T> getStdSet() const {
+			std::set<T> getStdSetCopy() const noexcept {
 				return s;
 			}
 
-			unsigned long size() const {
+			std::set<T>& getStdSet() noexcept {
+				return s;
+			}
+
+			unsigned long size() const noexcept {
 				return s.size();
 			}
 
@@ -148,9 +152,10 @@ namespace yuca {
 				return v.at(index);
 			}
 
-			List<T> subList(long start, long length) {
+			List<T> subList(long start, long length) const {
 				List<T> result;
-				for (long i=0; i < length; i++) {
+				long max_offset = size() - 1;
+				for (long i=0; i < length && (start + i) < max_offset; i++) {
 					result.add(get(start + i));
 				}
 				return result;
@@ -201,7 +206,11 @@ namespace yuca {
 				return original_size > v.size();
 			}
 
-			std::vector<T> getStdVector() {
+			std::vector<T> getStdVectorCopy() const noexcept {
+				return v;
+			}
+
+			std::vector<T>& getStdVector() noexcept {
 				return v;
 			}
 
@@ -221,7 +230,6 @@ namespace yuca {
 
 		private:
 			std::vector<T> v;
-			//const T default_empty_value;
 		};
 
 		template<class K, class V>
@@ -230,15 +238,15 @@ namespace yuca {
 			explicit Map(V def_empty_val) : default_empty_value(def_empty_val) {
 			}
 
-			void clear() {
+			void clear() noexcept {
 				m.clear();
 			}
 
-			bool isEmpty() const {
+			bool isEmpty() const noexcept {
 				return m.empty();
 			}
 
-			Set<std::pair<K, V>> entrySet() const {
+			Set<std::pair<K, V>> entrySet() const noexcept {
 				Set<std::pair<K, V>> result;
 				for (auto const &entry_pair : m) {
 					result.add(entry_pair);
@@ -246,7 +254,7 @@ namespace yuca {
 				return result;
 			};
 
-			Set<K> keySet() const {
+			Set<K> keySet() const noexcept {
 				Set<K> result;
 				auto it = m.begin();
 				for (std::pair<K, V> const &entry_pair : m) {
@@ -255,7 +263,7 @@ namespace yuca {
 				return result;
 			}
 
-			List<K> keyList() const {
+			List<K> keyList() const noexcept {
 				List<K> result;
 				auto it = m.begin();
 				for (std::pair<K, V> const &entry_pair : m) {
@@ -264,7 +272,7 @@ namespace yuca {
 				return result;
 			}
 
-			V get(K key) const {
+			V get(K key) const noexcept {
 				auto it = m.find(key);
 				if (it == m.end()) {
 					return default_empty_value;
@@ -272,7 +280,7 @@ namespace yuca {
 				return it->second;
 			}
 
-			bool containsKey(K key) const {
+			bool containsKey(K key) const noexcept {
 				if (m.empty()) {
 					return false;
 				}
@@ -289,25 +297,29 @@ namespace yuca {
 				return result;
 			}
 
-			void put(K key, V value) {
+			void put(K key, V value) noexcept {
 				if (containsKey(key)) {
 					m.erase(key);
 				}
 				m.insert(std::make_pair(key, value));
 			}
 
-			unsigned long size() const {
+			unsigned long size() const noexcept {
 				return m.size();
 			}
 
-			void putAll(Map<K, V> other) {
+			void putAll(Map<K, V> other) noexcept {
 				auto entry_set = other.entrySet().getStdSet();
 				for (auto const &entry : entry_set) {
 					put(entry.first, entry.second);
 				}
 			}
 
-			std::map<K, V> getStdMap() const {
+			std::map<K, V> getStdMapCopy() const noexcept {
+				return m;
+			}
+
+			std::map<K, V>& getStdMap() noexcept {
 				return m;
 			}
 
@@ -336,7 +348,7 @@ namespace yuca {
 
 		/////////////////////////////////////////////////
 
-		inline int maxRand(int maxInclusive) {
+		inline int maxRand(int maxInclusive) noexcept {
 			return std::rand()/((RAND_MAX + 1u)/maxInclusive);
 		};
 
@@ -358,7 +370,7 @@ namespace yuca {
 			return source.compare(0, target.length(), target) == 0;
 		}
 
-		inline unsigned long timeInMillis() {
+		inline unsigned long timeInMillis() noexcept {
 			return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		}
 	};
