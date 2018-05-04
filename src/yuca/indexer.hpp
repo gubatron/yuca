@@ -134,6 +134,9 @@ namespace yuca {
 
 		void removeDocument(SPDocument doc);
 
+		/** Remove all documents from the index */
+		void clear();
+
 		yuca::utils::List<SearchResult> search(std::string &query, int max_search_results) const;
 
 		friend std::ostream &operator<<(std::ostream &output_stream, Indexer &indexer);

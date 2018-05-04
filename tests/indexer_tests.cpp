@@ -337,27 +337,31 @@ TEST_CASE("Indexer Search Tests") {
 
 	std::srand(444);
 
-	int files = 1000;
+	int files = 10;
 	Indexer indexer;
 	std::cout <<  std::endl;
 	auto start = yuca::utils::timeInMillis();
 	for (int i = 0; i < files; i++) {
-		file f = generateRandomFile(title_dict, ext_dict, 4, 7);
+		file f = generateRandomFile(title_dict, ext_dict, 3, 4);
 		SPDocument doc = f.get_document();
 		doc->intProperty("id", i);
 		doc->stringProperty("full_name",f.full_name());
 		SPKeySet ext_keys = doc->getTagKeys(extension_tag);
 		indexer.indexDocument(doc);
-		if (i % 100 == 0) {
+		if (files <= 20) {
+			std::cout << i << ". [" << f.full_name() << "]" << std::endl << std::endl;
+		} else if (i % 100 == 0) {
 			std::cout << "\r" << "Generating and indexing " << files << " random file names... (" << (i/(float) files)*100 << "%)";
 			std::cout.flush();
 		}
-		//std::cout << i << ". [" << f.full_name() << "]" << std::endl << std::endl;
 	}
 	auto end = yuca::utils::timeInMillis();
 	std::cout << std::endl << "Generated " << files << " random file names in " << (end-start) << "ms" << std::endl <<  std::endl;
+    std::cout << "Index:" << std::endl;
+	std::cout << indexer << std::endl;
+	std::cout << std::endl << "==============================" << std::endl << std::endl;
 
-	std::string q1("polish boat boat yuca :extension ogg");
+	std::string q1("boat yuca");
 	std::cout << "Searching for: <" << q1 << ">" << std::endl;
 	SPStringKey cureKey = std::make_shared<StringKey>(q1,keyword_tag);
 	start = yuca::utils::timeInMillis();
@@ -370,6 +374,11 @@ TEST_CASE("Indexer Search Tests") {
 	for (auto const& search_result_sp : search_results_1.getStdVector()) {
 		std::cout << search_result_sp.document_sp->intProperty("id") << ". [" << search_result_sp.document_sp->stringProperty("full_name") << "], score: " << search_result_sp.score << std::endl;
 	}
+
+	std::cout << std::endl << "==============================" << std::endl << std::endl;
+	std::cout << " Clear index!" << std::endl;
+	indexer.clear();
+	std::cout << indexer << std::endl;
 }
 
 #endif

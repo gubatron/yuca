@@ -72,8 +72,7 @@ namespace yuca {
 
 	std::ostream &operator<<(std::ostream &output_stream, ReverseIndex &rindex) {
 		output_stream << "ReverseIndex(@" << ((long) &rindex % 10000) << "):" << std::endl;
-		auto it = rindex.index.getStdMap().begin();
-		if (it == rindex.index.getStdMap().end()) {
+		if (rindex.index.isEmpty()) {
 			output_stream << "<empty>" << std::endl;
 		} else {
 			// index = { Key => SPDocumentSet }
@@ -100,7 +99,6 @@ namespace yuca {
 					}
 					output_stream << "]" << std::endl;
 				}
-				it++;
 			}
 		}
 		output_stream.flush();
@@ -108,17 +106,24 @@ namespace yuca {
 	}
 
 	void Indexer::indexDocument(Document doc) {
-        indexDocument(std::make_shared<Document>(doc));
+        SPDocument spDoc = std::make_shared<Document>(doc);
+        indexDocument(spDoc);
 	}
 
 	void Indexer::removeDocument(Document doc) {
-
+        SPDocument spDoc = docPtrCache.get(doc.getId());
+        if (spDoc == nullptr) {
+        	return;
+        }
+        removeDocument(spDoc);
 	}
 
-	void Indexer::indexDocument(SPDocument doc) {
-		std::set<std::string> tags = doc->getTags();
+	void Indexer::indexDocument(SPDocument spDoc) {
+		docPtrCache.put(spDoc->getId(), spDoc);
+
+		std::set<std::string> tags = spDoc->getTags();
 		for (auto const &tag : tags) {
-			addToIndex(tag, doc);
+			addToIndex(tag, spDoc);
 		}
 		// look for each one of the keys defined for this document
 		// the keys come along with their tag, which is used
@@ -141,6 +146,17 @@ namespace yuca {
 			for (auto const &key : key_set.getStdSet()) {
 				reverse_index->removeDocument(key, doc);
 			}
+		}
+		docPtrCache.remove(doc->getId());
+	}
+
+	void Indexer::clear() {
+		if (docPtrCache.isEmpty()) {
+			return;
+		}
+		SPDocumentList spList;
+		for (auto docId : docPtrCache.keySet().getStdSetCopy()) {
+			removeDocument(docPtrCache.get(docId));
 		}
 	}
 
@@ -221,14 +237,9 @@ namespace yuca {
 		auto v = results.getStdVector();
 		std::sort(v.begin(), v.end(), SearchResultSortFunctor());
 
-		results.clear();
-
-		for (auto const& sr : v) {
-			results.add(sr);
-			if (max_search_results > 0 && results.size() == max_search_results) {
-				break;
-			}
-		}
+        if (max_search_results > 0) {
+        	return results.subList(0, max_search_results);
+        }
 		return results;
 	}
 
@@ -296,17 +307,31 @@ namespace yuca {
 
 	std::ostream &operator<<(std::ostream &output_stream, Indexer &indexer) {
 		output_stream << "Indexer(@" << ((long) &indexer % 10000) << "): " << std::endl;
-		output_stream << " reverseIndices = { " << std::endl;
-
+		output_stream << "{" << std::endl;
+		output_stream << "\tdocPtrCache = { " << std::endl;
+		auto doc_ids_set = indexer.docPtrCache.keySet();
+		for (auto const& docId : doc_ids_set.getStdSet()) {
+			SPDocument spDocument = indexer.docPtrCache.get(docId);
+			if (spDocument != nullptr) {
+				output_stream << "\t\t" << docId << " => " << *spDocument << std::endl;
+			} else {
+				std::cout << "WTF is the docId? " << docId << std::endl;
+			}
+		}
+		output_stream << "\t}" << std::endl;
+		output_stream << "\treverseIndices = { " << std::endl;
 		if (indexer.reverseIndices.isEmpty()) {
 			output_stream << "<empty>";
 		} else {
-			for (auto const& r_index_tag : indexer.reverseIndices.keySet().getStdSet()) {
-				output_stream << "   " << r_index_tag << " => ";
+			output_stream.flush();
+			auto r_index_tags = indexer.reverseIndices.keySet();
+			for (auto const& r_index_tag : r_index_tags.getStdSet()) {
+				output_stream << "\t\t" << r_index_tag << " => ";
 				output_stream << *indexer.reverseIndices.get(r_index_tag);
 				output_stream << std::endl;
 			}
 		}
+		output_stream << "\t}" << std::endl;
 		output_stream << "}";
 		output_stream.flush();
 		return output_stream;
