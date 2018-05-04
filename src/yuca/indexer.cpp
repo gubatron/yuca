@@ -3,7 +3,7 @@
 
 namespace yuca {
 
-	void ReverseIndex::putDocument(std::shared_ptr<Key> key, std::shared_ptr<Document> doc) {
+	void ReverseIndex::putDocument(SPKey key, SPDocument doc) {
 		if (!hasDocuments(key)) {
 			keyCachePut(key);
 			SPDocumentSet newDocSet;
@@ -17,32 +17,39 @@ namespace yuca {
 		}
 	}
 
-	void ReverseIndex::removeDocument(std::shared_ptr<Key> key, std::shared_ptr<Document> doc) {
+	void ReverseIndex::removeDocument(SPKey key, SPDocument doc) {
 		if (!hasDocuments(key)) {
 			return;
 		}
 		auto cached_key = keyCacheGet(key);
 		SPDocumentSet docs = index.get(cached_key);
 		docs.remove(doc);
-		index.remove(cached_key);
 
 		if (!docs.isEmpty()) {
 			index.put(cached_key, docs);
+		} else {
+			index.remove(cached_key);
+			keyCacheRemove(cached_key);
 		}
 	}
 
-	auto ReverseIndex::hasDocuments(std::shared_ptr<Key> key) const -> bool {
+	auto ReverseIndex::hasDocuments(SPKey key) const -> bool {
 		auto cached_key_sp = keyCacheGet(key);
 		return index.containsKey(cached_key_sp);
 	}
 
-	std::shared_ptr<Key> ReverseIndex::keyCacheGet(std::shared_ptr<Key> key) const {
-		return key_cache.get(key->getId());
+	SPKey ReverseIndex::keyCacheGet(SPKey key) const {
+		return keyPtrCache.get(key->getId());
 	}
 
-	void ReverseIndex::keyCachePut(std::shared_ptr<Key> key) {
-		key_cache.put(key->getId(), key);
+	void ReverseIndex::keyCachePut(SPKey key) {
+		keyPtrCache.put(key->getId(), key);
 	}
+
+	void ReverseIndex::keyCacheRemove(SPKey key) {
+		keyPtrCache.remove(key->getId());
+	}
+
 
 	yuca::utils::List<std::string> SearchRequest::getTags() {
 		return tag_keywords_map.keyList();
@@ -52,7 +59,7 @@ namespace yuca {
 		return tag_keywords_map.get(tag);
 	}
 
-	SPDocumentSet ReverseIndex::getDocuments(std::shared_ptr<Key> key) const {
+	SPDocumentSet ReverseIndex::getDocuments(SPKey key) const {
 		if (!hasDocuments(key)) {
 			return SPDocumentSet();
 		}
@@ -100,8 +107,15 @@ namespace yuca {
 		return output_stream;
 	}
 
+	void Indexer::indexDocument(Document doc) {
+        indexDocument(std::make_shared<Document>(doc));
+	}
 
-	void Indexer::indexDocument(std::shared_ptr<Document> doc) {
+	void Indexer::removeDocument(Document doc) {
+
+	}
+
+	void Indexer::indexDocument(SPDocument doc) {
 		std::set<std::string> tags = doc->getTags();
 		for (auto const &tag : tags) {
 			addToIndex(tag, doc);
@@ -119,7 +133,7 @@ namespace yuca {
 		//        [key2] = [Document1, Document2, ... ]
 	}
 
-	void Indexer::removeDocument(std::shared_ptr<Document> doc) {
+	void Indexer::removeDocument(SPDocument doc) {
 		std::set<std::string> tags = doc->getTags();
 		for (auto const &tag : tags) {
 			auto reverse_index = getReverseIndex(tag);
@@ -133,21 +147,58 @@ namespace yuca {
 	yuca::utils::List<SearchResult> Indexer::search(std::string &query, int max_search_results) const {
 		SearchRequest search_request(query);
 
-		// 1. Get a set  of Documents whose StringKey's match at least one of the
+		// 1. Get SETs of Documents (by tag) whose StringKey's match at least one of the
 		// query keywords + corresponding tags as they come from the query string.
-        SPDocumentSet spDocumentSet = findDocuments(search_request);
+        yuca::utils::Map<std::string, SPDocumentSet> tagSPDocumentSetMap = findDocuments(search_request);
 
-		// 2. Create search results and score them by the number of key hits
-		yuca::utils::Map<std::shared_ptr<Document>, int> key_hits(0);
-		for (auto const& doc_sp : spDocumentSet.getStdSet()) {
-			for (auto tag : search_request.getTags().getStdVector()) {
-				for (auto const& offset_keyword : search_request.getOffsetKeywords(tag).getStdVector()) {
-					SPKeySet doc_sp_keyset = doc_sp->getTagKeys(tag);
-					for (auto const& doc_key_sp : doc_sp_keyset.getStdSet()) {
-						std::shared_ptr<StringKey> doc_string_key_sp = std::dynamic_pointer_cast<StringKey>(doc_key_sp);
-						if (doc_string_key_sp->getString() == offset_keyword.keyword) {
-							key_hits.put(doc_sp, key_hits.get(doc_sp) + 1);
-							continue;
+        // 1. Count document appearances per tag
+		yuca::utils::Set<std::string> tags = tagSPDocumentSetMap.keySet();
+		yuca::utils::Map<SPDocument, unsigned int> spDocs_appearances(0);
+        for (auto const& tag : tags.getStdSet()) {
+	        SPDocumentSet spDocumentSet = tagSPDocumentSetMap.get(tag);
+	        // let's count doc appearances per tag as a way to intersect those that match in all asked tags
+	        for (auto const &spDocument : spDocumentSet.getStdSet()) {
+	        	spDocs_appearances.put(spDocument, 1 + spDocs_appearances.get(spDocument));
+	        }
+        }
+
+        // filter out those documents that didn't meet the minimum number of appearances, that didn't appear
+		// in all given tag groups.
+		unsigned int num_tag_groups = tags.size();
+		auto allSpDocsFound = spDocs_appearances.keySet().getStdSet();
+		SPDocumentSet intersectedSPDocumentSet;
+
+		if (num_tag_groups > 1) {
+			for (auto const &spDoc : allSpDocsFound) {
+				if (spDocs_appearances.get(spDoc) == num_tag_groups) {
+					intersectedSPDocumentSet.add(spDoc);
+				}
+			}
+		} else {
+			intersectedSPDocumentSet = spDocs_appearances.keySet();
+		}
+
+		// Score them
+		yuca::utils::Map<SPDocument, unsigned int> doc_key_hits(0);
+		for (auto const& tag : tags.getStdSet()) {
+			yuca::utils::List<OffsetKeyword> offsetKeywordList = search_request.tag_keywords_map.get(tag);
+			// for each keyword in this tag group
+			for (auto const& offsetKeyword : offsetKeywordList.getStdVector()) {
+				// we ask each document if they have a key that matches the offsetKeyword from the query
+				// Document's Tag's Key's memory addresses won't match if we search against a newly created SPStringKey
+				// with the current keyword and tag, therefore we ask our reverse index cache to see if it has a copy
+				// of a key like this one.
+				std::string tag_copy = tag;
+				std::string keyword_copy = offsetKeyword.keyword;
+				StringKey searchStringKey(keyword_copy, tag_copy);
+				SPStringKey searchSPStringKey = std::make_shared<StringKey>(searchStringKey);
+				SPKey cachedSPKey = getReverseIndex(tag)->keyCacheGet(searchSPStringKey);
+
+				if (cachedSPKey != nullptr) {
+					for (auto const& spDocument : intersectedSPDocumentSet.getStdSet()) {
+						SPKeySet spDocumentTagKeyset = spDocument->getTagKeys(tag);
+						if (spDocumentTagKeyset.contains(cachedSPKey)) {
+							doc_key_hits.put(spDocument, 1 + doc_key_hits.get(spDocument));
 						}
 					}
 				}
@@ -157,9 +208,9 @@ namespace yuca {
 		// 3. create search results and score them
 		std::shared_ptr<SearchRequest> search_request_sp = std::make_shared<SearchRequest>(search_request);
 		yuca::utils::List<SearchResult> results;
-		for (auto const& doc_sp : spDocumentSet.getStdSet()) {
+		for (auto const& doc_sp : intersectedSPDocumentSet.getStdSet()) {
 			SearchResult sr(search_request_sp, doc_sp);
-			sr.score = key_hits.get(doc_sp) / (float) search_request.total_keywords;
+			sr.score = doc_key_hits.get(doc_sp) / (float) search_request.total_keywords;
 			results.add(sr);
 		}
 
@@ -180,20 +231,24 @@ namespace yuca {
 		return results;
 	}
 
-	SPDocumentSet Indexer::findDocuments(SearchRequest &search_request) const {
-		SPDocumentSet matchedSPDocSet;
+	yuca::utils::Map<std::string, SPDocumentSet> Indexer::findDocuments(SearchRequest &search_request) const {
+		SPDocumentSet emptyDocSet;
+        yuca::utils::Map<std::string, SPDocumentSet> r(emptyDocSet);
+
 		yuca::utils::List<std::string> search_tags = search_request.getTags();
 		for (auto &tag : search_tags.getStdVector()) {
-			yuca::utils::List<std::shared_ptr<Key>> string_keys;
+			SPDocumentSet matchedSPDocSet;
+			SPKeyList search_spkey_list;
 			for (auto offset_keyword : search_request.getOffsetKeywords(tag).getStdVector()) {
-				string_keys.add(std::make_shared<StringKey>(offset_keyword.keyword, tag));
+				search_spkey_list.add(std::make_shared<StringKey>(offset_keyword.keyword, tag));
 			}
-			matchedSPDocSet.addAll(findDocuments(string_keys));
+			matchedSPDocSet.addAll(findDocuments(search_spkey_list));
+			r.put(tag, matchedSPDocSet);
 		}
-		return matchedSPDocSet;
+		return r;
 	}
 
-	SPDocumentSet Indexer::findDocuments(std::shared_ptr<Key> key) const {
+	SPDocumentSet Indexer::findDocuments(SPKey key) const {
 		return getReverseIndex(key->getTag())->getDocuments(key);
 	}
 
@@ -211,7 +266,7 @@ namespace yuca {
 		return docs_out;
 	}
 
-	void Indexer::addToIndex(std::string const &tag, std::shared_ptr<Document> doc) {
+	void Indexer::addToIndex(std::string const &tag, SPDocument doc) {
 		SPKeySet doc_keys = doc->getTagKeys(tag);
 		if (doc_keys.isEmpty()) {
 			std::cout << "Indexer::addToIndex(" << tag

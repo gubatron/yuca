@@ -10,6 +10,6 @@ int main() {
 	Document doc;
 	Indexer indexer;
 
-    indexer.indexDocument(std::make_shared<Document>(doc));
+	indexer.indexDocument(std::make_shared<Document>(doc));
 	return 0;
 }

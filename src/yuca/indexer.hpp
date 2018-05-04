@@ -11,30 +11,32 @@
 namespace yuca {
 	/** Maps *Key -> [Document Set] */
 	struct ReverseIndex {
-		ReverseIndex() : index(SPDocumentSet()), key_cache(nullptr) {
+		ReverseIndex() : index(SPDocumentSet()), keyPtrCache(nullptr) {
 		}
 
 		yuca::utils::Map<std::shared_ptr<Key>, SPDocumentSet> index;
 
-		void putDocument(std::shared_ptr<Key> key, std::shared_ptr<Document> doc);
+		void putDocument(SPKey key, SPDocument doc);
 
-		void removeDocument(std::shared_ptr<Key> key, std::shared_ptr<Document> doc);
+		void removeDocument(SPKey key, SPDocument doc);
 
-		auto hasDocuments(std::shared_ptr<Key> key) const -> bool;
+		auto hasDocuments(SPKey key) const -> bool;
 
-		SPDocumentSet getDocuments(std::shared_ptr<Key> key) const;
+		SPDocumentSet getDocuments(SPKey key) const;
 
 		long getKeyCount() const;
 
-		friend std::ostream &operator<<(std::ostream &output_stream, ReverseIndex &rindex);
-
-	private:
 		/** Given an equivalent shared_ptr<Key> gets the corresponding shared_ptr<Key> we have stored already */
-		std::shared_ptr<Key> keyCacheGet(std::shared_ptr<Key>) const;
+		SPKey keyCacheGet(SPKey) const;
 
-		void keyCachePut(std::shared_ptr<Key> key);
+		friend std::ostream &operator<<(std::ostream &output_stream, ReverseIndex &rindex);
+	private:
 
-		yuca::utils::Map<long, std::shared_ptr<Key>> key_cache;
+		void keyCachePut(SPKey key);
+
+		void keyCacheRemove(SPKey key);
+
+		yuca::utils::Map<long, SPKey> keyPtrCache;
 	};
 
 	/**
@@ -96,7 +98,7 @@ namespace yuca {
 	};
 
 	struct SearchResult {
-		SearchResult(std::shared_ptr<SearchRequest> searchRequest, std::shared_ptr<Document> docSp) :
+		SearchResult(std::shared_ptr<SearchRequest> searchRequest, SPDocument docSp) :
 		search_request_sp(searchRequest),
 		document_sp(docSp),
 		id(document_sp->getId() + search_request_sp->id),
@@ -119,23 +121,29 @@ namespace yuca {
 
 	class Indexer {
 	public:
-		Indexer() : reverseIndices(std::shared_ptr<ReverseIndex>()) {
+		Indexer() : reverseIndices(std::shared_ptr<ReverseIndex>()), docPtrCache(nullptr) {
 		}
 
-		void indexDocument(std::shared_ptr<Document> doc);
+		/** Wrapper meant for non C++ users so their API surface doesn't need to deal with shared_ptr */
+		void indexDocument(Document doc);
 
-		void removeDocument(std::shared_ptr<Document> doc);
+		/** Wrapper meant for non C++ users so their API surface doesn't need to deal with shared_ptr */
+		void removeDocument(Document doc);
+
+		void indexDocument(SPDocument doc);
+
+		void removeDocument(SPDocument doc);
 
 		yuca::utils::List<SearchResult> search(std::string &query, int max_search_results) const;
 
 		friend std::ostream &operator<<(std::ostream &output_stream, Indexer &indexer);
 
-		SPDocumentSet findDocuments(SearchRequest &search_request) const;
+		yuca::utils::Map<std::string, SPDocumentSet> findDocuments(SearchRequest &search_request) const;
 
 		/** Given a key, it finds all related documents to its tag */
-		SPDocumentSet findDocuments(std::shared_ptr<Key> key) const;
+		SPDocumentSet findDocuments(SPKey key) const;
 
-		SPDocumentSet findDocuments(yuca::utils::List<std::shared_ptr<Key>> keys) const;
+		SPDocumentSet findDocuments(SPKeyList keys) const;
 	private:
 		/**
 		 * The Indexer is conformed by multiple reverse indexes,
@@ -154,9 +162,11 @@ namespace yuca {
 		 * */
 		std::shared_ptr<ReverseIndex> getReverseIndex(std::string const &tag) const;
 
-		void addToIndex(std::string const &tag, std::shared_ptr<Document> doc);
+		void addToIndex(std::string const &tag, SPDocument doc);
 
 		yuca::utils::Map<std::string, std::shared_ptr<ReverseIndex>> reverseIndices;
+
+		yuca::utils::Map<long, SPDocument> docPtrCache;
 	};
 }
 
