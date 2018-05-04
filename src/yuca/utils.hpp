@@ -15,6 +15,9 @@
 
 namespace yuca {
 	namespace utils {
+		const std::string VERSION = "1.0.0";
+		const std::string LAST_UPDATED = "2018/04/03"; // YYYY/MM/DD
+
 		template<class T>
 		class Set {
 		public:

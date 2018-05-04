@@ -84,6 +84,7 @@ TEST_CASE("yuca::utils::Map") {
 	SECTION("yuca::utils::Map (isEmpty, clear, put, get, remove, keySet)") {
 		yuca::utils::Map<std::string, int> m(-1);
 		REQUIRE(m.isEmpty());
+		REQUIRE(m.get("blackhole") == -1);
 		m.put("angel", 1);
 		REQUIRE(!m.isEmpty());
 		int val = m.get("angel");
