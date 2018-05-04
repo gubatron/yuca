@@ -205,6 +205,7 @@ namespace yuca {
 			}
 		}
 
+		// FIX-ME: gotta fix scoring, broken
 		// 3. create search results and score them
 		std::shared_ptr<SearchRequest> search_request_sp = std::make_shared<SearchRequest>(search_request);
 		yuca::utils::List<SearchResult> results;
@@ -252,7 +253,7 @@ namespace yuca {
 		return getReverseIndex(key->getTag())->getDocuments(key);
 	}
 
-	SPDocumentSet Indexer::findDocuments(yuca::utils::List<std::shared_ptr<Key>> keys) const {
+	SPDocumentSet Indexer::findDocuments(SPKeyList keys) const {
 		SPDocumentSet docs_out;
 		for (auto const &key : keys.getStdVector()) {
 			SPDocumentSet docs;

@@ -18,9 +18,9 @@ std::string bar_tag(":bar");
 auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
 auto foo_key2_sp = std::make_shared<Key>(2, foo_tag);
 auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
-std::shared_ptr<Document> document_foo_sp;
-std::shared_ptr<Document> document_bar_sp;
-std::shared_ptr<Document> document_foo_bar_sp;
+SPDocument document_foo_sp;
+SPDocument document_bar_sp;
+SPDocument document_foo_bar_sp;
 std::string title_tag = ":title";
 std::string file_name_tag = ":filename";
 std::string keyword_tag = ":keyword";
@@ -131,7 +131,7 @@ TEST_CASE("Indexer Basic Tests") {
 		    indexed_docs_checker.add(sh_ptr_doc);
 	    }
 	    n_docs_indexed = indexed_docs_checker.size();
-	    List<std::shared_ptr<Key>> keys;
+	    SPKeyList keys;
 	    keys.add(foo_key_sp);
 	    keys.add(bar_key_sp);
 	    SPDocumentSet multi_index_doc_set = indexer_multi_key.findDocuments(keys);
@@ -217,7 +217,7 @@ struct file {
 	std::string title;
 	std::string ext;
 	List<std::string> title_keywords;
-	std::shared_ptr<Document> document_sp = nullptr;
+	SPDocument document_sp = nullptr;
 
 	std::string full_name() {
 		std::string full;
@@ -227,23 +227,23 @@ struct file {
 		return full;
 	}
 
-	std::shared_ptr<Document> get_document() {
+	SPDocument get_document() {
 		if (document_sp == nullptr) {
 			document_sp = std::make_shared<Document>();
-			std::shared_ptr<StringKey> title_key = std::make_shared<StringKey>(title, title_tag);
+			SPStringKey title_key = std::make_shared<StringKey>(title, title_tag);
 			document_sp->addKey(title_key);
 
 			std::string full_filename = full_name();
-			std::shared_ptr<StringKey> filename_key = std::make_shared<StringKey>(full_filename, file_name_tag);
+			SPStringKey filename_key = std::make_shared<StringKey>(full_filename, file_name_tag);
 			document_sp->addKey(filename_key);
 
 			std::string extension = ext;
-			std::shared_ptr<StringKey> extension_key = std::make_shared<StringKey>(extension, extension_tag);
+			SPStringKey extension_key = std::make_shared<StringKey>(extension, extension_tag);
 			document_sp->addKey(extension_key);
 
 			for (long i = 0; i < title_keywords.size(); i++) {
 				std::string token = title_keywords.get(i);
-				std::shared_ptr<StringKey> keyword_key = std::make_shared<StringKey>(token, keyword_tag);
+				SPStringKey keyword_key = std::make_shared<StringKey>(token, keyword_tag);
 				document_sp->addKey(keyword_key);
 			}
 		}
@@ -337,19 +337,19 @@ TEST_CASE("Indexer Search Tests") {
 
 	std::srand(444);
 
-	int files = 5000;
+	int files = 1000;
 	Indexer indexer;
-	std::cout <<  std::endl << "Generating and indexing " << files << " random file names..." << std::endl;
+	std::cout <<  std::endl;
 	auto start = yuca::utils::timeInMillis();
 	for (int i = 0; i < files; i++) {
 		file f = generateRandomFile(title_dict, ext_dict, 4, 7);
-		std::shared_ptr<Document> doc = f.get_document();
+		SPDocument doc = f.get_document();
 		doc->intProperty("id", i);
 		doc->stringProperty("full_name",f.full_name());
 		SPKeySet ext_keys = doc->getTagKeys(extension_tag);
 		indexer.indexDocument(doc);
 		if (i % 100 == 0) {
-			std::cout << "\r" << (i/(float) files)*100 << "%";
+			std::cout << "\r" << "Generating and indexing " << files << " random file names... (" << (i/(float) files)*100 << "%)";
 			std::cout.flush();
 		}
 		//std::cout << i << ". [" << f.full_name() << "]" << std::endl << std::endl;
@@ -357,9 +357,9 @@ TEST_CASE("Indexer Search Tests") {
 	auto end = yuca::utils::timeInMillis();
 	std::cout << std::endl << "Generated " << files << " random file names in " << (end-start) << "ms" << std::endl <<  std::endl;
 
-	std::string q1("aquiles the polish :extension ogg");
+	std::string q1("polish boat boat yuca :extension ogg");
 	std::cout << "Searching for: <" << q1 << ">" << std::endl;
-	std::shared_ptr<StringKey> cureKey = std::make_shared<StringKey>(q1,keyword_tag);
+	SPStringKey cureKey = std::make_shared<StringKey>(q1,keyword_tag);
 	start = yuca::utils::timeInMillis();
 	List<SearchResult> search_results_1 = indexer.search(q1, 10);
 	end = yuca::utils::timeInMillis();
