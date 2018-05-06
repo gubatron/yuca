@@ -18,7 +18,16 @@ namespace yuca {
 		return creation_timestamp;
 	}
 
-	SPKeySet Document::getTagKeys(std::string const &tag) const {
+	KeySet Document::getTagKeys(std::string const &tag) const {
+        KeySet keySet;
+        SPKeySet spKeySet = getTagSPKeys(tag);
+        for (auto const& spKey : spKeySet.getStdSet()) {
+        	keySet.add(*spKey);
+        }
+        return keySet;
+    }
+
+	SPKeySet Document::getTagSPKeys(std::string const &tag) const {
         if (!hasKeys(tag)) {
             return SPKeySet();
         }
@@ -44,12 +53,12 @@ namespace yuca {
         if (!hasKeys(tag)) {
             return;
         }
-        SPKeySet keys = getTagKeys(tag);
+        SPKeySet keys = getTagSPKeys(tag);
         keys.remove(std::move(key));
         tag_2_keyset_map.put(tag, keys);
 
         // once we know the keySet has been cleared we remove it altogether from our { string -> [key0, key1] } map.
-        keys = getTagKeys(tag);
+        keys = getTagSPKeys(tag);
         if (keys.isEmpty()) {
             removeTag(tag);
         }

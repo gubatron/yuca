@@ -360,9 +360,9 @@ TEST_CASE("Indexer Search Tests") {
 
 	std::srand(444);
 
-	int files = 10;
+	int files = 10000;
 	int min_words = 3;
-	int max_words = 4;
+	int max_words = 5;
 	Indexer indexer;
 	std::cout <<  std::endl;
 	auto start = yuca::utils::timeInMillis();
@@ -371,7 +371,7 @@ TEST_CASE("Indexer Search Tests") {
 		SPDocument doc = f.get_document();
 		doc->intProperty("id", i);
 		doc->stringProperty("full_name",f.full_name());
-		SPKeySet ext_keys = doc->getTagKeys(":extension");
+		SPKeySet ext_keys = doc->getTagSPKeys(":extension");
 		indexer.indexDocument(doc);
 		if (files <= 20) {
 			std::cout << i << ". [" << f.full_name() << "]" << std::endl << std::endl;
@@ -386,7 +386,7 @@ TEST_CASE("Indexer Search Tests") {
 	//std::cout << indexer << std::endl;
 	std::cout << std::endl << "==============================" << std::endl << std::endl;
 
-	std::string q1("cost disease xeon :extension ogg");
+	std::string q1("locations hate cost :extension m4a");
 	std::cout << "Searching for: <" << q1 << ">" << std::endl;
 	SPStringKey cureKey = std::make_shared<StringKey>(q1,":keyword");
 	start = yuca::utils::timeInMillis();

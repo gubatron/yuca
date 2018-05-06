@@ -49,8 +49,10 @@ namespace yuca {
         /** Returns a copy of all tags under which we have KeySets */
         std::set<std::string> getTags() const;
 
-        /** Returns a copy of all keys available under a given tag */
-        SPKeySet getTagKeys(std::string const &tag) const;
+        /** Returns a copy of all keys shared pointers available under a given tag */
+        SPKeySet getTagSPKeys(std::string const &tag) const;
+
+        KeySet getTagKeys(std::string const &tag) const;
 
         /** Removes all keys under this tag */
         void removeTag(std::string const &tag);

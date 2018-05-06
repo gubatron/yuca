@@ -142,7 +142,7 @@ namespace yuca {
 		std::set<std::string> tags = doc->getTags();
 		for (auto const &tag : tags) {
 			auto reverse_index = getReverseIndex(tag);
-			SPKeySet key_set = doc->getTagKeys(tag);
+			SPKeySet key_set = doc->getTagSPKeys(tag);
 			for (auto const &key : key_set.getStdSet()) {
 				reverse_index->removeDocument(key, doc);
 			}
@@ -179,7 +179,7 @@ namespace yuca {
         }
 
         // filter out those documents that didn't meet the minimum number of appearances, that didn't appear
-		// in all given tag groups.
+		// in ALL given tag groups.
 		unsigned int num_tag_groups = (unsigned int) tags.size();
 		auto allSpDocsFound = spDocs_appearances.keySet().getStdSet();
 		SPDocumentSet intersectedSPDocumentSet;
@@ -194,7 +194,7 @@ namespace yuca {
 			intersectedSPDocumentSet = spDocs_appearances.keySet();
 		}
 
-        // up to this point we have intersected (narrowed down) documents because they have matched
+        // Up to this point we have intersected (narrowed down) documents because they have matched
 		// all the tags or groups specified in the search, now we need to see
 		// why. How many of the given keywords in the search are matched by these guys.
 
@@ -204,28 +204,18 @@ namespace yuca {
 		std::set<std::string> search_tags = search_request.tag_keywords_map.keySet().getStdSetCopy();
 
 		for (auto const& doc_sp : intersectedSPDocumentSet.getStdSet()) {
-			std::cout << "Checking Document(" << doc_sp->stringProperty("full_name") << ") vs '" << search_request.query << "'" << std::endl;
 			SearchResult sr(search_request_sp, doc_sp);
+
 		    for (auto const& tag : search_tags) {
-		    	std::cout << "\tUnder Tag " << tag << std::endl;
 			    std::shared_ptr<ReverseIndex> tag_r_index = getReverseIndex(tag);
-		    	SPKeySet spKeySet = doc_sp->getTagKeys(tag);
+		    	KeySet documentTagKeys = doc_sp->getTagKeys(tag);
 			    yuca::utils::List<OffsetKeyword> offset_search_keywords = search_request.tag_keywords_map.get(tag);
-			    for (auto const& key : spKeySet.getStdSet()) {
-			    	SPStringKey spStringKey = std::dynamic_pointer_cast<StringKey>(key);
-			    	std::cout << "\t\tChecking Key <" << spStringKey->getString() << "> vs ";
-			    	for (auto const& offset_keyword : offset_search_keywords.getStdVector()) {
-			    		std::cout << " Keyword <" << offset_keyword.keyword << ">";
-			    		StringKey mockup_string_key(offset_keyword.keyword, tag);
-					    if (mockup_string_key.getId() == spStringKey->getId()) {
-					    	std::cout << " => Doc(" << doc_sp->stringProperty("full_name") << ") matched Key " << mockup_string_key.getString() << mockup_string_key.getTag();
-						    sr.score = sr.score + 1;
-					    } else {
-					    	std::cout << " => Nope! (keys don't match) " << mockup_string_key.getId() << " != " << spStringKey->getId();
-					    }
-					    std::cout << std::endl << "\t\t";
+
+			    for (auto const& offset_keyword : offset_search_keywords.getStdVector()) {
+			    	StringKey searchStringKey(offset_keyword.keyword, tag);
+			    	if (documentTagKeys.contains(searchStringKey)) {
+			    		sr.score++;
 			    	}
-			    	std::cout << std::endl;
 			    }
 		    }
 
@@ -233,8 +223,6 @@ namespace yuca {
 				results.add(sr);
 			}
 		}
-
-		// TODO: Make score = w1.score1 + w2.score2 + ... + wN.scoreN
 
 		// 4. sort list by score
 		auto v = results.getStdVectorCopy();
@@ -294,7 +282,7 @@ namespace yuca {
 	}
 
 	void Indexer::addToIndex(std::string const &tag, SPDocument doc) {
-		SPKeySet doc_keys = doc->getTagKeys(tag);
+		SPKeySet doc_keys = doc->getTagSPKeys(tag);
 		if (doc_keys.isEmpty()) {
 			std::cout << "Indexer::addToIndex(" << tag
 			          << "): check your logic, document has no doc_keys under this tag <"

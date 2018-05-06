@@ -21,11 +21,11 @@ TEST_CASE("Test If Key Can Be Added") {
 	auto bar_key2_sp = std::make_shared<Key>(222, bar_tag);
 	auto document_sp = std::make_shared<Document>();
 
-	SPKeySet is_empty = document_sp->getTagKeys(foo_tag);
+	SPKeySet is_empty = document_sp->getTagSPKeys(foo_tag);
 	REQUIRE(is_empty.isEmpty());
 
 	document_sp->addKey(foo_key_sp);
-	SPKeySet foo_keys = document_sp->getTagKeys(foo_tag);
+	SPKeySet foo_keys = document_sp->getTagSPKeys(foo_tag);
 	REQUIRE(foo_keys.size() == 1);
 
 	if (bar_key_sp.get()->getId() < bar_key2_sp.get()->getId()) {
@@ -38,7 +38,7 @@ TEST_CASE("Test If Key Can Be Added") {
 	document_sp->addKey(bar_key2_sp);
 	//std::cout << *document_sp << std::endl;
 
-	SPKeySet bar_keys = document_sp->getTagKeys(bar_tag);
+	SPKeySet bar_keys = document_sp->getTagSPKeys(bar_tag);
 	REQUIRE(bar_keys.size() == 2);
 
 	// make sure it's the same one we've added
@@ -49,7 +49,7 @@ TEST_CASE("Test If Key Can Be Added") {
 
 	// now let's try adding the same element again, size should be the same as we're dealing with a set of unique keys
 	document_sp->addKey(bar_key_sp);
-	bar_keys = document_sp->getTagKeys(bar_tag);
+	bar_keys = document_sp->getTagSPKeys(bar_tag);
 	REQUIRE(bar_keys.size() == 2);
 }
 
@@ -61,7 +61,7 @@ TEST_CASE("Test with non shared pointer argument methods") {
 
 	REQUIRE(doc.hasKeys(":tag"));
 
-	auto spKeys = doc.getTagKeys(tag);
+	auto spKeys = doc.getTagSPKeys(tag);
 	REQUIRE(spKeys.size() == 1);
 	auto it = spKeys.getStdSet().begin();
 	StringKey retrievedStringKey = static_cast<StringKey&>(**it);
@@ -80,17 +80,17 @@ TEST_CASE("Test if a single Key can be removed") {
 
 	document_sp->addKey(foo_key_sp);
 	document_sp->addKey(bar_key_sp); // Doc { foo:[Key(1])], bar:[Key(1)] }
-	SPKeySet foo_key_set = document_sp->getTagKeys(foo_tag);
+	SPKeySet foo_key_set = document_sp->getTagSPKeys(foo_tag);
 	REQUIRE(foo_key_set.size() == 1);
 
-	SPKeySet bar_key_set = document_sp->getTagKeys(bar_tag);
+	SPKeySet bar_key_set = document_sp->getTagSPKeys(bar_tag);
 	REQUIRE(bar_key_set.size() == 1);
 
 	document_sp->addKey(bar_key2_sp); // Doc { foo:[Key(1)], bar:[Key(1),Key(2)] }
-	bar_key_set = document_sp->getTagKeys(bar_tag);
+	bar_key_set = document_sp->getTagSPKeys(bar_tag);
 	REQUIRE(bar_key_set.size() == 2);
 
-	foo_key_set = document_sp->getTagKeys(foo_tag);
+	foo_key_set = document_sp->getTagSPKeys(foo_tag);
 	REQUIRE(foo_key_set.size() == 1);
 	document_sp->removeKey(foo_tag, foo_key_sp);
 
@@ -98,13 +98,13 @@ TEST_CASE("Test if a single Key can be removed") {
 	REQUIRE(foo_key_set.size() == 1); // if we don't fetch it's still 1
 	REQUIRE(foo_key_set.contains(foo_key_sp));
 	REQUIRE(!document_sp->hasKeys(foo_tag)); // but you can ask directly without asking for a set if there are no more
-	foo_key_set = document_sp->getTagKeys(foo_tag);
+	foo_key_set = document_sp->getTagSPKeys(foo_tag);
 
 	REQUIRE(!foo_key_set.contains(foo_key_sp));
 	REQUIRE(foo_key_set.size() == 0);
 	REQUIRE(!foo_key_set.contains(foo_key_sp));
 
-	bar_key_set = document_sp->getTagKeys(bar_tag);
+	bar_key_set = document_sp->getTagSPKeys(bar_tag);
 	REQUIRE(bar_key_set.contains(bar_key_sp));
 	REQUIRE(bar_key_set.contains(bar_key2_sp));
 }
@@ -144,18 +144,18 @@ TEST_CASE("Test Removing a Tag") {
 	document_sp->addKey(bar_key_sp);
 	document_sp->addKey(bar_key2_sp);
 
-	SPKeySet name_tag_keys = document_sp->getTagKeys(":name");
+	SPKeySet name_tag_keys = document_sp->getTagSPKeys(":name");
 	REQUIRE(!name_tag_keys.contains(bar_key_sp));
 	REQUIRE(name_tag_keys.contains(name_key_sp));
 
 	document_sp->removeKey(name_tag, name_key_sp);
-	name_tag_keys = document_sp->getTagKeys(":name");
+	name_tag_keys = document_sp->getTagSPKeys(":name");
 	REQUIRE(name_tag_keys.isEmpty());
 	SPKeySet bar_keys;
-	bar_keys = document_sp->getTagKeys(bar_key_sp->getTag());
+	bar_keys = document_sp->getTagSPKeys(bar_key_sp->getTag());
 	REQUIRE(bar_keys.size() == 2);
 	document_sp->removeTag(bar_key_sp->getTag());
-	bar_keys = document_sp->getTagKeys(bar_key_sp->getTag());
+	bar_keys = document_sp->getTagSPKeys(bar_key_sp->getTag());
 	REQUIRE(bar_keys.isEmpty());
 }
 
