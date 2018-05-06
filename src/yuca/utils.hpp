@@ -155,8 +155,10 @@ namespace yuca {
 			List<T> subList(long start, long length) const {
 				List<T> result;
 				long max_offset = size() - 1;
-				for (long i=0; i < length && (start + i) < max_offset; i++) {
-					result.add(get(start + i));
+				for (long i = 0; i < length; i++) {
+					if (start + i <= max_offset) {
+						result.add(get(start + i));
+					}
 				}
 				return result;
 			}

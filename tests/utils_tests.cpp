@@ -323,6 +323,50 @@ TEST_CASE(
 
 	auto sp_k2_prime = spKeyList.get(1);
 	REQUIRE(sp_k2 == sp_k2_prime);
+
+	SECTION("yuca::utils List subList tests") {
+		yuca::utils::List<int> l;
+		REQUIRE(l.size() == 0);
+		yuca::utils::List<int> l2 = l.subList(0,10);
+		REQUIRE(l2.size() == 0);
+
+		l.add(1);
+		REQUIRE(l.size() == 1);
+
+		l2 = l.subList(0,10);
+		REQUIRE(l2.size() == 1);
+		REQUIRE(l2.get(0) == l.get(0));
+
+		l.add(2);
+		l.add(3);
+
+		REQUIRE(l.size() == 3);
+
+		l2 = l.subList(0,1);
+		REQUIRE(l2.size() == 1);
+		REQUIRE(l2.get(0) == l.get(0));
+
+		l.add(4);
+		REQUIRE(l.size() == 4);
+
+		l2 = l.subList(0,3);
+		REQUIRE(l2.size() == 3);
+		REQUIRE(l2.get(0) == l.get(0));
+		REQUIRE(l2.get(1) == l.get(1));
+		REQUIRE(l2.get(2) == l.get(2));
+
+		l2 = l.subList(1, 3);
+		REQUIRE(l2.size() == 3);
+		REQUIRE(l2.get(0) == l.get(1));
+		REQUIRE(l2.get(1) == l.get(2));
+		REQUIRE(l2.get(2) == l.get(3));
+
+		l2 = l.subList(1, 4);
+		REQUIRE(l2.size() == 3);
+		REQUIRE(l2.get(0) == l.get(1));
+		REQUIRE(l2.get(1) == l.get(2));
+		REQUIRE(l2.get(2) == l.get(3));
+	}
 }
 
 TEST_CASE("yuca:utils static functions") {
