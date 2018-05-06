@@ -194,49 +194,55 @@ namespace yuca {
 			intersectedSPDocumentSet = spDocs_appearances.keySet();
 		}
 
-		// Score them
-		yuca::utils::Map<SPDocument, unsigned int> doc_key_hits(0);
-		for (auto const& tag : tags.getStdSet()) {
-			yuca::utils::List<OffsetKeyword> offsetKeywordList = search_request.tag_keywords_map.get(tag);
-			// for each keyword in this tag group
-			for (auto const& offsetKeyword : offsetKeywordList.getStdVector()) {
-				// we ask each document if they have a key that matches the offsetKeyword from the query
-				// Document's Tag's Key's memory addresses won't match if we search against a newly created SPStringKey
-				// with the current keyword and tag, therefore we ask our reverse index cache to see if it has a copy
-				// of a key like this one.
-				std::string tag_copy = tag;
-				std::string keyword_copy = offsetKeyword.keyword;
-				StringKey searchStringKey(keyword_copy, tag_copy);
-				SPStringKey searchSPStringKey = std::make_shared<StringKey>(searchStringKey);
-				SPKey cachedSPKey = getReverseIndex(tag)->keyCacheGet(searchSPStringKey);
-				SPStringKey cachedSPStringKey = std::dynamic_pointer_cast<StringKey>(cachedSPKey);
+        // up to this point we have intersected (narrowed down) documents because they have matched
+		// all the tags or groups specified in the search, now we need to see
+		// why. How many of the given keywords in the search are matched by these guys.
 
-				if (cachedSPStringKey != nullptr) {
-					for (auto const& spDocument : intersectedSPDocumentSet.getStdSet()) {
-						SPKeySet spDocumentTagKeyset = spDocument->getTagKeys(tag);
-						if (spDocumentTagKeyset.contains(cachedSPStringKey)) {
-							doc_key_hits.put(spDocument, 1 + doc_key_hits.get(spDocument));
-						}
-					}
-				}
-			}
-		}
-
-		// FIX-ME: gotta fix scoring, broken
 		// 3. create search results and score them
 		std::shared_ptr<SearchRequest> search_request_sp = std::make_shared<SearchRequest>(search_request);
 		yuca::utils::List<SearchResult> results;
+		std::set<std::string> search_tags = search_request.tag_keywords_map.keySet().getStdSetCopy();
+
 		for (auto const& doc_sp : intersectedSPDocumentSet.getStdSet()) {
+			std::cout << "Checking Document(" << doc_sp->stringProperty("full_name") << ") vs '" << search_request.query << "'" << std::endl;
 			SearchResult sr(search_request_sp, doc_sp);
-			sr.score = doc_key_hits.get(doc_sp) / (float) search_request.total_keywords;
-			results.add(sr);
+		    for (auto const& tag : search_tags) {
+		    	std::cout << "\tUnder Tag " << tag << std::endl;
+			    std::shared_ptr<ReverseIndex> tag_r_index = getReverseIndex(tag);
+		    	SPKeySet spKeySet = doc_sp->getTagKeys(tag);
+			    yuca::utils::List<OffsetKeyword> offset_search_keywords = search_request.tag_keywords_map.get(tag);
+			    for (auto const& key : spKeySet.getStdSet()) {
+			    	SPStringKey spStringKey = std::dynamic_pointer_cast<StringKey>(key);
+			    	std::cout << "\t\tChecking Key <" << spStringKey->getString() << "> vs ";
+			    	for (auto const& offset_keyword : offset_search_keywords.getStdVector()) {
+			    		std::cout << " Keyword <" << offset_keyword.keyword << ">";
+			    		StringKey mockup_string_key(offset_keyword.keyword, tag);
+					    if (mockup_string_key.getId() == spStringKey->getId()) {
+					    	std::cout << " => Doc(" << doc_sp->stringProperty("full_name") << ") matched Key " << mockup_string_key.getString() << mockup_string_key.getTag();
+						    sr.score = sr.score + 1;
+					    } else {
+					    	std::cout << " => Nope! (keys don't match) " << mockup_string_key.getId() << " != " << spStringKey->getId();
+					    }
+					    std::cout << std::endl << "\t\t";
+			    	}
+			    	std::cout << std::endl;
+			    }
+		    }
+
+			if (sr.score > 0) {
+				results.add(sr);
+			}
 		}
 
 		// TODO: Make score = w1.score1 + w2.score2 + ... + wN.scoreN
 
 		// 4. sort list by score
-		auto v = results.getStdVector();
+		auto v = results.getStdVectorCopy();
 		std::sort(v.begin(), v.end(), SearchResultSortFunctor());
+		results.clear();
+		for (auto const& result : v) {
+			results.add(result);
+		}
         if (max_search_results > 0) {
         	results = results.subList(0, max_search_results);
         }
