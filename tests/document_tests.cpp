@@ -16,9 +16,7 @@ void initDocumentTests() {
 
 TEST_CASE("Test If Key Can Be Added") {
     initDocumentTests();
-
-	std::string foo_1_str = "foo 1";
-	auto foo_key_sp = std::make_shared<StringKey>(foo_1_str, foo_tag);
+	auto foo_key_sp = std::make_shared<StringKey>("foo 1", foo_tag);
 	auto bar_key_sp = std::make_shared<Key>(111, bar_tag);
 	auto bar_key2_sp = std::make_shared<Key>(222, bar_tag);
 	auto document_sp = std::make_shared<Document>();
@@ -57,16 +55,17 @@ TEST_CASE("Test If Key Can Be Added") {
 
 TEST_CASE("Test with non shared pointer argument methods") {
 	Document doc;
-	std::string foo("foo");
 	std::string tag(":tag");
-	StringKey sKey(foo, tag);
+	StringKey sKey("foo", tag);
 	doc.addKey(sKey);
+
+	REQUIRE(doc.hasKeys(":tag"));
 
 	auto spKeys = doc.getTagKeys(tag);
 	REQUIRE(spKeys.size() == 1);
 	auto it = spKeys.getStdSet().begin();
 	StringKey retrievedStringKey = static_cast<StringKey&>(**it);
-	std::cout << retrievedStringKey << std::endl;
+	//std::cout << retrievedStringKey << std::endl;
 	REQUIRE(sKey == retrievedStringKey);
 }
 

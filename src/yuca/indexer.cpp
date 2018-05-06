@@ -172,6 +172,7 @@ namespace yuca {
 		yuca::utils::Map<SPDocument, unsigned int> spDocs_appearances(0);
         for (auto const& tag : tags.getStdSet()) {
 	        SPDocumentSet spDocumentSet = tagSPDocumentSetMap.get(tag);
+	        std::cout << "Indexer::search() going over tag<"<< tag <<"> and docsets to count appearances" << std::endl;
 	        // let's count doc appearances per tag as a way to intersect those that match in all asked tags
 	        for (auto const &spDocument : spDocumentSet.getStdSet()) {
 	        	spDocs_appearances.put(spDocument, 1 + spDocs_appearances.get(spDocument));
@@ -251,17 +252,28 @@ namespace yuca {
 		for (auto &tag : search_tags.getStdVector()) {
 			SPDocumentSet matchedSPDocSet;
 			SPKeyList search_spkey_list;
-			for (auto offset_keyword : search_request.getOffsetKeywords(tag).getStdVector()) {
+			yuca::utils::List<OffsetKeyword> tag_offset_keywords = search_request.getOffsetKeywords(tag);
+
+			std::cout << "Indexer::findDocuments(): search_request.getOffsetKeywords(" << tag << ") found ["<< tag_offset_keywords.size()  << "]"<< std::endl;
+
+			for (auto offset_keyword : tag_offset_keywords.getStdVector()) {
 				search_spkey_list.add(std::make_shared<StringKey>(offset_keyword.keyword, tag));
 			}
-			matchedSPDocSet.addAll(findDocuments(search_spkey_list));
-			r.put(tag, matchedSPDocSet);
+			SPDocumentSet tag_matched_spDoc_set = findDocuments(search_spkey_list);
+			if (!tag_matched_spDoc_set.isEmpty()) {
+				matchedSPDocSet.addAll(tag_matched_spDoc_set);
+				r.put(tag, matchedSPDocSet);
+			}
 		}
 		return r;
 	}
 
 	SPDocumentSet Indexer::findDocuments(SPKey key) const {
-		return getReverseIndex(key->getTag())->getDocuments(key);
+		std::shared_ptr<ReverseIndex>spRIndex = getReverseIndex((key->getTag()));
+		SPDocumentSet results = spRIndex->getDocuments(key);
+		std::cout << "Indexer::findDocuments(keyId=" << key->getId() << ") [" << results.size() << "]" << std::endl;
+		//return getReverseIndex(key->getTag())->getDocuments(key);
+		return results;
 	}
 
 	SPDocumentSet Indexer::findDocuments(SPKeyList keys) const {

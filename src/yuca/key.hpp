@@ -12,7 +12,7 @@ namespace yuca {
     public:
         Key() = default;
 
-        explicit Key(long id, std::string &my_tag) : id(id), tag(my_tag) {
+        explicit Key(long id, const std::string &my_tag) : id(id), tag(my_tag) {
         }
 
         // THIS OPERATOR IS USED FOR std::set.find()
@@ -39,7 +39,7 @@ namespace yuca {
 
     class StringKey : public Key {
     public:
-        explicit StringKey(std::string &string_key, std::string &my_tag) :
+        explicit StringKey(const std::string &string_key, const std::string &my_tag) :
         Key(std::hash<std::string>{}(my_tag + string_key), my_tag), str_key(string_key) {
         }
         std::string getString() const {
@@ -47,7 +47,7 @@ namespace yuca {
         }
         friend std::ostream& operator<<(std::ostream &output_stream, StringKey &key);
     private:
-        std::string str_key;
+        const std::string str_key;
     };
 }
 

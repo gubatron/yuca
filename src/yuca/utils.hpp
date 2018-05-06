@@ -15,8 +15,8 @@
 
 namespace yuca {
 	namespace utils {
-		const std::string VERSION = "1.0.1";
-		const std::string LAST_UPDATED = "2018/04/04"; // YYYY/MM/DD
+		const std::string VERSION = "1.0.2";
+		const std::string LAST_UPDATED = "2018/04/05"; // YYYY/MM/DD
 
 		template<class T>
 		class Set {
@@ -25,7 +25,7 @@ namespace yuca {
 				s.insert(e);
 			}
 
-			void addAll(Set<T> other_set) noexcept {
+			void addAll(Set<T> &other_set) noexcept {
 				for (auto const &x : other_set.s) {
 					add(x);
 				}
@@ -35,7 +35,7 @@ namespace yuca {
 				return s.find(something) != s.end();
 			}
 
-			bool containsAll(Set<T> other) const noexcept {
+			bool containsAll(Set<T> &other) const noexcept {
 				for (auto const &x : other.s) {
 					if (!contains(x)) {
 						return false;
@@ -57,7 +57,7 @@ namespace yuca {
 				return true;
 			}
 
-			void removeAll(Set<T> other_set) {
+			void removeAll(Set<T> &other_set) {
 				for (auto const &x : other_set.s) {
 					remove(x);
 				}
@@ -113,13 +113,13 @@ namespace yuca {
 				v.insert(v.begin() + index, t);
 			}
 
-			void addAll(List<T> other) noexcept {
+			void addAll(List<T> &other) noexcept {
 				for (auto const& t : other.v) {
 					add(t);
 				}
 			}
 
-			void addAll(Set<T> other) noexcept {
+			void addAll(Set<T> &other) noexcept {
 				for (auto const& t : other.getStdSet()) {
 					add(t);
 				}
@@ -198,7 +198,7 @@ namespace yuca {
 				return true;
 			}
 
-			bool removeAll(List<T> other) {
+			bool removeAll(List<T> &other) {
 				long original_size = v.size();
 				for (auto const &t : other.v) {
 					remove(t);
@@ -349,6 +349,9 @@ namespace yuca {
 		/////////////////////////////////////////////////
 
 		inline int maxRand(int maxInclusive) noexcept {
+			if (maxInclusive == 0) {
+				return 0;
+			}
 			return std::rand()/((RAND_MAX + 1u)/maxInclusive);
 		};
 

@@ -21,10 +21,6 @@ auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
 SPDocument document_foo_sp;
 SPDocument document_bar_sp;
 SPDocument document_foo_bar_sp;
-std::string title_tag = ":title";
-std::string file_name_tag = ":filename";
-std::string keyword_tag = ":keyword";
-std::string extension_tag = ":extension";
 
 using namespace yuca::utils;
 
@@ -257,20 +253,20 @@ struct file {
 	SPDocument get_document() {
 		if (document_sp == nullptr) {
 			document_sp = std::make_shared<Document>();
-			SPStringKey title_key = std::make_shared<StringKey>(title, title_tag);
+			SPStringKey title_key = std::make_shared<StringKey>(title, ":title");
 			document_sp->addKey(title_key);
 
 			std::string full_filename = full_name();
-			SPStringKey filename_key = std::make_shared<StringKey>(full_filename, file_name_tag);
+			SPStringKey filename_key = std::make_shared<StringKey>(full_filename, ":filename");
 			document_sp->addKey(filename_key);
 
 			std::string extension = ext;
-			SPStringKey extension_key = std::make_shared<StringKey>(extension, extension_tag);
+			SPStringKey extension_key = std::make_shared<StringKey>(extension, ":extension");
 			document_sp->addKey(extension_key);
 
 			for (long i = 0; i < title_keywords.size(); i++) {
 				std::string token = title_keywords.get(i);
-				SPStringKey keyword_key = std::make_shared<StringKey>(token, keyword_tag);
+				SPStringKey keyword_key = std::make_shared<StringKey>(token, ":keyword");
 				document_sp->addKey(keyword_key);
 			}
 		}
@@ -283,7 +279,7 @@ struct file {
  * @param words
  * @return The first element contains the entire phrase, the rest each word that helps make the phrase
  */
-List<std::string> generateRandomPhrase(List<std::string> dictionary, int words) {
+List<std::string> generateRandomPhrase(const List<std::string> &dictionary, int words) {
 	std::string phrase;
 	List<std::string> result;
 	long max_index = dictionary.size() - 1;
@@ -364,16 +360,16 @@ TEST_CASE("Indexer Search Tests") {
 
 	std::srand(444);
 
-	int files = 10;
+	int files = 3;
 	Indexer indexer;
 	std::cout <<  std::endl;
 	auto start = yuca::utils::timeInMillis();
 	for (int i = 0; i < files; i++) {
-		file f = generateRandomFile(title_dict, ext_dict, 3, 4);
+		file f = generateRandomFile(title_dict, ext_dict, 2, 2);
 		SPDocument doc = f.get_document();
 		doc->intProperty("id", i);
 		doc->stringProperty("full_name",f.full_name());
-		SPKeySet ext_keys = doc->getTagKeys(extension_tag);
+		SPKeySet ext_keys = doc->getTagKeys(":extension");
 		indexer.indexDocument(doc);
 		if (files <= 20) {
 			std::cout << i << ". [" << f.full_name() << "]" << std::endl << std::endl;
@@ -388,9 +384,9 @@ TEST_CASE("Indexer Search Tests") {
 	std::cout << indexer << std::endl;
 	std::cout << std::endl << "==============================" << std::endl << std::endl;
 
-	std::string q1("boat yuca");
+	std::string q1("player");
 	std::cout << "Searching for: <" << q1 << ">" << std::endl;
-	SPStringKey cureKey = std::make_shared<StringKey>(q1,keyword_tag);
+	SPStringKey cureKey = std::make_shared<StringKey>(q1,":keyword");
 	start = yuca::utils::timeInMillis();
 	List<SearchResult> search_results_1 = indexer.search(q1, 10);
 	end = yuca::utils::timeInMillis();
@@ -402,10 +398,10 @@ TEST_CASE("Indexer Search Tests") {
 		std::cout << search_result_sp.document_sp->intProperty("id") << ". [" << search_result_sp.document_sp->stringProperty("full_name") << "], score: " << search_result_sp.score << std::endl;
 	}
 
-	std::cout << std::endl << "==============================" << std::endl << std::endl;
-	std::cout << " Clear index!" << std::endl;
-	indexer.clear();
-	std::cout << indexer << std::endl;
+	//std::cout << std::endl << "==============================" << std::endl << std::endl;
+	//std::cout << " Clear index!" << std::endl;
+	//indexer.clear();
+	//std::cout << indexer << std::endl;
 }
 
 #endif

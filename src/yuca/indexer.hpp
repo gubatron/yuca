@@ -101,7 +101,7 @@ namespace yuca {
 		SearchResult(std::shared_ptr<SearchRequest> searchRequest, SPDocument docSp) :
 		search_request_sp(searchRequest),
 		document_sp(docSp),
-		id(document_sp->getId() + search_request_sp->id),
+		id(docSp->getId() + searchRequest->id),
 		score(0) {
 		};
 
