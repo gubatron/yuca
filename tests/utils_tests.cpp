@@ -379,6 +379,14 @@ TEST_CASE("yuca:utils static functions") {
 		REQUIRE(list.get(2) == "three");
 		REQUIRE(list.get(3) == "four");
 	}
+
+	SECTION("yuca::utils levenshtein distance") {
+		REQUIRE(yuca::utils::levenshteinDistance("aaa","aaa") == 0);
+		REQUIRE(yuca::utils::levenshteinDistance("sol","sal") == 1);
+		REQUIRE(yuca::utils::levenshteinDistance("foo","bar") == 3);
+		REQUIRE(yuca::utils::levenshteinDistance("lawn","fawl") == 2);
+	}
+
 }
 
 #endif

@@ -12,6 +12,7 @@
 #include <ostream>
 #include <iostream>
 #include <sstream>
+#include <numeric>
 
 namespace yuca {
 	namespace utils {
@@ -380,11 +381,35 @@ namespace yuca {
 			return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		}
 
-		inline unsigned int levenshteinDistance(std::string a, std::string b) {
-			if (b == "hate locations cost disease.m4a") {
-				return 0;
+		/** Taken from https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#C++ */
+		inline unsigned int levenshteinDistance(std::string source, std::string target) {
+			// To change the type this function manipulates and returns, change
+			// the return type and the types of the two variables below.
+			int s1len = source.size();
+			int s2len = target.size();
+
+			auto column_start = (decltype(s1len))1;
+
+			auto column = new decltype(s1len)[s1len + 1];
+			std::iota(column + column_start - 1, column + s1len + 1, column_start - 1);
+
+			for (auto x = column_start; x <= s2len; x++) {
+				column[0] = x;
+				auto last_diagonal = x - column_start;
+				for (auto y = column_start; y <= s1len; y++) {
+					auto old_diagonal = column[y];
+					auto possibilities = {
+					column[y] + 1,
+					column[y - 1] + 1,
+					last_diagonal + (source[y - 1] == target[x - 1] ? 0 : 1)
+					};
+					column[y] = std::min(possibilities);
+					last_diagonal = old_diagonal;
+				}
 			}
-			return 2;
+			auto result = column[s1len];
+			delete[] column;
+			return result;
 		}
 	};
 }
