@@ -290,6 +290,7 @@ struct file {
 			std::string full_filename = full_name();
 			SPStringKey filename_key = std::make_shared<StringKey>(full_filename, ":filename");
 			document_sp->addKey(filename_key);
+			document_sp->stringProperty("full_name", full_filename);
 
 			std::string extension = ext;
 			SPStringKey extension_key = std::make_shared<StringKey>(extension, ":extension");
@@ -392,7 +393,7 @@ TEST_CASE("Indexer Search Tests") {
 
 	std::srand(444);
 
-	int files = 10000;
+	int files = 999;
 	int min_words = 3;
 	int max_words = 5;
 	Indexer indexer;
@@ -401,7 +402,7 @@ TEST_CASE("Indexer Search Tests") {
 	for (int i = 0; i < files; i++) {
 		file f = generateRandomFile(title_dict, ext_dict, min_words, max_words);
 		SPDocument doc = f.get_document();
-		doc->intProperty("id", i);
+		doc->intProperty("offset", i);
 		doc->stringProperty("full_name",f.full_name());
 		SPKeySet ext_keys = doc->getTagSPKeys(":extension");
 		indexer.indexDocument(doc);
@@ -412,24 +413,37 @@ TEST_CASE("Indexer Search Tests") {
 			std::cout.flush();
 		}
 	}
+
+	// add one more hard coded
+	yuca::utils::List<std::string> f2_keywords;
+	f2_keywords.add("hate");
+	f2_keywords.add("locations");
+	f2_keywords.add("cost");
+	f2_keywords.add("disease");
+	file f2("hate locations cost disease", "m4a", f2_keywords);
+	SPDocument doc_f2 = f2.get_document();
+	doc_f2->intProperty("offset", files);
+	doc_f2->stringProperty("full_name", f2.full_name());
+	indexer.indexDocument(doc_f2);
+
 	auto end = yuca::utils::timeInMillis();
 	std::cout << std::endl << "Generated " << files << " random file names in " << (end-start) << "ms" << std::endl <<  std::endl;
     //std::cout << "Index:" << std::endl;
 	//std::cout << indexer << std::endl;
 	std::cout << std::endl << "==============================" << std::endl << std::endl;
 
-	std::string q1("locations hate cost :extension m4a");
+	std::string q1("hate locations cost :extension m4a");
 	std::cout << "Searching for: <" << q1 << ">" << std::endl;
 	SPStringKey cureKey = std::make_shared<StringKey>(q1,":keyword");
 	start = yuca::utils::timeInMillis();
-	List<SearchResult> search_results_1 = indexer.search(q1, 10);
+	List<SearchResult> search_results_1 = indexer.search(q1, "full_name", 10);
 	end = yuca::utils::timeInMillis();
 
 	auto duration = end - start;
 	std::cout << std::endl << "==============================" << std::endl << std::endl;
 	std::cout << "Found: " << search_results_1.size() << " out of " << files  << " docs searching for '" << q1 <<  "' in " << duration << "ms" << std::endl << std::endl;
 	for (auto const& search_result_sp : search_results_1.getStdVector()) {
-		std::cout << search_result_sp.document_sp->intProperty("id") << ". [" << search_result_sp.document_sp->stringProperty("full_name") << "], score: " << search_result_sp.score << std::endl;
+		std::cout << search_result_sp.document_sp->intProperty("offset") << ". [" << search_result_sp.document_sp->stringProperty("full_name") << "], score: " << search_result_sp.score << std::endl;
 	}
 
 	//std::cout << std::endl << "==============================" << std::endl << std::endl;

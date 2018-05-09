@@ -55,7 +55,7 @@ namespace yuca {
 	 * possible search tags to specified OffsetKeywords
 	 */
 	struct SearchRequest {
-		SearchRequest(std::string &query_str) :
+		SearchRequest(const std::string &query_str) :
 		query(query_str),
 		tag_keywords_map(yuca::utils::List<OffsetKeyword>()),
 		id(rand()),
@@ -145,7 +145,32 @@ namespace yuca {
 		/** Remove all documents from the index */
 		void clear();
 
-		yuca::utils::List<SearchResult> search(std::string &query, int max_search_results) const;
+		/**
+		 *
+		 * @param query - Search string with support for :tagged keywords.
+		 *
+		 * If no :tags are specified, all keywords are grouped under the `:keyword` tag by default, meaning
+		 * the user just gave a list of keywords to look for.
+		 *
+		 * Multiple <:tagged> key groups are expected in the following format
+		 * ":tag1 t1_keyword_1 ... t1_keyword_N :tag2 t2_keyword_1 ... t2_keyword_N .... :tagN tN_keyword1 ... tN_keywordN
+		 *
+		 * "the twilight zone :extension mp4"
+		 * ":city new york :year 2018 :sex female"
+		 *
+		 * @param opt_main_doc_property_for_query_comparison - Optional. Pass "" if you don't intend to use it.
+		 * After tagged keys are used to filter out search results we can compare the given document property value
+		 * against the given query. The lowest the Levenshtein distance the higher ranked the search result will be.
+		 * If the given property name does not exist in the document, this parameter will simply be ignored.
+		 *
+		 * @param opt_max_search_results -  if > 0 it will limit the maximum search results to that number. Pass 0 or a
+		 * negative number to obtain all possible search results.
+		 *
+		 * @return A List of matching SearchResult objects.
+		 */
+		yuca::utils::List<SearchResult> search(const std::string &query,
+		                                       const std::string &opt_main_doc_property_for_query_comparison,
+		                                       int opt_max_search_results) const;
 
 		friend std::ostream &operator<<(std::ostream &output_stream, Indexer &indexer);
 

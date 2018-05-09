@@ -1,5 +1,4 @@
 #include "indexer.hpp"
-#include <iostream>
 
 namespace yuca {
 
@@ -185,7 +184,9 @@ namespace yuca {
 		}
 	}
 
-	yuca::utils::List<SearchResult> Indexer::search(std::string &query, int max_search_results) const {
+	yuca::utils::List<SearchResult> Indexer::search(const std::string &query,
+	                                                const std::string &opt_main_doc_property_for_query_comparison,
+	                                                int opt_max_search_results) const {
 		SearchRequest search_request(query);
 
 		// 1. Get SETs of Documents (by tag) whose StringKey's match at least one of the
@@ -249,15 +250,28 @@ namespace yuca {
 			}
 		}
 
-		// 4. sort list by score
+		// 4. if we were given a valid document property name to perform a Levenshtein distance
+		// calculation we'll try to rank results by scoring higher those that get the lowest
+		if (opt_main_doc_property_for_query_comparison.length() > 0) {
+            for (auto &sr : results.getStdVector()) {
+            	std::string target_string = sr.document_sp->stringProperty(opt_main_doc_property_for_query_comparison);
+            	if (target_string.length() == 0) {
+            		continue;
+            	}
+                unsigned int LD = yuca::utils::levenshteinDistance(query, target_string);
+	            sr.score += LD == 0 ? 1.0 : 1 / (float) LD;
+            }
+		}
+
+		// 5. sort list by final score
 		auto v = results.getStdVectorCopy();
 		std::sort(v.begin(), v.end(), SearchResultSortFunctor());
 		results.clear();
 		for (auto const& result : v) {
 			results.add(result);
 		}
-        if (max_search_results > 0) {
-        	results = results.subList(0, max_search_results);
+        if (opt_max_search_results > 0) {
+        	results = results.subList(0, opt_max_search_results);
         }
 		return results;
 	}
