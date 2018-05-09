@@ -49,7 +49,6 @@ namespace yuca {
 		keyPtrCache.remove(key->getId());
 	}
 
-
 	yuca::utils::List<std::string> SearchRequest::getTags() {
 		return tag_keywords_map.keyList();
 	}
@@ -79,7 +78,12 @@ namespace yuca {
 			auto index_map = rindex.index.getStdMap();
 			for (auto const& key_sp : key_set.getStdSet()) {
 				output_stream << " ";
-				output_stream << *key_sp;
+				std::shared_ptr<StringKey> cast_key = std::dynamic_pointer_cast<StringKey>(key_sp);
+				if (nullptr != cast_key) {
+				    output_stream << *cast_key;
+				} else {
+					output_stream << *key_sp;
+				}
 				output_stream << " => ";
 				auto docset = rindex.index.get(key_sp);
 				output_stream << "(" << docset.size() << ") ";
@@ -170,6 +174,9 @@ namespace yuca {
 			for (auto const &key : key_set.getStdSet()) {
 				reverse_index->removeDocument(key, doc);
 			}
+			if (reverse_index->getKeyCount() == 0) {
+				reverseIndices.remove(tag);
+			}
 		}
 		docPtrCache.remove(doc->getId());
 	}
@@ -187,7 +194,7 @@ namespace yuca {
 	yuca::utils::List<SearchResult> Indexer::search(const std::string &query,
 	                                                const std::string &opt_main_doc_property_for_query_comparison,
 	                                                int opt_max_search_results) const {
-		SearchRequest search_request(query);
+		SearchRequest search_request(query, implicit_tag);
 
 		// 1. Get SETs of Documents (by tag) whose StringKey's match at least one of the
 		// query keywords + corresponding tags as they come from the query string.
@@ -206,7 +213,7 @@ namespace yuca {
 
         // filter out those documents that didn't meet the minimum number of appearances, that didn't appear
 		// in ALL given tag groups.
-		unsigned int num_tag_groups = (unsigned int) tags.size();
+		unsigned int num_tag_groups = (unsigned int) search_request.getTags().size();
 		auto allSpDocsFound = spDocs_appearances.keySet().getStdSet();
 		SPDocumentSet intersectedSPDocumentSet;
 
@@ -276,6 +283,15 @@ namespace yuca {
 		return results;
 	}
 
+	yuca::utils::List<SearchResult> Indexer::search(const std::string &query) {
+		return search(query, "", -1);
+	}
+
+	yuca::utils::List<SearchResult> Indexer::search(const std::string &query,
+	                                       const std::string &opt_main_doc_property_for_query_comparison) {
+		return search(query, opt_main_doc_property_for_query_comparison, -1);
+	}
+
 	yuca::utils::Map<std::string, SPDocumentSet> Indexer::findDocuments(SearchRequest &search_request) const {
 		SPDocumentSet emptyDocSet;
         yuca::utils::Map<std::string, SPDocumentSet> r(emptyDocSet);
@@ -299,9 +315,9 @@ namespace yuca {
 	}
 
 	SPDocumentSet Indexer::findDocuments(SPKey key) const {
+		// code remains in commented for step-by-step debugging purposes
 		//std::shared_ptr<ReverseIndex>spRIndex = getReverseIndex((key->getTag()));
 		//SPDocumentSet results = spRIndex->getDocuments(key);
-		//std::cout << "Indexer::findDocuments(keyId=" << key->getId() << ") [" << results.size() << "]" << std::endl;
 		//return results;
 		return getReverseIndex(key->getTag())->getDocuments(key);
 	}

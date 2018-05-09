@@ -61,11 +61,10 @@ namespace yuca {
 		id(rand()),
 		total_keywords(0) {
 			std::string tag_prefix(":");
+			std::string current_tag = implicit_tag;
 			auto query_tokens = yuca::utils::split(query_str);
-			std::string keyword_tag = implicit_tag;
-			std::string current_tag = ":keyword";
 			unsigned int current_tag_offset = 0;
-			for (auto keyword : query_tokens.getStdVector()) {
+			for (auto& keyword : query_tokens.getStdVectorCopy()) {
 				if (yuca::utils::startsWith(keyword, tag_prefix)) {
 					current_tag = keyword;
 					current_tag_offset = query_str.find(current_tag) + current_tag.size();
@@ -76,11 +75,6 @@ namespace yuca {
 				tag_keywords.add(offset_keyword);
 				total_keywords++;
 				tag_keywords_map.put(current_tag, tag_keywords);
-				if (current_tag != keyword_tag) {
-					auto keywords = tag_keywords_map.get(keyword_tag);
-					keywords.add(offset_keyword);
-					tag_keywords_map.put(keyword_tag, keywords);
-				}
 			}
 		}
 
@@ -177,6 +171,23 @@ namespace yuca {
 		yuca::utils::List<SearchResult> search(const std::string &query,
 		                                       const std::string &opt_main_doc_property_for_query_comparison,
 		                                       int opt_max_search_results) const;
+
+        /**
+         * Does not rank results by their resemblance to any Document property string key.
+         * Does not limit the number of search results.
+         * @param query
+         * @return
+         */
+		yuca::utils::List<SearchResult> search(const std::string &query);
+
+		/**
+		 * Unlimited ranked search results by the given query doc string property
+		 * @param query
+		 * @param opt_main_doc_property_for_query_comparison
+		 * @return
+		 */
+		yuca::utils::List<SearchResult> search(const std::string &query,
+		                                       const std::string &opt_main_doc_property_for_query_comparison);
 
 		friend std::ostream &operator<<(std::ostream &output_stream, Indexer &indexer);
 
