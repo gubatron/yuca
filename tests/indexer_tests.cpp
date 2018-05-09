@@ -217,7 +217,7 @@ TEST_CASE("Indexer SearchRequest struct tests") {
 	std::string extension_tag(":extension");
 	std::string simple_query("simple search with no specific tags");
 	std::string multi_tag_query(":title love is all you need :extension mp4");
-	SearchRequest taggedKeywords(simple_query);
+	SearchRequest taggedKeywords(simple_query, ":keyword");
 
 	List<std::string> tags = taggedKeywords.getTags();
 
@@ -243,7 +243,7 @@ TEST_CASE("Indexer SearchRequest struct tests") {
 	REQUIRE(keywords.get(5).keyword == "tags");
 	REQUIRE(keywords.get(5).offset == 31);
 
-	SearchRequest multiTagKeywords(multi_tag_query);
+	SearchRequest multiTagKeywords(multi_tag_query, ":keyword");
 	tags = multiTagKeywords.getTags();
 	REQUIRE(tags.size() == 3);
 	REQUIRE(tags.contains(":title"));

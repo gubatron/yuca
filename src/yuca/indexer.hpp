@@ -55,14 +55,14 @@ namespace yuca {
 	 * possible search tags to specified OffsetKeywords
 	 */
 	struct SearchRequest {
-		SearchRequest(const std::string &query_str) :
+		SearchRequest(const std::string &query_str, const std::string &implicit_tag) :
 		query(query_str),
 		tag_keywords_map(yuca::utils::List<OffsetKeyword>()),
 		id(rand()),
 		total_keywords(0) {
 			std::string tag_prefix(":");
 			auto query_tokens = yuca::utils::split(query_str);
-			std::string keyword_tag = ":keyword";
+			std::string keyword_tag = implicit_tag;
 			std::string current_tag = ":keyword";
 			unsigned int current_tag_offset = 0;
 			for (auto keyword : query_tokens.getStdVector()) {
@@ -121,7 +121,13 @@ namespace yuca {
 
 	class Indexer {
 	public:
-		Indexer() : reverseIndices(std::shared_ptr<ReverseIndex>()), docPtrCache(nullptr) {
+		Indexer(const std::string& implicit_tag) :
+		implicit_tag(implicit_tag),
+		reverseIndices(std::shared_ptr<ReverseIndex>()),
+		docPtrCache(nullptr) {
+		}
+
+		Indexer() : Indexer(":keyword") {
 		}
 
 		/** Wrapper meant for non C++ users so their API surface doesn't need to deal with shared_ptr */
@@ -203,6 +209,8 @@ namespace yuca {
 		yuca::utils::Map<std::string, std::shared_ptr<ReverseIndex>> reverseIndices;
 
 		yuca::utils::Map<long, SPDocument> docPtrCache;
+
+		const std::string implicit_tag;
 	};
 }
 
