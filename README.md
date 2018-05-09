@@ -61,4 +61,4 @@ you will have to execute `cmake .` again, perform a `make clean` and rebuild wit
  - Go bindings
  - PHP bindings
  
- *This project is available under The MIT License*
+ *This project is available under The MIT License, Released publicly Wed. May 9th of 2018*

@@ -417,7 +417,7 @@ TEST_CASE("Indexer Search Tests") {
 
 	std::srand(444);
 
-	int files = 999;
+	int files = 10000;
 	int min_words = 3;
 	int max_words = 5;
 	Indexer indexer;
@@ -452,13 +452,10 @@ TEST_CASE("Indexer Search Tests") {
 
 	auto end = yuca::utils::timeInMillis();
 	std::cout << std::endl << "Generated " << files << " random file names in " << (end-start) << "ms" << std::endl <<  std::endl;
-    //std::cout << "Index:" << std::endl;
-	//std::cout << indexer << std::endl;
 	std::cout << std::endl << "==============================" << std::endl << std::endl;
 
 	std::string q1("hate locations cost :extension m4a");
 	std::cout << "Searching for: <" << q1 << ">" << std::endl;
-	SPStringKey cureKey = std::make_shared<StringKey>(q1,":keyword");
 	start = yuca::utils::timeInMillis();
 	List<SearchResult> search_results_1 = indexer.search(q1, "full_name", 10);
 	end = yuca::utils::timeInMillis();
