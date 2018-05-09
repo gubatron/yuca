@@ -127,6 +127,14 @@ namespace yuca {
 		/** Wrapper meant for non C++ users so their API surface doesn't need to deal with shared_ptr */
 		void indexDocument(Document doc);
 
+		Document getDocument(long doc_id) const noexcept ;
+
+		Document getDocument(const std::string doc_id) const noexcept ;
+
+		bool removeDocument(long doc_id);
+
+		bool removeDocument(const std::string doc_id);
+
 		/** Wrapper meant for non C++ users so their API surface doesn't need to deal with shared_ptr */
 		void removeDocument(Document doc);
 

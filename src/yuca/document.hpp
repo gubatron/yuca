@@ -24,8 +24,8 @@ namespace yuca {
 
     class Document {
     public:
-        Document() :
-        creation_timestamp(std::chrono::high_resolution_clock::now().time_since_epoch().count()),
+        explicit Document(long doc_id) :
+        id(doc_id),
         tag_2_keyset_map(SPKeySet()),
         bool_properties(false),
         byte_properties(0),
@@ -34,6 +34,8 @@ namespace yuca {
         string_properties("")
         {
         }
+
+        explicit Document(std::string str_based_id) : Document(std::hash<std::string>{}(str_based_id)) {}
 
         long getId() const;
 
@@ -144,8 +146,10 @@ namespace yuca {
 
         friend std::ostream& operator<<(std::ostream &output_stream, const Document &doc);
 
+        static const Document NULL_DOCUMENT;
+
     private:
-        const long creation_timestamp;
+        const long id;
 
         // maps tags to set<Key>
         yuca::utils::Map<std::string, SPKeySet> tag_2_keyset_map;

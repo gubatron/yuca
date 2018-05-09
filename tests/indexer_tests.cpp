@@ -25,14 +25,14 @@ SPDocument document_foo_bar_sp;
 using namespace yuca::utils;
 
 void initIndexerTests() {
-	document_foo_sp = std::make_shared<Document>();
+	document_foo_sp = std::make_shared<Document>("foo_doc_id");
 	document_foo_sp->addKey(foo_key_sp);
 	document_foo_sp->addKey(foo_key2_sp);
 
-	document_bar_sp = std::make_shared<Document>();
+	document_bar_sp = std::make_shared<Document>("bar_doc_id");
 	document_bar_sp->addKey(bar_key_sp);
 
-	document_foo_bar_sp = std::make_shared<Document>();
+	document_foo_bar_sp = std::make_shared<Document>("foo_bar_doc_id");
 	document_foo_bar_sp->addKey(foo_key_sp);
 	document_foo_bar_sp->addKey(bar_key_sp);
 }
@@ -161,7 +161,7 @@ TEST_CASE("Indexer Basic Tests") {
 }
 
 TEST_CASE("Indexer non shared pointer methods tests") {
-    Document foo_doc;
+    Document foo_doc("foo_id");
     std::string foo_str("foo");
     std::string keyword_tag(":keyword");
     StringKey stringKey(foo_str, keyword_tag);
@@ -185,6 +185,30 @@ TEST_CASE("Indexer non shared pointer methods tests") {
 	indexer.removeDocument(foo_doc);
 	spDocSet = indexer.findDocuments(spStringKey);
 	REQUIRE(spDocSet.isEmpty());
+
+	// getDocument(long), getDocument(string), removeDocument(string), removeDocument(long)
+
+	indexer.indexDocument(foo_doc);
+	//std::cout << indexer << std::endl;
+
+	Document foo_doc_copy = indexer.getDocument(999);
+	REQUIRE(foo_doc_copy == Document::NULL_DOCUMENT);
+
+	Document foo_doc_copy_2 = indexer.getDocument(std::hash<std::string>{}("foo_id"));
+	REQUIRE(foo_doc_copy_2 == foo_doc);
+
+	Document foo_doc_copy_3 = indexer.getDocument("invalid id here");
+	REQUIRE(foo_doc_copy_3 == Document::NULL_DOCUMENT);
+
+	Document foo_doc_copy_4 = indexer.getDocument("foo_id");
+	REQUIRE(foo_doc_copy_4 == foo_doc);
+
+	indexer.removeDocument("foo_id"); // // internally uses removeDocument(long)
+	//std::cout << indexer << std::endl;
+
+	Document foo_doc_copy_5 = indexer.getDocument("foo_id");
+	REQUIRE(foo_doc_copy_5 == Document::NULL_DOCUMENT);
+
 }
 
 TEST_CASE("Indexer SearchRequest struct tests") {
@@ -242,6 +266,13 @@ struct file {
 	List<std::string> title_keywords;
 	SPDocument document_sp = nullptr;
 
+	file(const std::string a_title,
+	     const std::string an_ext,
+	     List<std::string> some_title_keywords) :
+	title(a_title),
+	ext(an_ext),
+	title_keywords(some_title_keywords) {}
+
 	std::string full_name() {
 		std::string full;
 		full.append(title);
@@ -252,7 +283,7 @@ struct file {
 
 	SPDocument get_document() {
 		if (document_sp == nullptr) {
-			document_sp = std::make_shared<Document>();
+			document_sp = std::make_shared<Document>(title + ext);
 			SPStringKey title_key = std::make_shared<StringKey>(title, ":title");
 			document_sp->addKey(title_key);
 
@@ -300,11 +331,12 @@ file generateRandomFile(const List<std::string> title_dict,
                         const List<std::string> ext_dict,
                         int min_words,
                         int max_words) {
-	file f;
+
 	List<std::string> phrase_n_tokens = generateRandomPhrase(title_dict, min_words + maxRand(max_words - min_words));
-	f.title = phrase_n_tokens.get(0); // first element has full phrase as one string
-	f.title_keywords = phrase_n_tokens.subList(1, phrase_n_tokens.size() - 1);
-	f.ext = ext_dict.get(maxRand(static_cast<int>(ext_dict.size() - 1)));
+	file f(phrase_n_tokens.get(0), // first element has full phrase as one string
+	ext_dict.get(maxRand(static_cast<int>(ext_dict.size() - 1))), // file extension
+	phrase_n_tokens.subList(1, phrase_n_tokens.size() - 1)
+	);
     return f;
 }
 

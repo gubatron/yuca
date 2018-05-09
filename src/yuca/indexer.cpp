@@ -110,6 +110,31 @@ namespace yuca {
         indexDocument(spDoc);
 	}
 
+	Document Indexer::getDocument(long doc_id) const noexcept {
+		SPDocument spDocument = docPtrCache.get(doc_id);
+		if (spDocument == nullptr) {
+			return Document::NULL_DOCUMENT;
+		}
+		return *spDocument;
+	}
+
+	Document Indexer::getDocument(const std::string doc_id) const noexcept {
+        return getDocument(std::hash<std::string>{}(doc_id));
+	}
+
+	bool Indexer::removeDocument(long doc_id) {
+        Document document = getDocument(doc_id);
+        if (document == Document::NULL_DOCUMENT) {
+        	return false;
+        }
+        removeDocument(document);
+        return true;
+	}
+
+	bool Indexer::removeDocument(std::string doc_id) {
+        return removeDocument(std::hash<std::string>{}(doc_id));
+	}
+
 	void Indexer::removeDocument(Document doc) {
         SPDocument spDoc = docPtrCache.get(doc.getId());
         if (spDoc == nullptr) {

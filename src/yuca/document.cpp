@@ -6,6 +6,8 @@
 #include "document.hpp"
 
 namespace yuca {
+	const Document Document::NULL_DOCUMENT(-1);
+
     std::set<std::string> Document::getTags() const {
         std::set<std::string> tags_out;
         if (tag_2_keyset_map.isEmpty()) {
@@ -15,7 +17,7 @@ namespace yuca {
     }
 
 	long Document::getId() const {
-		return creation_timestamp;
+		return id;
 	}
 
 	KeySet Document::getTagKeys(std::string const &tag) const {
@@ -153,15 +155,15 @@ namespace yuca {
 	}
 
     bool Document::operator<(const Document &other) const {
-        return creation_timestamp < other.creation_timestamp;
+        return id < other.id;
     }
 
     bool Document::operator==(const Document &other) const {
-        return creation_timestamp == other.creation_timestamp;
+        return id == other.id;
     }
 
     std::ostream& operator<<(std::ostream &output_stream, const Document &doc) {
-        output_stream << "Document(@" << ((long) &doc % 10000) << ", ts=" << doc.creation_timestamp << "):" << std::endl;
+        output_stream << "Document(@" << ((long) &doc % 10000) << ", ts=" << doc.id << "):" << std::endl;
         // tags
 	    output_stream << " tags=(";
 	    auto tags_set = doc.getTags();

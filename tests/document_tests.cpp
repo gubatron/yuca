@@ -19,7 +19,7 @@ TEST_CASE("Test If Key Can Be Added") {
 	auto foo_key_sp = std::make_shared<StringKey>("foo 1", foo_tag);
 	auto bar_key_sp = std::make_shared<Key>(111, bar_tag);
 	auto bar_key2_sp = std::make_shared<Key>(222, bar_tag);
-	auto document_sp = std::make_shared<Document>();
+	auto document_sp = std::make_shared<Document>("some_doc_id");
 
 	SPKeySet is_empty = document_sp->getTagSPKeys(foo_tag);
 	REQUIRE(is_empty.isEmpty());
@@ -54,7 +54,7 @@ TEST_CASE("Test If Key Can Be Added") {
 }
 
 TEST_CASE("Test with non shared pointer argument methods") {
-	Document doc;
+	Document doc("test_doc_id");
 	std::string tag(":tag");
 	StringKey sKey("foo", tag);
 	doc.addKey(sKey);
@@ -76,7 +76,7 @@ TEST_CASE("Test if a single Key can be removed") {
 	const auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
 	const auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
 	const auto bar_key2_sp = std::make_shared<Key>(2, bar_tag);
-	const auto document_sp = std::make_shared<Document>();
+	const auto document_sp = std::make_shared<Document>("doc_id");
 
 	document_sp->addKey(foo_key_sp);
 	document_sp->addKey(bar_key_sp); // Doc { foo:[Key(1])], bar:[Key(1)] }
@@ -113,7 +113,7 @@ TEST_CASE("Test Get Tags") {
 	auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
 	auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
 	auto bar_key2_sp = std::make_shared<Key>(2, bar_tag);
-	auto document_sp = std::make_shared<Document>();
+	auto document_sp = std::make_shared<Document>("doc_id");
 
 	std::string zee_tag = ":zee";
 	auto zee_key_sp = std::make_shared<Key>(7, zee_tag);
@@ -137,7 +137,7 @@ TEST_CASE("Test Removing a Tag") {
 	auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
 	auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
 	auto bar_key2_sp = std::make_shared<Key>(2, bar_tag);
-	auto document_sp = std::make_shared<Document>();
+	auto document_sp = std::make_shared<Document>("doc_id");
 
 	auto name_key_sp = std::make_shared<Key>(4, name_tag);
 	document_sp->addKey(name_key_sp);
@@ -160,8 +160,8 @@ TEST_CASE("Test Removing a Tag") {
 }
 
 TEST_CASE("Document properties tests") {
-	Document doc;
-	Document doc2;
+	Document doc("doc1");
+	Document doc2("doc2");
 	doc.stringProperty("file_name", "foo.txt");
 	doc2.stringProperty("file_name", "bar.txt");
 
