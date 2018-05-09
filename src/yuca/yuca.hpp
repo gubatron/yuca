@@ -5,12 +5,14 @@
 #ifndef YUCA_YUCA_H
 #define YUCA_YUCA_H
 #include <string>
+#include <yuca/indexer.hpp>
 
 namespace yuca {
     typedef std::string string;
 
     std::string version() {
-        return "yuca-0.0.1";
+        //version: major.minor.build
+        return "0.1.1";
     }
 }
 #endif //YUCA_YUCA_H
