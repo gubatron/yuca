@@ -245,10 +245,10 @@ TEST_CASE("Indexer SearchRequest struct tests") {
 
 	SearchRequest multiTagKeywords(multi_tag_query, ":keyword");
 	tags = multiTagKeywords.getTags();
-	REQUIRE(tags.size() == 3);
+	REQUIRE(tags.size() == 2);
 	REQUIRE(tags.contains(":title"));
     REQUIRE(tags.contains(":extension"));
-    REQUIRE(tags.contains(":keyword"));
+    REQUIRE(!tags.contains(":keyword"));
 
     List<OffsetKeyword> title_keywords = multiTagKeywords.getOffsetKeywords(title_tag);
     REQUIRE(title_keywords.size() == 5);
