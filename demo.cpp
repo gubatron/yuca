@@ -70,41 +70,43 @@ int main() {
 
 	// Now we add the Keys to our Document
 	for (StringKey const &key : keys.getStdVector()) {
-		doc.addKey(key);
+            doc.addKey(key);
 	}
 
-	// Creates an index that uses the ":keyword" tag as the default implicit tag group
+	// Creates an index that uses the ":keyword" tag as the default implicit tag group to
+        // search for when we receive a query that doesn't specify tags.
 	// more on this below. Note: If you don't specify this in the constructor, the default
 	// tag group used by the index will be by convention ":keyword" :)
 	Indexer yuca(":keyword");
 	yuca.indexDocument(doc); // you can index and remove documents at any time
 
-	// If you're working in C++ you can work directly with shared pointers
-	// we provide the interface above for easier integration with other languages
+	// If you're working in C++ you can work directly with shared pointers.
+	// We provide the interface above for easier integration with other languages
 	// internally Yuca only keeps a single copy of every document and handles access
-	// to them with std::shared_ptr
+	// to them with std::shared_ptr like this:
 	// yuca.indexDocument(std::make_shared<Document>(doc));
 
 	yuca::utils::List<SearchResult> results;
 
-	// Once documents have been filtered and matched by tagged key groups
-	// documents that match the same number of keys can be compared
-	// to one of the stringProperties specified when Documents are entered
-	// The document's whose string property is closest to the given query phrase
-	// gets a higher ranking in the search result.
-	// In this demo we'll use the "title" as the frame of reference.
+	// Once documents have been filtered and matched by keys under a tag,
+	// it can occur that 2 documents match the very same keys, but their
+        // file name, or title are different and one of them resembles more the given search query.
+
+        // When a Document is created we can specify arbitrary string properties.
+        // We can tell our search function to use one of those string properties to help
+        // determine which of the competing documents scores better.
+
+	// In this demo we'll use the "title" stringProperty as the comparison property.
 
 	// If you don't want to compare against any property, this is optional, and you
 	// can simply pass an empty string or use the convenience method yuca.search(queryHere);
 	std::string title_property = "title";
 
-	// We can limit the number of search results returned by passing an optional limit
-
-	// simple query, by default it will search under our implicit default ":keyword" tag
+	// Simple query, by default it will search under our implicit default ":keyword" tag
 	// search results will be those that match any of the given keywords, and they'll be ranked
 	// by how similar they are to the given search query
 	std::string query = "masters of deceit";
-	results = yuca.search(query, title_property);
+	results = yuca.search(query, title_property); // we pass the doc property string key to disambiguate
 	print(query, results);
 
 	// all documents matching any of the keys "edgar" or "hoover" filed under the ":author" tag
@@ -112,14 +114,31 @@ int main() {
 	results = yuca.search(query);
 	print(query, results);
 
-	// if we mix two or more tagged keyword groups, only documents that have matches
-	// across in all tagged groups will be considered
+	// If we pass two or more tagged keyword groups, only documents that have matches
+	// across all tagged groups will be considered
+        // e.g. ":title love :file_extension txt pdf
 
-	// the following search is equivalent to: ":keywords deceit masters communism :author edgar"
-	// the first set of keywords will be considered to be under the explicit tag specified in
-	// the Indexer's constructor
+        // If you're familiar with JSON, Yuca abstracts the search request into a map like structure
+        // { ":title" : ["love"], ":file_extension" : ["txt", "pdf"] }
+        // Only documents that have A Key for the word "love" under the tag ":title"
+        // AND
+        // have either of "txt" or "pdf" Keys under the tag ":file_extension" will be valid matches. 
+
+	// ==============================================================================================
+
+        // The Implicit Tag Group
+        // This search: "deceit masters communism :author edgar"       
+	// is equivalent to: ":keywords deceit masters communism :author edgar"
+
+	// The first set of keywords in a query will be considered to be under the implicit tag 
+        // specified in the Indexer's constructor towards the start of this script Indexer yuca(":keyword")
+
 	query = "deceit masters communism :author edgar";
 	results = yuca.search(query, title_property, 10);
+	// We can limit the number of search results returned by passing an optional limit, like
+        // we did above (10 results max), in this example we'll only get 1 search result since that's
+        // all we've indexed.
+
 	print(query, results);
 
 	// These searches will fail
@@ -130,11 +149,11 @@ int main() {
 	results = yuca.search(query, title_property);
 	print(query, results);
 
-	// Even though it meets the keywords, it does not meet the author
+	// Even though it has all the :keyword Keys, its :author keys don't have one under "leon"
+        // it has 2 ":author" tagged Keys ["edgar", "hoover"]
 	query = "deceit masters communism :author leon";
 	results = yuca.search(query, title_property, 10);
 	print(query, results);
-
 
 	std::cout << std::endl << std::endl;
 	// This is a string representation of the index in memory
@@ -146,33 +165,32 @@ int main() {
 	// You can empty the index by calling yuca.clear()
 	yuca.removeDocument(doc);
 
-    std::cout << std::endl << std::endl << "Empty Index:" << std::endl << std::endl;
-    std::cout << yuca << std::endl << std::endl;
+        std::cout << std::endl << std::endl << "Empty Index:" << std::endl << std::endl;
+        std::cout << yuca << std::endl << std::endl;
 
 	return 0;
 }
 
 void print(std::string const &query, yuca::utils::List<SearchResult> const &results) {
+    std::cout << "Query: " << query << std::endl;
+    if (results.isEmpty()) {
+        std::cout << "No search results." << std::endl << std::endl;
+	return;
+    }
 
-	std::cout << "Query: " << query << std::endl;
-	if (results.isEmpty()) {
-		std::cout << "No search results." << std::endl << std::endl;
-		return;
-	}
+    int i = 1;
+    for (auto const &r : results.getStdVectorCopy()) {
+        SPDocument spDoc = r.document_sp;
+        std::string title = spDoc->stringProperty("title");
+        std::string author = spDoc->stringProperty("author");
+        int year = spDoc->intProperty("year");
 
-	int i = 1;
-	for (auto const &r : results.getStdVectorCopy()) {
-		SPDocument spDoc = r.document_sp;
-		std::string title = spDoc->stringProperty("title");
-		std::string author = spDoc->stringProperty("author");
-		int year = spDoc->intProperty("year");
-
-		std::cout << i << ". " << title << std::endl;
-		std::cout << "Author: " << author << std::endl;
-		std::cout << "Year: " << year << std::endl;
-		std::cout << "Document ID: " << spDoc->getId() << std::endl;
-		std::cout << std::endl;
-		i++;
-	}
+        std::cout << i << ". " << title << std::endl;
+        std::cout << "Author: " << author << std::endl;
+        std::cout << "Year: " << year << std::endl;
+        std::cout << "Document ID: " << spDoc->getId() << std::endl;
+        std::cout << std::endl;
+        i++;
+    }
 
 }
