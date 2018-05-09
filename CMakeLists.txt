@@ -12,7 +12,7 @@ link_directories(${LIBTORRENT_ROOT})
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_BUILD_TYPE Debug)
 set(SOURCE_FILES
-        src/yuca/yuca.cpp #gotta have at least one .cpp file, otherwise the compiler/linker freaks out
+        src/yuca/yuca.hpp
         src/yuca/types.hpp
         src/yuca/key.hpp
         src/yuca/key.cpp
@@ -20,16 +20,22 @@ set(SOURCE_FILES
         src/yuca/document.cpp
         src/yuca/indexer.hpp
         src/yuca/indexer.cpp
+        src/yuca/utils.hpp
         )
 
 # the library libyuca
-add_library(yuca STATIC ${SOURCE_FILES} src/yuca/utils.hpp)
+add_library(yuca_shared SHARED ${SOURCE_FILES})
+add_library(yuca_static STATIC ${SOURCE_FILES})
+
+set_target_properties(yuca_shared PROPERTIES LINKER_LANGUAGE CXX)
+set_target_properties(yuca_static PROPERTIES LINKER_LANGUAGE CXX)
 
 # demo executable to show how to use the library
-add_executable(yuca_demo demo.cpp)
-# had to add this because this target has no .cpp files and otherwise it errors out
-set_target_properties(yuca PROPERTIES LINKER_LANGUAGE CXX)
-target_link_libraries(yuca_demo yuca)
+add_executable(yuca_demo_shared demo.cpp)
+add_executable(yuca_demo_static demo.cpp)
+
+target_link_libraries(yuca_demo_shared yuca_shared)
+target_link_libraries(yuca_demo_static yuca_static)
 
 # unit test with catch 2 (files are checked in the order they are declared, the ones on top first)
 set(TEST_FILES
@@ -41,11 +47,7 @@ set(TEST_FILES
 add_executable(yuca_tests ${SOURCE_FILES} ${TEST_FILES})
 set_target_properties(yuca_tests PROPERTIES LINKER_LANGUAGE CXX)
 
-
 # ////////////////////////////////////////////////////////////////////////////////
-
-# a cplus plus playground area for random experiments to interactively debug ideas or APIs we might use.
-#add_executable(yuca_playground playground.cpp)
 
 # if you need to link a library 'libfoo' (-lfoo) to test with yuca_playground, use
 # target_link_libraries(yuca_playground foo)
