@@ -1,0 +1,15 @@
+*.cmake
+Makefile
+*.dylib
+*.so
+*.a
+*.lib
+*.dll
+*.gch
+*.cbp
+yuca_demo*
+yuca_tests
+CMakeCache.txt
+CMakeFiles/
+.idea/
+cmake-build-debug/
