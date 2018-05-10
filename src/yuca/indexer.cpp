@@ -149,11 +149,11 @@ namespace yuca {
 		return *spDocument;
 	}
 
-	Document Indexer::getDocument(const std::string doc_id) const noexcept {
+	Document Indexer::getDocument(std::string const& doc_id) const noexcept {
         return getDocument(std::hash<std::string>{}(doc_id));
 	}
 
-	bool Indexer::removeDocument(long doc_id) {
+	bool Indexer::removeDocument(long const doc_id) {
         Document document = getDocument(doc_id);
         if (document == Document::NULL_DOCUMENT) {
         	return false;
@@ -162,7 +162,7 @@ namespace yuca {
         return true;
 	}
 
-	bool Indexer::removeDocument(std::string doc_id) {
+	bool Indexer::removeDocument(std::string const& doc_id) {
         return removeDocument(std::hash<std::string>{}(doc_id));
 	}
 
