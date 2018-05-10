@@ -38,6 +38,7 @@
 #include <sstream>
 #include <numeric>
 #include <chrono>
+#include <algorithm>
 
 namespace yuca {
 	namespace utils {
@@ -423,9 +424,11 @@ namespace yuca {
 				auto last_diagonal = x - column_start;
 				for (auto y = column_start; y <= s1len; y++) {
 					auto old_diagonal = column[y];
-					column[y] = std::min(column[y] + 1,
-					                     std::min(column[y - 1] + 1,
-					                              last_diagonal + (source[y - 1] == target[x - 1] ? 0 : 1)));
+                    column[y] = std::min({
+                            column[y] + 1,
+                            column[y - 1] + 1,
+                            last_diagonal + (source[y - 1] == target[x - 1] ? 0 : 1)
+                    });
 					last_diagonal = old_diagonal;
 				}
 			}
