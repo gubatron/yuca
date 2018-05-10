@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.7)
 project(yuca CXX)
 
-set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_BUILD_TYPE Release)
 
 # If you need step by step debugging, uncomment below,
@@ -28,6 +27,9 @@ add_library(yuca_static STATIC ${SOURCE_FILES})
 
 set_target_properties(yuca_shared PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(yuca_static PROPERTIES LINKER_LANGUAGE CXX)
+
+target_compile_features(yuca_shared PUBLIC cxx_std_11)
+target_compile_features(yuca_static PUBLIC cxx_std_11)
 
 # demo executable to show how to use the library
 add_executable(yuca_demo_shared demo.cpp)
