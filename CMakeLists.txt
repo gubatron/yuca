@@ -18,7 +18,11 @@ set(SOURCE_FILES
 if(CMAKE_CXX_COMPILER_ID MATCHES Clang)
     add_compile_options(
         -Weverything
-        -Wno-c++98-compat)
+        -Wno-c++98-compat
+        -Wno-padded
+        -Wno-global-constructors
+        -Wno-exit-time-destructors
+        -Wno-weak-vtables)
 endif()
 
 # the libyuca_* libraries
