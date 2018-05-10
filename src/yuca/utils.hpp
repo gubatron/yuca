@@ -192,11 +192,11 @@ namespace yuca {
 			}
 
 			long size() const noexcept {
-				return v.size();
+				return static_cast<long>(v.size());
 			}
 
 			bool isEmpty() const noexcept {
-				return v.size() == 0;
+				return v.empty();
 			}
 
 			/** Replaces the element at the specified position in this list with the specified element (optional operation). */
