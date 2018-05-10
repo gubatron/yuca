@@ -376,11 +376,11 @@ namespace yuca {
 
 		/////////////////////////////////////////////////
 
-		inline int maxRand(int maxInclusive) noexcept {
+		inline std::size_t maxRand(std::size_t maxInclusive) noexcept {
 			if (maxInclusive == 0) {
 				return 0;
 			}
-			return std::rand()/((RAND_MAX + 1u)/maxInclusive);
+			return static_cast<std::size_t>(std::rand())/((RAND_MAX + 1u)/maxInclusive);
 		}
 
 		inline List<std::string> split(std::string &str, char delim) {

@@ -59,7 +59,7 @@ namespace yuca {
         {
         }
 
-        explicit Document(const std::string &str_based_id) : Document(std::hash<std::string>{}(str_based_id)) {}
+        explicit Document(const std::string &str_based_id) : Document(static_cast<long>(std::hash<std::string>{}(str_based_id))) {}
 
         long getId() const;
 
