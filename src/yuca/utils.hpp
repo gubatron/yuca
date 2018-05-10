@@ -403,19 +403,20 @@ namespace yuca {
 			return source.compare(0, target.length(), target) == 0;
 		}
 
-		inline unsigned long timeInMillis() noexcept {
+		inline std::int64_t timeInMillis() noexcept {
 			return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		}
 
 		/** Taken from https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#C++ */
-		inline unsigned int levenshteinDistance(std::string source, std::string target) {
+		inline std::size_t levenshteinDistance(std::string source, std::string target) {
 			// To change the type this function manipulates and returns, change
 			// the return type and the types of the two variables below.
-			int s1len = source.size();
-			int s2len = target.size();
+			std::size_t s1len = source.size();
+			std::size_t s2len = target.size();
 
-			auto column_start = (decltype(s1len))1;
+			std::size_t column_start = 1;
 
+			// TODO: this should be a unique_ptr
 			auto column = new decltype(s1len)[s1len + 1];
 			std::iota(column + column_start - 1, column + s1len + 1, column_start - 1);
 
