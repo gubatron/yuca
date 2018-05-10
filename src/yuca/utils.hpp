@@ -281,7 +281,7 @@ namespace yuca {
 					result.add(entry_pair);
 				}
 				return result;
-			};
+			}
 
 			Set<K> keySet() const noexcept {
 				Set<K> result;
@@ -382,7 +382,7 @@ namespace yuca {
 				return 0;
 			}
 			return std::rand()/((RAND_MAX + 1u)/maxInclusive);
-		};
+		}
 
 		inline List<std::string> split(std::string &str, char delim) {
 			std::stringstream ss(str);

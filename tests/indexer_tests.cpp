@@ -350,7 +350,7 @@ List<std::string> generateRandomPhrase(const List<std::string> &dictionary, int 
 	}
 	result.add(0, phrase);
 	return result;
-};
+}
 
 file generateRandomFile(const List<std::string> title_dict,
                         const List<std::string> ext_dict,

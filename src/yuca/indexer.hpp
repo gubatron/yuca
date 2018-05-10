@@ -126,7 +126,7 @@ namespace yuca {
 		document_sp(docSp),
 		id(docSp->getId() + searchRequest->id),
 		score(0) {
-		};
+		}
 
 		float score; //[0.0 - 1.0]
 		long id;
