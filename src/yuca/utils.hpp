@@ -173,10 +173,11 @@ namespace yuca {
 			}
 
 			T get(long index) const noexcept(false) {
-				if (index >= v.size()) {
+				if (std::size_t(index) >= v.size()) {
+					// TODO: refactor this, string is not an exception
 					throw("get(long index): index out of bounds exception");
 				}
-				return v.at(index);
+				return v.at(std::size_t(index));
 			}
 
 			List<T> subList(long start, long length) const {
@@ -437,7 +438,7 @@ namespace yuca {
 			delete[] column;
 			return result;
 		}
-	};
+	}
 }
 
 #endif //YUCA_UTILS_HPP

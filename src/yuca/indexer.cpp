@@ -93,7 +93,7 @@ namespace yuca {
 	}
 
 	long ReverseIndex::getKeyCount() const {
-		return index.size();
+		return static_cast<long>(index.size());
 	}
 
 	std::ostream &operator<<(std::ostream &output_stream, ReverseIndex &rindex) {

@@ -187,7 +187,7 @@ namespace yuca {
     }
 
     std::ostream& operator<<(std::ostream &output_stream, const Document &doc) {
-        output_stream << "Document(@" << ((long) &doc % 10000) << ", ts=" << doc.id << "):" << std::endl;
+        output_stream << "Document(@" << (long(&doc) % 10000) << ", ts=" << doc.id << "):" << std::endl;
         // tags
 	    output_stream << " tags=(";
 	    auto tags_set = doc.getTags();
