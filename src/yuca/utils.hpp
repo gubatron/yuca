@@ -286,7 +286,6 @@ namespace yuca {
 
 			Set<K> keySet() const noexcept {
 				Set<K> result;
-				auto it = m.begin();
 				for (std::pair<K, V> const &entry_pair : m) {
 					result.add(entry_pair.first);
 				}
@@ -295,7 +294,6 @@ namespace yuca {
 
 			List<K> keyList() const noexcept {
 				List<K> result;
-				auto it = m.begin();
 				for (std::pair<K, V> const &entry_pair : m) {
 					result.add(entry_pair.first);
 				}
