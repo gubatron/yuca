@@ -35,6 +35,7 @@
 #include <map>
 #include <set>
 #include <memory>
+#include <algorithm>
 
 namespace yuca {
 	/** Maps *Key -> [Document Set] */

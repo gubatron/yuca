@@ -87,10 +87,11 @@ TEST_CASE("Test with non shared pointer argument methods") {
 
 	auto spKeys = doc.getTagSPKeys(tag);
 	REQUIRE(spKeys.size() == 1);
-	auto it = spKeys.getStdSet().begin();
-	StringKey retrievedStringKey = static_cast<StringKey&>(**it);
-	//std::cout << retrievedStringKey << std::endl;
-	REQUIRE(sKey == retrievedStringKey);
+	for (auto const& spKey : spKeys.getStdSet()) {
+	  auto first_key = *spKey;
+	  REQUIRE(first_key == sKey);
+	  break;
+	}
 }
 
 
