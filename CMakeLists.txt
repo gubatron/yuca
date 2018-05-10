@@ -1,12 +1,6 @@
 cmake_minimum_required(VERSION 3.7)
 project(yuca CXX)
 
-set(CMAKE_BUILD_TYPE Release)
-
-# If you need step by step debugging, uncomment below,
-# or invoke `cmake -DCMAKE_BUILD_TYPE=Debug .` in the command line
-#set(CMAKE_BUILD_TYPE Debug)
-
 include_directories(src)
 
 set(SOURCE_FILES
