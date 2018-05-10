@@ -64,7 +64,7 @@ namespace yuca {
     class StringKey : public Key {
     public:
         explicit StringKey(const std::string &string_key, const std::string &my_tag) :
-        Key(std::hash<std::string>{}(my_tag + string_key), my_tag), str_key(string_key) {
+        Key(std::hash<std::string>()(my_tag + string_key), my_tag), str_key(string_key) {
         }
         std::string getString() const {
             return str_key;
