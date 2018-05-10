@@ -15,6 +15,12 @@ set(SOURCE_FILES
         src/yuca/utils.hpp
         )
 
+if(CMAKE_CXX_COMPILER_ID MATCHES Clang)
+    add_compile_options(
+        -Weverything
+        -Wno-c++98-compat)
+endif()
+
 # the libyuca_* libraries
 add_library(yuca_shared SHARED ${SOURCE_FILES})
 add_library(yuca_static STATIC ${SOURCE_FILES})
