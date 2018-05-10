@@ -85,10 +85,10 @@ namespace yuca {
 	 */
 	struct SearchRequest {
 		SearchRequest(const std::string &query_str, const std::string &implicit_tag) :
-		query(query_str),
-		tag_keywords_map(yuca::utils::List<OffsetKeyword>()),
-		id(rand()),
-		total_keywords(0) {
+			tag_keywords_map(yuca::utils::List<OffsetKeyword>()),
+			query(query_str),
+			id(rand()),
+			total_keywords(0) {
 			std::string tag_prefix(":");
 			std::string current_tag = implicit_tag;
 			auto query_tokens = yuca::utils::split(query_str);
@@ -122,10 +122,11 @@ namespace yuca {
 
 	struct SearchResult {
 		SearchResult(std::shared_ptr<SearchRequest> searchRequest, SPDocument docSp) :
-		search_request_sp(searchRequest),
-		document_sp(docSp),
-		id(docSp->getId() + searchRequest->id),
-		score(0) {
+			score(0),
+			id(docSp->getId() + searchRequest->id),
+			search_request_sp(searchRequest),
+			document_sp(docSp)
+		{
 		}
 
 		float score; //[0.0 - 1.0]
