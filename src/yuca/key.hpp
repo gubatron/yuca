@@ -40,6 +40,8 @@ namespace yuca {
         explicit Key(long my_id, std::string my_tag) : id(my_id), tag(std::move(my_tag)) {
         }
 
+        virtual ~Key() = default;
+
         // THIS OPERATOR IS USED FOR std::set.find()
         virtual bool operator<(const Key &right_side) const;
 
