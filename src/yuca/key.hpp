@@ -58,7 +58,7 @@ namespace yuca {
 
     protected:
         std::string tag;
-        long id{};
+        long id = 0;
     };
 
     class StringKey : public Key {
