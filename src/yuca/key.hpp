@@ -30,13 +30,14 @@
 #define YUCA_KEY_H
 
 #include <string>
+#include <utility>
 
 namespace yuca {
     class Key {
     public:
         Key() = default;
 
-        explicit Key(long id, const std::string &my_tag) : id(id), tag(my_tag) {
+        explicit Key(long id, std::string my_tag) : id(id), tag(std::move(my_tag)) {
         }
 
         // THIS OPERATOR IS USED FOR std::set.find()
