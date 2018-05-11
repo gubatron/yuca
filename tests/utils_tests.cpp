@@ -30,7 +30,7 @@
 #define YUCA_UTILS_TESTS_H
 
 #include "tests_includes.hpp"
-
+using namespace yuca;
 TEST_CASE("yuca:utils::Set") {
 	SECTION("yuca::utils::Set (add, size, contains, isEmpty, clear)") {
 		yuca::utils::Set<std::string> set;
@@ -203,7 +203,7 @@ TEST_CASE("yuca::utils::Map") {
 		}
 
 		auto m2_keylist = m2.keyList();
-		for (int i = 0; i < m2_keylist.size(); i++) {
+		for (unsigned long i = 0; i < m2_keylist.size(); i++) {
 			auto k = m2_keylist.get(i);
 			REQUIRE(m1.containsKey(k));
 			REQUIRE(m1.get(k) == m2.get(k));

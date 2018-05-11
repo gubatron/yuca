@@ -100,7 +100,8 @@ namespace yuca {
 	}
 
 	std::ostream &operator<<(std::ostream &output_stream, ReverseIndex &rindex) {
-		output_stream << "ReverseIndex(@" << ((long) &rindex % 10000) << "):" << std::endl;
+		int truncated_address = (static_cast<int>((long) &rindex)) % 10000;
+		output_stream << "ReverseIndex(@" << truncated_address << "):" << std::endl;
 		if (rindex.sp_index_to_spdocset_map.isEmpty()) {
 			output_stream << "<empty>" << std::endl;
 		} else {
@@ -153,7 +154,7 @@ namespace yuca {
 	}
 
 	Document Indexer::getDocument(std::string const& doc_id) const noexcept {
-        return getDocument(std::hash<std::string>{}(doc_id));
+        return getDocument(static_cast<long>(std::hash<std::string>{}(doc_id)));
 	}
 
 	bool Indexer::removeDocument(long const doc_id) {
@@ -166,7 +167,7 @@ namespace yuca {
 	}
 
 	bool Indexer::removeDocument(std::string const& doc_id) {
-        return removeDocument(std::hash<std::string>{}(doc_id));
+        return removeDocument(static_cast<long>(std::hash<std::string>{}(doc_id)));
 	}
 
 	void Indexer::removeDocument(Document doc) {
@@ -227,7 +228,7 @@ namespace yuca {
 
 	yuca::utils::List<SearchResult> Indexer::search(const std::string &query,
 	                                                const std::string &opt_main_doc_property_for_query_comparison,
-	                                                int opt_max_search_results) const {
+	                                                unsigned long opt_max_search_results) const {
 		SearchRequest search_request(query, implicit_tag);
 
 		// 1. Get SETs of Documents (by tag) whose StringKey's match at least one of the
@@ -247,7 +248,7 @@ namespace yuca {
 
         // filter out those documents that didn't meet the minimum number of appearances, that didn't appear
 		// in ALL given tag groups.
-		unsigned int num_tag_groups = (unsigned int) search_request.getTags().size();
+		unsigned long num_tag_groups = search_request.getTags().size();
 		auto allSpDocsFound = spDocs_appearances.keySet().getStdSet();
 		SPDocumentSet intersectedSPDocumentSet;
 
@@ -299,8 +300,8 @@ namespace yuca {
             	if (target_string.length() == 0) {
             		continue;
             	}
-                unsigned int LD = yuca::utils::levenshteinDistance(query, target_string);
-	            sr.score += LD == 0 ? 1.0 : 1 / (float) LD;
+                std::size_t LD = yuca::utils::levenshteinDistance(query, target_string);
+	            sr.score += LD == 0 ? 1.0 : 1 / LD;
             }
 		}
 

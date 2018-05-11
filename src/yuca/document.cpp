@@ -205,13 +205,13 @@ namespace yuca {
 
         // tags_2_keys_map
         output_stream << " tag_2_keyset_map={";
-        int i = 0;
+        unsigned int i = 0;
         yuca::utils::Set<std::string> doc_tags = doc.tag_2_keyset_map.keySet();
         for (auto const& tag : doc_tags.getStdSet()) {
             SPKeySet keys(doc.tag_2_keyset_map.get(tag));
             output_stream << std::endl << "   tag=<" << tag << "> = ";
             output_stream << "[ ";
-            int j=0;
+            unsigned long j=0;
             for (auto const& key_sp : keys.getStdSet()) {
             	// bad design hack, this should happen automatically, it should
 	            // use the << operator of the child Key class

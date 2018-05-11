@@ -25,21 +25,15 @@
 //
 // Created by gubatron on 11/19/2016.
 //
-#ifndef YUCA_DOCUMENT_TESTS_H
-#define YUCA_DOCUMENT_TESTS_H
 
 #include "tests_includes.hpp"
 
-extern std::string foo_tag;
-extern std::string bar_tag;
-
-void initDocumentTests() {
-	foo_tag = std::string(":foo");
-	bar_tag = std::string(":bar");
-}
+using namespace yuca;
 
 TEST_CASE("Test If Key Can Be Added") {
-    initDocumentTests();
+	std::string foo_tag(":foo");
+	std::string bar_tag(":bar");
+
 	auto foo_key_sp = std::make_shared<StringKey>("foo 1", foo_tag);
 	auto bar_key_sp = std::make_shared<Key>(111, bar_tag);
 	auto bar_key2_sp = std::make_shared<Key>(222, bar_tag);
@@ -52,11 +46,7 @@ TEST_CASE("Test If Key Can Be Added") {
 	SPKeySet foo_keys = document_sp->getTagSPKeys(foo_tag);
 	REQUIRE(foo_keys.size() == 1);
 
-	if (bar_key_sp.get()->getId() < bar_key2_sp.get()->getId()) {
-		//std::cout << "bar_key < bar_key2 indeed" << std::endl;
-	} else {
-		FAIL();
-	}
+	REQUIRE(bar_key_sp.get()->getId() < bar_key2_sp.get()->getId());
 
 	document_sp->addKey(bar_key_sp);
 	document_sp->addKey(bar_key2_sp);
@@ -87,16 +77,21 @@ TEST_CASE("Test with non shared pointer argument methods") {
 
 	auto spKeys = doc.getTagSPKeys(tag);
 	REQUIRE(spKeys.size() == 1);
+
+	// yes, this is meant to do just one iteration.
 	for (auto const& spKey : spKeys.getStdSet()) {
 	  auto first_key = *spKey;
 	  REQUIRE(first_key == sKey);
-	  break;
+	  if (first_key == sKey) {
+		  break;
+	  }
 	}
 }
 
 
 TEST_CASE("Test if a single Key can be removed") {
-	initDocumentTests();
+	std::string foo_tag(":foo");
+	std::string bar_tag(":bar");
 
 	const auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
 	const auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
@@ -135,6 +130,8 @@ TEST_CASE("Test if a single Key can be removed") {
 }
 
 TEST_CASE("Test Get Tags") {
+	std::string foo_tag(":foo");
+	std::string bar_tag(":bar");
 	auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
 	auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
 	auto bar_key2_sp = std::make_shared<Key>(2, bar_tag);
@@ -158,6 +155,8 @@ TEST_CASE("Test Get Tags") {
 }
 
 TEST_CASE("Test Removing a Tag") {
+	std::string foo_tag(":foo");
+	std::string bar_tag(":bar");
 	std::string name_tag = ":name";
 	auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
 	auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
@@ -293,4 +292,4 @@ TEST_CASE("Document properties tests") {
 		doc.removeStringProperty("garbage");
 	}
 }
-#endif
+

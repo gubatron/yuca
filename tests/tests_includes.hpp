@@ -36,8 +36,16 @@
 #include <yuca/document.hpp>
 #include <yuca/indexer.hpp>
 #include "catch.hpp"
+void initDocumentTests(void);
 
-using namespace yuca;
+struct file;
+
+file generateRandomFile(const yuca::utils::List<std::string> title_dict,
+                        const yuca::utils::List<std::string> ext_dict,
+                        unsigned long min_words,
+                        unsigned long max_words);
+
+yuca::utils::List<std::string> generateRandomPhrase(const yuca::utils::List<std::string> &dictionary, unsigned long words);
 
 // See cmake's yuca_tests to include cpp files with actual tests.
 // Such tests all include this file

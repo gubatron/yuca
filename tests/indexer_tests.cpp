@@ -26,9 +26,6 @@
 // Created by gubatron on 02/21/2017.
 //
 
-#ifndef YUCA_INDEXER_TESTS_H
-#define YUCA_INDEXER_TESTS_H
-
 // A Document can have many keys.
 // Each key has to have a tag, which serves as a search dimension/partition parameter
 // The indexer indexes documents with its keys.
@@ -36,19 +33,21 @@
 // And the indexer keeps a reverse sp_index_to_spdocset_map which maps keys to sets of documents.
 
 #include "tests_includes.hpp"
-
-std::string foo_tag(":foo");
-std::string bar_tag(":bar");
-auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
-auto foo_key2_sp = std::make_shared<Key>(2, foo_tag);
-auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
-SPDocument document_foo_sp;
-SPDocument document_bar_sp;
-SPDocument document_foo_bar_sp;
+using namespace yuca;
 
 using namespace yuca::utils;
 
-void initIndexerTests() {
+
+TEST_CASE("Indexer Basic Tests") {
+	std::string foo_tag(":foo");
+	std::string bar_tag(":bar");
+	auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
+	auto foo_key2_sp = std::make_shared<Key>(2, foo_tag);
+	auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
+	SPDocument document_foo_sp;
+	SPDocument document_bar_sp;
+	SPDocument document_foo_bar_sp;
+
 	document_foo_sp = std::make_shared<Document>("foo_doc_id");
 	document_foo_sp->addKey(foo_key_sp);
 	document_foo_sp->addKey(foo_key2_sp);
@@ -59,11 +58,8 @@ void initIndexerTests() {
 	document_foo_bar_sp = std::make_shared<Document>("foo_bar_doc_id");
 	document_foo_bar_sp->addKey(foo_key_sp);
 	document_foo_bar_sp->addKey(bar_key_sp);
-}
 
-TEST_CASE("Indexer Basic Tests") {
 	SECTION("Indexer.indexDocument") {
-		initIndexerTests();
 
 		// Index one doc with 'foo' tagged keys and find it.
 		Indexer indexer;
@@ -124,8 +120,6 @@ TEST_CASE("Indexer Basic Tests") {
 	// multiple key search tests
 	//////////////////////////////
     SECTION("MultiKey Indexing") {
-	    initIndexerTests();
-
 	    Indexer indexer;
 	    indexer.indexDocument(document_foo_sp);
 	    indexer.indexDocument(document_bar_sp);
@@ -139,7 +133,7 @@ TEST_CASE("Indexer Basic Tests") {
 
 	    Indexer indexer_multi_key;
 	    SPDocumentSet indexed_docs_checker;
-	    int n_docs_indexed = 0;
+	    unsigned long n_docs_indexed = 0;
 
 	    // add foo documents
 	    for (auto sh_ptr_doc : foo_docs.getStdSet()) {
@@ -218,7 +212,7 @@ TEST_CASE("Indexer non shared pointer methods tests") {
 	Document foo_doc_copy = indexer.getDocument(999);
 	REQUIRE(foo_doc_copy == Document::NULL_DOCUMENT);
 
-	Document foo_doc_copy_2 = indexer.getDocument(std::hash<std::string>{}("foo_id"));
+	Document foo_doc_copy_2 = indexer.getDocument(static_cast<long>(std::hash<std::string>()("foo_id")));
 	REQUIRE(foo_doc_copy_2 == foo_doc);
 
 	Document foo_doc_copy_3 = indexer.getDocument("invalid id here");
@@ -309,7 +303,7 @@ struct file {
 			SPStringKey extension_key = std::make_shared<StringKey>(extension, ":extension");
 			document_sp->addKey(extension_key);
 
-			for (long i = 0; i < title_keywords.size(); i++) {
+			for (unsigned long i = 0; i < title_keywords.size(); i++) {
 				std::string token = title_keywords.get(i);
 				SPStringKey keyword_key = std::make_shared<StringKey>(token, ":keyword");
 				document_sp->addKey(keyword_key);
@@ -320,15 +314,15 @@ struct file {
 };
 
 /**
- * @param dictionary
- * @param words
+ * @param dictionary list of words to generate a random phrase with
+ * @param words how many will be generated in the phrase
  * @return The first element contains the entire phrase, the rest each word that helps make the phrase
  */
-List<std::string> generateRandomPhrase(const List<std::string> &dictionary, int words) {
+List<std::string> generateRandomPhrase(const List<std::string> &dictionary, unsigned long words) {
 	std::string phrase;
 	List<std::string> result;
-	long max_index = dictionary.size() - 1;
-	for (int i=0; i < words; i++) {
+	unsigned long max_index = dictionary.size() - 1;
+	for (unsigned i=0; i < words; i++) {
 		std::string random_word = dictionary.get(yuca::utils::maxRand(max_index));
 		result.add(random_word);
 		phrase.append(random_word);
@@ -343,12 +337,12 @@ List<std::string> generateRandomPhrase(const List<std::string> &dictionary, int 
 
 file generateRandomFile(const List<std::string> title_dict,
                         const List<std::string> ext_dict,
-                        int min_words,
-                        int max_words) {
+                        unsigned long min_words,
+                        unsigned long max_words) {
 
-	List<std::string> phrase_n_tokens = generateRandomPhrase(title_dict, min_words + maxRand(max_words - min_words));
+	List<std::string> phrase_n_tokens = generateRandomPhrase(title_dict, min_words + static_cast<unsigned long>(maxRand(max_words - min_words)));
 	file f(phrase_n_tokens.get(0), // first element has full phrase as one string
-	ext_dict.get(maxRand(static_cast<int>(ext_dict.size() - 1))), // file extension
+	ext_dict.get(static_cast<unsigned long>(maxRand(ext_dict.size() - 1))), // file extension
 	phrase_n_tokens.subList(1, phrase_n_tokens.size() - 1)
 	);
     return f;
@@ -407,8 +401,8 @@ TEST_CASE("Indexer Search Tests") {
 	std::srand(444);
 
 	int files = 200;//00;
-	int min_words = 3;
-	int max_words = 5;
+	unsigned long min_words = 3;
+	unsigned long max_words = 5;
 	Indexer indexer;
 	std::cout <<  std::endl;
 	auto start = yuca::utils::timeInMillis();
@@ -422,7 +416,7 @@ TEST_CASE("Indexer Search Tests") {
 		if (files <= 20) {
 			std::cout << i << ". [" << f.full_name() << "]" << std::endl << std::endl;
 		} else if (i % 100 == 0) {
-			std::cout << "\r" << "Generating and indexing " << files << " random file names... (" << (i/(float) files)*100 << "%)";
+			std::cout << "\r" << "Generating and indexing " << files << " random file names... (" << (i/static_cast<float>(files))*100 << "%)";
 			std::cout.flush();
 		}
 	}
@@ -464,5 +458,3 @@ TEST_CASE("Indexer Search Tests") {
 	indexer.clear();
 	std::cout << indexer << std::endl;
 }
-
-#endif

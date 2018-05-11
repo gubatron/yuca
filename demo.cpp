@@ -192,5 +192,4 @@ void print(std::string const &query, yuca::utils::List<SearchResult> const &resu
         std::cout << std::endl;
         i++;
     }
-
 }

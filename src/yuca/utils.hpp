@@ -172,7 +172,7 @@ namespace yuca {
 				return indexOf(t) > -1;
 			}
 
-			T get(long index) const noexcept(false) {
+			T get(unsigned long index) const noexcept(false) {
 				if (std::size_t(index) >= v.size()) {
 					// TODO: refactor this, string is not an exception
 					throw("get(long index): index out of bounds exception");
@@ -180,10 +180,10 @@ namespace yuca {
 				return v.at(std::size_t(index));
 			}
 
-			List<T> subList(long start, long length) const {
+			List<T> subList(unsigned long start, unsigned long length) const {
 				List<T> result;
-				long max_offset = size() - 1;
-				for (long i = 0; i < length; i++) {
+				unsigned long max_offset = size() - 1;
+				for (unsigned long i = 0; i < length; i++) {
 					if (start + i <= max_offset) {
 						result.add(get(start + i));
 					}
@@ -191,8 +191,8 @@ namespace yuca {
 				return result;
 			}
 
-			long size() const noexcept {
-				return static_cast<long>(v.size());
+			unsigned long size() const noexcept {
+				return v.size();
 			}
 
 			bool isEmpty() const noexcept {
@@ -209,7 +209,7 @@ namespace yuca {
 				return old_value;
 			}
 
-			T removeAt(long index) noexcept(false) {
+			T removeAt(unsigned long index) noexcept(false) {
 				if (index >= v.size()) {
 					throw ("set(long index): index out of bounds exception");
 				}

@@ -118,7 +118,7 @@ namespace yuca {
 		{
 		}
 
-		float score; //[0.0 - 1.0]
+		double score; //[0.0 - 1.0]
 		long id;
 		std::shared_ptr<SearchRequest> search_request_sp;
 		std::shared_ptr<Document> document_sp;
@@ -189,7 +189,7 @@ namespace yuca {
 		 */
 		yuca::utils::List<SearchResult> search(const std::string &query,
 		                                       const std::string &opt_main_doc_property_for_query_comparison,
-		                                       int opt_max_search_results) const;
+		                                       unsigned long opt_max_search_results) const;
 
         /**
          * Does not rank results by their resemblance to any Document property string key.
