@@ -40,10 +40,10 @@
 namespace yuca {
 	/** Maps *Key -> [Document Set] */
 	struct ReverseIndex {
-		ReverseIndex() : index(SPDocumentSet()), keyPtrCache(nullptr) {
+		ReverseIndex() : sp_index_to_spdocset_map(SPDocumentSet()), keyPtrCache(nullptr) {
 		}
 
-		yuca::utils::Map<std::shared_ptr<Key>, SPDocumentSet> index;
+		yuca::utils::Map<std::shared_ptr<Key>, SPDocumentSet> sp_index_to_spdocset_map;
 
 		void putDocument(SPKey key, SPDocument doc);
 
@@ -69,39 +69,28 @@ namespace yuca {
 	};
 
 	/**
-	 * Represents a word and its offset with respect to a query phrase
-	 */
-	struct OffsetKeyword {
-		OffsetKeyword(unsigned int pos, std::string &key_word) : offset(pos), keyword(key_word) {
-		}
-
-		unsigned int offset;
-		std::string keyword;
-	};
-
-	/**
 	 * Given a search query it creates a structure that maps
 	 * possible search tags to specified OffsetKeywords
 	 */
 	struct SearchRequest {
 		SearchRequest(const std::string &query_str, const std::string &implicit_tag) :
-			tag_keywords_map(yuca::utils::List<OffsetKeyword>()),
+			tag_keywords_map(yuca::utils::List<std::string>()),
 			query(query_str),
 			id(rand()),
 			total_keywords(0) {
 			std::string tag_prefix(":");
 			std::string current_tag = implicit_tag;
 			auto query_tokens = yuca::utils::split(query_str);
-			unsigned int current_tag_offset = 0;
+
 			for (auto& keyword : query_tokens.getStdVectorCopy()) {
 				if (yuca::utils::startsWith(keyword, tag_prefix)) {
 					current_tag = keyword;
-					current_tag_offset = query_str.find(current_tag) + current_tag.size();
+
 					continue;
 				}
 				auto tag_keywords = tag_keywords_map.get(current_tag);
-				OffsetKeyword offset_keyword((unsigned int) query_str.find(keyword, 0) - current_tag_offset, keyword);
-				tag_keywords.add(offset_keyword);
+
+				tag_keywords.add(keyword);
 				total_keywords++;
 				tag_keywords_map.put(current_tag, tag_keywords);
 			}
@@ -109,9 +98,9 @@ namespace yuca {
 
 		yuca::utils::List<std::string> getTags();
 
-		yuca::utils::List<OffsetKeyword> getOffsetKeywords(std::string &tag);
+		yuca::utils::List<std::string> getKeywords(std::string &tag);
 
-		yuca::utils::Map<std::string, yuca::utils::List<OffsetKeyword>> tag_keywords_map;
+		yuca::utils::Map<std::string, yuca::utils::List<std::string>> tag_keywords_map;
 
 		const std::string query;
 
@@ -145,10 +134,10 @@ namespace yuca {
 
 	class Indexer {
 	public:
-		Indexer(const std::string& implicit_tag) :
-		implicit_tag(implicit_tag),
+		Indexer(const std::string& an_implicit_tag) :
 		reverseIndices(std::shared_ptr<ReverseIndex>()),
-		docPtrCache(nullptr) {
+		docPtrCache(nullptr),
+		implicit_tag(an_implicit_tag) {
 		}
 
 		Indexer() : Indexer(":keyword") {
@@ -205,16 +194,16 @@ namespace yuca {
         /**
          * Does not rank results by their resemblance to any Document property string key.
          * Does not limit the number of search results.
-         * @param query
-         * @return
+         * @param query search query string
+         * @return a list of SearchResult objects, sorted by the Documents that have the most matching keywords
          */
 		yuca::utils::List<SearchResult> search(const std::string &query);
 
 		/**
 		 * Unlimited ranked search results by the given query doc string property
-		 * @param query
-		 * @param opt_main_doc_property_for_query_comparison
-		 * @return
+		 * @param query search query string
+		 * @param opt_main_doc_property_for_query_comparison key of a string property in the Document so that we can compare how similar that property is to the given query and rank the results
+		 * @return a list of SearchResult objects, sorted first by the number of key matches, but then sorted by the levenshtein distance of the given document property key to the query
 		 */
 		yuca::utils::List<SearchResult> search(const std::string &query,
 		                                       const std::string &opt_main_doc_property_for_query_comparison);
