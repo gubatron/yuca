@@ -2,7 +2,7 @@
 
 **Yuca: A light-weight, in-memory, fast and simple to use search engine library.**
 
-If your app can't handle or doesn't really need installing a full featured and heavy search engine like Lucene, nor you want to depend on a SQL database for indexing and doing simple search based strings you can use Yuca to sp_index_to_spdocset_map documents under any number of arbitrary keys which can be grouped under tags.
+If your app can't handle or doesn't really need installing a full featured and heavy search engine like Lucene, nor you want to depend on a SQL database for indexing and doing simple search based strings you can use Yuca to index documents under any number of arbitrary keys which can be grouped under tags.
 
 The shared library currently weighs ~170kb without any packing optimizations, we hope to reduce the size further in the near future.
 
@@ -45,9 +45,9 @@ you will have to execute `cmake .` again, perform a `make clean` and rebuild wit
  If you feel like extending or patching, please open an issue first so that you don't waste your time coding something that might not be accepted for a good reason.
 
 ## Not supported for now
- - Index serialization. For now the sp_index_to_spdocset_map is only meant to be used in-memory. Will have to think deeply on how to go
+ - Index serialization. For now the index is only meant to be used in-memory. Will have to think deeply on how to go
    about this in an incremental/decremental manner so that serialization is optimal and we don't have to save the entire
-   sp_index_to_spdocset_map every time. Not a priority at this moment.
+   index every time. Not a priority at this moment.
 
 ### LIBRARY BINARY DISTRIBUTION GOALS:
  - static library: yuca.lib (windows x64), yuca.a (linux x64, mac x64)
