@@ -213,140 +213,143 @@ TEST_CASE("yuca::utils::Map") {
 
 TEST_CASE(
 "yuca::utils::List  isEmpty, size, add, add(i,t), addAll(List), addAll(Set), indexOf, contains, get, removeAt, removeAll") {
-	yuca::utils::List<int> intList;
-	REQUIRE(intList.size() == 0);
-	REQUIRE(intList.isEmpty());
 
-	intList.add(1);
-	REQUIRE(intList.size() == 1);
-	REQUIRE(!intList.isEmpty());
+    SECTION("size, isEmpty, add, contains, indexOf, addAll, removeAll") {
+	    yuca::utils::List<int> intList;
+	    REQUIRE(intList.size() == 0);
+	    REQUIRE(intList.isEmpty());
 
-	intList.add(2);
-	REQUIRE(intList.size() == 2);
+	    intList.add(1);
+	    REQUIRE(intList.size() == 1);
+	    REQUIRE(!intList.isEmpty());
 
-	intList.add(4);
-	REQUIRE(intList.size() == 3);
+	    intList.add(2);
+	    REQUIRE(intList.size() == 2);
 
-	REQUIRE(intList.contains(1));
-	REQUIRE(intList.contains(2));
-	REQUIRE(intList.contains(4));
-	REQUIRE(!intList.contains(3));
+	    intList.add(4);
+	    REQUIRE(intList.size() == 3);
 
-	REQUIRE(intList.indexOf(1) == 0);
-	REQUIRE(intList.indexOf(2) == 1);
-	REQUIRE(intList.indexOf(3) == -1);
-	REQUIRE(intList.indexOf(4) == 2);
+	    REQUIRE(intList.contains(1));
+	    REQUIRE(intList.contains(2));
+	    REQUIRE(intList.contains(4));
+	    REQUIRE(!intList.contains(3));
 
-	intList.add(2, 3);
-	REQUIRE(intList.size() == 4);
-	REQUIRE(intList.contains(1));
-	REQUIRE(intList.contains(2));
-	REQUIRE(intList.contains(3));
-	REQUIRE(intList.contains(4));
-	REQUIRE(intList.indexOf(1) == 0);
-	REQUIRE(intList.indexOf(2) == 1);
-	REQUIRE(intList.indexOf(3) == 2);
-	REQUIRE(intList.indexOf(4) == 3);
+	    REQUIRE(intList.indexOf(1) == 0);
+	    REQUIRE(intList.indexOf(2) == 1);
+	    REQUIRE(intList.indexOf(3) == -1);
+	    REQUIRE(intList.indexOf(4) == 2);
 
-	yuca::utils::List<int> emptyList;
-	yuca::utils::List<int> other3;
-	other3.add(5);
-	other3.add(6);
-	other3.add(7);
+	    intList.add(2, 3);
+	    REQUIRE(intList.size() == 4);
+	    REQUIRE(intList.contains(1));
+	    REQUIRE(intList.contains(2));
+	    REQUIRE(intList.contains(3));
+	    REQUIRE(intList.contains(4));
+	    REQUIRE(intList.indexOf(1) == 0);
+	    REQUIRE(intList.indexOf(2) == 1);
+	    REQUIRE(intList.indexOf(3) == 2);
+	    REQUIRE(intList.indexOf(4) == 3);
 
-	// empty list doesn't change intList
-	intList.addAll(emptyList);
-	REQUIRE(intList.size() == 4);
+	    yuca::utils::List<int> emptyList;
+	    yuca::utils::List<int> other3;
+	    other3.add(5);
+	    other3.add(6);
+	    other3.add(7);
 
-	intList.addAll(other3);
-	REQUIRE(intList.size() == 7);
-	REQUIRE(intList.indexOf(5) == 4);
-	REQUIRE(intList.indexOf(6) == 5);
-	REQUIRE(intList.indexOf(7) == 6);
+	    // empty list doesn't change intList
+	    intList.addAll(emptyList);
+	    REQUIRE(intList.size() == 4);
 
-	REQUIRE(intList.get(0) == 1);
-	REQUIRE(intList.get(1) == 2);
-	REQUIRE(intList.get(2) == 3);
-	REQUIRE(intList.get(3) == 4);
-	REQUIRE(intList.get(4) == 5);
-	REQUIRE(intList.get(5) == 6);
-	REQUIRE(intList.get(6) == 7);
+	    intList.addAll(other3);
+	    REQUIRE(intList.size() == 7);
+	    REQUIRE(intList.indexOf(5) == 4);
+	    REQUIRE(intList.indexOf(6) == 5);
+	    REQUIRE(intList.indexOf(7) == 6);
 
-	// empty list doesn't change intList
-	REQUIRE(!intList.removeAll(emptyList));
+	    REQUIRE(intList.get(0) == 1);
+	    REQUIRE(intList.get(1) == 2);
+	    REQUIRE(intList.get(2) == 3);
+	    REQUIRE(intList.get(3) == 4);
+	    REQUIRE(intList.get(4) == 5);
+	    REQUIRE(intList.get(5) == 6);
+	    REQUIRE(intList.get(6) == 7);
 
-	REQUIRE(intList.removeAll(other3));
-	REQUIRE(intList.size() == 4);
+	    // empty list doesn't change intList
+	    REQUIRE(!intList.removeAll(emptyList));
 
-	intList.removeAll(other3);
-	REQUIRE(intList.contains(1));
-	REQUIRE(intList.contains(2));
-	REQUIRE(intList.contains(3));
-	REQUIRE(intList.contains(4));
-	REQUIRE(!intList.contains(5));
-	REQUIRE(!intList.contains(6));
-	REQUIRE(!intList.contains(7));
+	    REQUIRE(intList.removeAll(other3));
+	    REQUIRE(intList.size() == 4);
 
-	REQUIRE(!intList.remove(5));
-	REQUIRE(intList.remove(3));
-	REQUIRE(intList.remove(1));
-	REQUIRE(!intList.contains(1));
-	REQUIRE(intList.contains(2));
-	REQUIRE(!intList.contains(3));
-	REQUIRE(intList.contains(4));
-	REQUIRE(intList.size() == 2);
+	    intList.removeAll(other3);
+	    REQUIRE(intList.contains(1));
+	    REQUIRE(intList.contains(2));
+	    REQUIRE(intList.contains(3));
+	    REQUIRE(intList.contains(4));
+	    REQUIRE(!intList.contains(5));
+	    REQUIRE(!intList.contains(6));
+	    REQUIRE(!intList.contains(7));
 
-	yuca::utils::Set<int> intSet;
-	intSet.add(100);
-	intSet.add(200);
-	intSet.add(300);
+	    REQUIRE(!intList.remove(5));
+	    REQUIRE(intList.remove(3));
+	    REQUIRE(intList.remove(1));
+	    REQUIRE(!intList.contains(1));
+	    REQUIRE(intList.contains(2));
+	    REQUIRE(!intList.contains(3));
+	    REQUIRE(intList.contains(4));
+	    REQUIRE(intList.size() == 2);
 
-	intList.addAll(intSet);
-	REQUIRE(intList.size() == 5);
-	REQUIRE(intList.get(0) == 2);
-	REQUIRE(intList.get(1) == 4);
-	REQUIRE(intList.get(2) == 100);
-	REQUIRE(intList.get(3) == 200);
-	REQUIRE(intList.get(4) == 300);
-	REQUIRE(intList.indexOf(300) == 4);
-	intList.set(4, 333);
-	REQUIRE(!intList.contains(300));
-	REQUIRE(intList.contains(333));
-	REQUIRE(intList.indexOf(333) == 4);
+	    yuca::utils::Set<int> intSet;
+	    intSet.add(100);
+	    intSet.add(200);
+	    intSet.add(300);
 
-	REQUIRE(intList.removeAt(2));
-	REQUIRE(intList.size() == 4);
-	REQUIRE(!intList.contains(100));
-	REQUIRE(intList.contains(200));
-	REQUIRE(intList.contains(333));
-	intList.clear();
-	REQUIRE(intList.size() == 0);
-	REQUIRE(!intList.contains(333));
+	    intList.addAll(intSet);
+	    REQUIRE(intList.size() == 5);
+	    REQUIRE(intList.get(0) == 2);
+	    REQUIRE(intList.get(1) == 4);
+	    REQUIRE(intList.get(2) == 100);
+	    REQUIRE(intList.get(3) == 200);
+	    REQUIRE(intList.get(4) == 300);
+	    REQUIRE(intList.indexOf(300) == 4);
+	    intList.set(4, 333);
+	    REQUIRE(!intList.contains(300));
+	    REQUIRE(intList.contains(333));
+	    REQUIRE(intList.indexOf(333) == 4);
 
-	yuca::utils::List<yuca::Key> keyList;
-	std::string title_tag(":title");
-	Key k1(1, title_tag);
-	keyList.add(k1);
-	keyList.add(k1);
-	keyList.add(k1);
-	REQUIRE(keyList.size() == 3);
-	keyList.remove(k1);
-	REQUIRE(keyList.size() == 2);
-	keyList.remove(k1);
-	REQUIRE(keyList.size() == 1);
+	    REQUIRE(intList.removeAt(2));
+	    REQUIRE(intList.size() == 4);
+	    REQUIRE(!intList.contains(100));
+	    REQUIRE(intList.contains(200));
+	    REQUIRE(intList.contains(333));
+	    intList.clear();
+	    REQUIRE(intList.size() == 0);
+	    REQUIRE(!intList.contains(333));
 
-	yuca::utils::List<std::shared_ptr<Key>> spKeyList;
-	auto sp_k1 = std::make_shared<Key>(k1);
-	auto sp_k2 = std::make_shared<Key>(Key(2, title_tag));
-	spKeyList.add(sp_k1);
-	spKeyList.add(sp_k2);
-	REQUIRE(spKeyList.indexOf(sp_k1) == 0);
-	REQUIRE(spKeyList.indexOf(sp_k2) == 1);
-	REQUIRE(spKeyList.get(0) == sp_k1);
-	REQUIRE(spKeyList.get(1) == sp_k2);
+	    yuca::utils::List<yuca::Key> keyList;
+	    std::string title_tag(":title");
+	    Key k1(1, title_tag);
+	    keyList.add(k1);
+	    keyList.add(k1);
+	    keyList.add(k1);
+	    REQUIRE(keyList.size() == 3);
+	    keyList.remove(k1);
+	    REQUIRE(keyList.size() == 2);
+	    keyList.remove(k1);
+	    REQUIRE(keyList.size() == 1);
 
-	auto sp_k2_prime = spKeyList.get(1);
-	REQUIRE(sp_k2 == sp_k2_prime);
+	    yuca::utils::List<std::shared_ptr<Key>> spKeyList;
+	    auto sp_k1 = std::make_shared<Key>(k1);
+	    auto sp_k2 = std::make_shared<Key>(Key(2, title_tag));
+	    spKeyList.add(sp_k1);
+	    spKeyList.add(sp_k2);
+	    REQUIRE(spKeyList.indexOf(sp_k1) == 0);
+	    REQUIRE(spKeyList.indexOf(sp_k2) == 1);
+	    REQUIRE(spKeyList.get(0) == sp_k1);
+	    REQUIRE(spKeyList.get(1) == sp_k2);
+
+	    auto sp_k2_prime = spKeyList.get(1);
+	    REQUIRE(sp_k2 == sp_k2_prime);
+    }
 
 	SECTION("yuca::utils List subList tests") {
 		yuca::utils::List<int> l;

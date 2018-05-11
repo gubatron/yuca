@@ -60,9 +60,9 @@ namespace yuca {
         return tag_2_keyset_map.get(tag);
     }
 
-	void Document::addKey(Key key) {
+	void Document::addKey(Key const& key) {
     	auto spKey = std::make_shared<Key>(key);
-    	addKey(spKey);
+    	addKey(std::move(spKey));
 	}
 
     void Document::addKey(std::shared_ptr<Key> key) {

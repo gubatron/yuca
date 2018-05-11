@@ -64,7 +64,7 @@ namespace yuca {
         long getId() const;
 
         /** Associate this document to an indexing key under the given tag */
-        void addKey(Key key);
+        void addKey(Key const &key);
 
         /** Associate this document to an indexing key under the given tag */
         void addKey(std::shared_ptr<Key> key);

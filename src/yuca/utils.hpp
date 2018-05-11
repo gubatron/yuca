@@ -48,7 +48,7 @@ namespace yuca {
 		template<class T>
 		class Set {
 		public:
-			void add(T e) {
+			void add(T const &e) {
 				s.insert(e);
 			}
 
@@ -58,7 +58,7 @@ namespace yuca {
 				}
 			}
 
-			bool contains(T something) const noexcept {
+			bool contains(T const &something) const noexcept {
 				return s.find(something) != s.end();
 			}
 
@@ -182,6 +182,9 @@ namespace yuca {
 
 			List<T> subList(unsigned long start, unsigned long length) const {
 				List<T> result;
+				if (size() == 0) {
+					return result;
+				}
 				unsigned long max_offset = size() - 1;
 				for (unsigned long i = 0; i < length; i++) {
 					if (start + i <= max_offset) {
