@@ -30,7 +30,7 @@
 // Each key has to have a tag, which serves as a search dimension/partition parameter
 // The indexer indexes documents with its keys.
 // Documents store their own keys
-// And the indexer keeps a reverse sp_index_to_spdocset_map which maps keys to sets of documents.
+// And the indexer keeps a reverse spkey_to_spdocset_map which maps keys to sets of documents.
 
 #include "tests_includes.hpp"
 using namespace yuca;
@@ -105,7 +105,7 @@ TEST_CASE("Indexer Basic Tests") {
 		Document &found_doc = **foo_key2_docs.getStdSet().begin();
 		REQUIRE(found_doc == *document_foo_sp);
 
-		// add foo and bar key doc, sp_index_to_spdocset_map should now return 2 results by both keys
+		// add foo and bar key doc, spkey_to_spdocset_map should now return 2 results by both keys
 		indexer.indexDocument(document_foo_bar_sp);
 		SPDocumentSet foo_docs = indexer.findDocuments(foo_key_sp);
 		REQUIRE(foo_docs.size() == 2);
@@ -273,6 +273,8 @@ struct file {
 	List<std::string> title_keywords;
 	SPDocument document_sp = nullptr;
 
+	file() {}
+
 	file(const std::string a_title,
 	     const std::string an_ext,
 	     List<std::string> some_title_keywords) :
@@ -311,6 +313,7 @@ struct file {
 		}
 		return document_sp;
 	}
+
 };
 
 /**
@@ -346,6 +349,11 @@ file generateRandomFile(const List<std::string> title_dict,
 	phrase_n_tokens.subList(1, phrase_n_tokens.size() - 1)
 	);
     return f;
+}
+
+file generateFile(std::string const& title, std::string const& ext) {
+	List<std::string> title_keywords = split(title);
+    return file(title, ext, title_keywords);
 }
 
 TEST_CASE("Indexer Search Tests") {
@@ -400,14 +408,16 @@ TEST_CASE("Indexer Search Tests") {
 
 	std::srand(444);
 
-	int files = 200;//00;
+	int files = 1000;//00;
 	unsigned long min_words = 3;
 	unsigned long max_words = 5;
 	Indexer indexer;
 	std::cout <<  std::endl;
 	auto start = yuca::utils::timeInMillis();
+	file last_file;
 	for (int i = 0; i < files; i++) {
 		file f = generateRandomFile(title_dict, ext_dict, min_words, max_words);
+		last_file = f;
 		SPDocument doc = f.get_document();
 		doc->intProperty("offset", i);
 		doc->stringProperty("full_name",f.full_name());
@@ -420,6 +430,9 @@ TEST_CASE("Indexer Search Tests") {
 			std::cout.flush();
 		}
 	}
+
+	indexer.indexDocument(generateFile("airport fear airport","txt").get_document());
+	std::cout << indexer << std::endl;
 
 	// add one more hard coded
 	yuca::utils::List<std::string> f2_keywords;
@@ -438,6 +451,7 @@ TEST_CASE("Indexer Search Tests") {
 	std::cout << std::endl << "==============================" << std::endl << std::endl;
 
 	std::string q1("hate locations cost :extension m4a");
+	//std::string q2("fear joy airport :extension txt");
 	std::cout << "Searching for: <" << q1 << ">" << std::endl;
 	start = yuca::utils::timeInMillis();
 	List<SearchResult> search_results_1 = indexer.search(q1, "full_name", 10);
@@ -454,7 +468,10 @@ TEST_CASE("Indexer Search Tests") {
 	//REQUIRE(search_results_1.size() == 10);
 
 	std::cout << std::endl << "==============================" << std::endl << std::endl;
-	std::cout << " Clear sp_index_to_spdocset_map!" << std::endl;
+	std::cout << " Clear spkey_to_spdocset_map!" << std::endl;
 	indexer.clear();
+	std::cout << "The last one:" << std::endl;
+	std::cout << (files-1) << ". [" << last_file.full_name() << "]" << std::endl << std::endl;
+
 	std::cout << indexer << std::endl;
 }

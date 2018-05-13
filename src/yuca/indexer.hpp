@@ -40,10 +40,10 @@
 namespace yuca {
 	/** Maps *Key -> [Document Set] */
 	struct ReverseIndex {
-		ReverseIndex() : sp_index_to_spdocset_map(SPDocumentSet()), keyPtrCache(nullptr) {
+		ReverseIndex() : spkey_to_spdocset_map(SPDocumentSet()), keyPtrCache(nullptr) {
 		}
 
-		yuca::utils::Map<std::shared_ptr<Key>, SPDocumentSet> sp_index_to_spdocset_map;
+		yuca::utils::Map<std::shared_ptr<Key>, SPDocumentSet> spkey_to_spdocset_map;
 
 		void putDocument(SPKey key, SPDocument doc);
 
@@ -57,6 +57,8 @@ namespace yuca {
 
 		/** Given an equivalent shared_ptr<Key> gets the corresponding shared_ptr<Key> we have stored already */
 		SPKey keyCacheGet(SPKey) const;
+
+		void clear();
 
 		friend std::ostream &operator<<(std::ostream &output_stream, ReverseIndex &rindex);
 	private:
