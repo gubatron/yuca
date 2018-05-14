@@ -174,7 +174,7 @@ namespace yuca {
 
 			T get(unsigned long index) const noexcept(false) {
 				if (std::size_t(index) >= v.size()) {
-					throw std::out_of_range("get(long index): index out of bounds exception");
+					throw std::out_of_range("get(long index): index out of range exception");
 				}
 				return v.at(std::size_t(index));
 			}
@@ -204,7 +204,7 @@ namespace yuca {
 			/** Replaces the element at the specified position in this list with the specified element (optional operation). */
 			T set(long index, T t) noexcept(false) {
 				if (index >= v.size()) {
-					throw("set(long index, T t): index out of bounds exception");
+					throw std::out_of_range("set(long index, T t): index out of range exception");
 				}
 				T old_value = v.at(index);
 				v.at(index) = t;
@@ -213,7 +213,7 @@ namespace yuca {
 
 			T removeAt(unsigned long index) noexcept(false) {
 				if (index >= v.size()) {
-					throw ("set(long index): index out of bounds exception");
+					throw std::out_of_range("set(long index): index out of range exception");
 				}
 
 				T old_value = v.at(index);
