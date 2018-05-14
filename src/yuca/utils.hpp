@@ -174,8 +174,7 @@ namespace yuca {
 
 			T get(unsigned long index) const noexcept(false) {
 				if (std::size_t(index) >= v.size()) {
-					// TODO: refactor this, string is not an exception
-					throw("get(long index): index out of bounds exception");
+					throw std::out_of_range("get(long index): index out of bounds exception");
 				}
 				return v.at(std::size_t(index));
 			}
