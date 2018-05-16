@@ -329,12 +329,12 @@ namespace yuca {
 	}
 
 	yuca::utils::List<SearchResult> Indexer::search(const std::string &query) {
-		return search(query, "", -1);
+		return search(query, "", 0);
 	}
 
 	yuca::utils::List<SearchResult> Indexer::search(const std::string &query,
 	                                       const std::string &opt_main_doc_property_for_query_comparison) {
-		return search(query, opt_main_doc_property_for_query_comparison, -1);
+		return search(query, opt_main_doc_property_for_query_comparison, 0);
 	}
 
 	yuca::utils::Map<std::string, SPDocumentSet> Indexer::findDocuments(SearchRequest &search_request) const {

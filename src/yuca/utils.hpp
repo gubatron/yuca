@@ -231,7 +231,7 @@ namespace yuca {
 			}
 
 			bool removeAll(List<T> &other) {
-				long original_size = v.size();
+				unsigned long original_size = v.size();
 				for (auto const &t : other.v) {
 					remove(t);
 				}
