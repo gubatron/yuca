@@ -49,7 +49,7 @@ namespace yuca {
 
 		void removeDocument(SPKey key, SPDocument doc);
 
-		auto hasDocuments(SPKey key) const -> bool;
+		bool hasDocuments(SPKey key) const;
 
 		SPDocumentSet getDocuments(SPKey key) const;
 

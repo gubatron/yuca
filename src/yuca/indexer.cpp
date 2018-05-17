@@ -65,7 +65,7 @@ namespace yuca {
 		}
 	}
 
-	auto ReverseIndex::hasDocuments(SPKey key) const -> bool {
+	bool ReverseIndex::hasDocuments(SPKey key) const {
 		auto cached_key_sp = keyCacheGet(key);
 		if (cached_key_sp == nullptr) {
             return false;
