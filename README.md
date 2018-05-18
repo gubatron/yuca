@@ -1,4 +1,5 @@
 # yuca v0.1.1
+<img src="https://i.imgur.com/zZvZ9kK.png"/>
 
 **Yuca: A light-weight, in-memory, fast and simple to use search engine library.**
 
