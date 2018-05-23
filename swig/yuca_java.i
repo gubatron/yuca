@@ -122,10 +122,64 @@ namespace yuca {
 
         std::string getString() const;
     };
+
+    enum PropertyType {
+        BOOL,
+        BYTE,
+        INT,
+        LONG,
+        STRING
+    };
+
+    class Document {
+    public:
+        explicit Document(long doc_id) :
+        id(doc_id),
+        tag_2_keyset_map(yuca::SPKeySet()),
+        bool_properties(false),
+        byte_properties(0),
+        int_properties(-1),
+        long_properties(-1l),
+        string_properties("");
+        explicit Document(const std::string &str_based_id) : Document(static_cast<long>(std::hash<std::string>{}(str_based_id)));
+        long getId() const;
+        void addKey(Key const &key);
+        void addKey(std::shared_ptr<Key> key);
+        bool hasKeys(std::string const &tag) const;
+        std::set<std::string> getTags() const;
+        yuca::SPKeySet getTagSPKeys(std::string const &tag) const;
+        yuca::KeySet getTagKeys(std::string const &tag) const;
+        void removeTag(std::string const &tag);
+        void removeKey(std::string const &tag, std::shared_ptr<Key> key);
+        void boolProperty(std::string const &key, bool value);
+        bool boolProperty(std::string const &key) const;
+        void removeBoolProperty(std::string const &key);
+        void byteProperty(std::string const &key, char value);
+        char byteProperty(std::string const &key) const;
+        void removeByteProperty(std::string const &key);
+        void intProperty(std::string const &key, int value);
+        int intProperty(std::string const &key) const;
+        void removeIntProperty(std::string const &key);
+        void longProperty(std::string const &key, long value);
+        long longProperty(std::string const &key) const;
+        void removeLongProperty(std::string const &key);
+        void stringProperty(std::string const &key, std::string const &value);
+        std::string stringProperty(std::string const &key) const;
+        void removeStringProperty(std::string const &key);
+        yuca::utils::List<std::string> propertyKeys(PropertyType type) const;
+        static const Document NULL_DOCUMENT;
+
+        %extend {
+          bool op_lt(const Document &right_side) const {
+            return *$self < right_side;
+          }
+
+          bool op_eq(const Document &right_side) const {
+            return *$self == right_side;
+          }
+        }
+    };
 }
-
-
-class yuca::StringKey;
 
 //typedef std::shared_ptr<Key> yuca::SPKey;
 %template(SPKey) std::shared_ptr<yuca::Key>;
@@ -138,7 +192,6 @@ class yuca::StringKey;
 //typedef yuca::utils::List<SPKey> yuca::SPKeyList;
 %template(SPKeyList) yuca::utils::List<yuca::SPKey>;
 
-class yuca::Document;
 //typedef std::shared_ptr<Document> yuca::SPDocument;
 %template(SPDocument) std::shared_ptr<yuca::Document>;
 //typedef yuca::utils::Set<SPDocument> yuca::SPDocumentSet;
