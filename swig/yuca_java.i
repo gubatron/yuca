@@ -114,6 +114,14 @@ namespace yuca {
           }
         }
     };
+
+    class StringKey : public Key {
+    public:
+        explicit StringKey(const std::string &string_key, const std::string &my_tag) :
+          Key(static_cast<long>(std::hash<std::string>{}(my_tag + string_key)), my_tag), str_key(string_key);
+
+        std::string getString() const;
+    };
 }
 
 
