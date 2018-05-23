@@ -63,7 +63,7 @@ namespace yuca {
         template<class K, class V>
         class Map {
         public:
-            explicit Map(V def_empty_val) : default_empty_value(def_empty_val);
+            explicit Map(V def_empty_val);
             void clear() noexcept;
             bool isEmpty() const noexcept;
             Set<std::pair<K, V>> entrySet() const noexcept;
@@ -88,7 +88,7 @@ namespace yuca {
     class Key {
     public:
         Key() = default;
-        explicit Key(long my_id, std::string my_tag) : id(my_id), tag(std::move(my_tag));
+      explicit Key(long my_id, std::string my_tag);
         std::string getTag() const;
         long getId() const;
 
@@ -117,9 +117,7 @@ namespace yuca {
 
     class StringKey : public Key {
     public:
-        explicit StringKey(const std::string &string_key, const std::string &my_tag) :
-          Key(static_cast<long>(std::hash<std::string>{}(my_tag + string_key)), my_tag), str_key(string_key);
-
+        explicit StringKey(const std::string &string_key, const std::string &my_tag);
         std::string getString() const;
     };
 
@@ -133,15 +131,8 @@ namespace yuca {
 
     class Document {
     public:
-        explicit Document(long doc_id) :
-        id(doc_id),
-        tag_2_keyset_map(yuca::SPKeySet()),
-        bool_properties(false),
-        byte_properties(0),
-        int_properties(-1),
-        long_properties(-1l),
-        string_properties("");
-        explicit Document(const std::string &str_based_id) : Document(static_cast<long>(std::hash<std::string>{}(str_based_id)));
+      explicit Document(long doc_id);
+      explicit Document(const std::string &str_based_id);
         long getId() const;
         void addKey(Key const &key);
         void addKey(std::shared_ptr<Key> key);
@@ -179,6 +170,48 @@ namespace yuca {
           }
         }
     };
+
+    struct SearchRequest {
+        SearchRequest(const std::string &query_str, const std::string &implicit_tag);
+        yuca::utils::List<std::string> getTags();
+        yuca::utils::List<std::string> getKeywords(std::string &tag);
+        yuca::utils::Map<std::string, yuca::utils::List<std::string>> tag_keywords_map;
+        const std::string query;
+        const long id;
+        long total_keywords;
+    };
+
+    struct SearchResult {
+        SearchResult(std::shared_ptr<yuca::SearchRequest> searchRequest, yuca::SPDocument docSp);
+        double score; //[0.0 - 1.0]
+        long id;
+        std::shared_ptr<SearchRequest> search_request_sp;
+        std::shared_ptr<yuca::Document> document_sp;
+    };
+
+    class Indexer {
+    public:
+        Indexer(const std::string &an_implicit_tag);
+        Indexer();
+        void indexDocument(yuca::Document doc);
+        yuca::Document getDocument(long doc_id) const noexcept;
+        yuca::Document getDocument(std::string const &doc_id) const noexcept;
+        bool removeDocument(long doc_id);
+        bool removeDocument(std::string const &doc_id);
+        void removeDocument(yuca::Document doc);
+        void indexDocument(yuca::SPDocument doc); // maybe remove, could be unusable in java
+        void removeDocument(yuca::SPDocument doc); // maybe remove, could be unusable in java
+        void clear();
+        yuca::utils::List<SearchResult> search(const std::string &query,
+                                               const std::string &opt_main_doc_property_for_query_comparison,
+                                               unsigned long opt_max_search_results) const;
+        yuca::utils::List<SearchResult> search(const std::string &query);
+        yuca::utils::List<SearchResult> search(const std::string &query,
+                                               const std::string &opt_main_doc_property_for_query_comparison);
+        yuca::utils::Map<std::string, yuca::SPDocumentSet> findDocuments(yuca::SearchRequest &search_request) const;
+        yuca::SPDocumentSet findDocuments(yuca::SPKey key) const;
+        yuca::SPDocumentSet findDocuments(yuca::SPKeyList keys) const;
+    };
 }
 
 //typedef std::shared_ptr<Key> yuca::SPKey;
@@ -198,8 +231,6 @@ namespace yuca {
 %template(SPDocumentSet) yuca::utils::Set<yuca::SPDocument>;
 //typedef yuca::utils::List<SPDocument> yuca::SPDocumentList;
 %template(SPDocumentList) yuca::utils::List<yuca::SPDocument>;
-
-class yuca::Indexer;
 
 %ignore operator();
 %rename(op_eq) operator==;
