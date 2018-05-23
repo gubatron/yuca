@@ -36,7 +36,9 @@
 
 namespace yuca {
     class Key;
+
     class StringKey;
+
     class Document;
 
     typedef std::shared_ptr<Key> SPKey;

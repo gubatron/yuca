@@ -57,7 +57,7 @@ namespace yuca {
 
         long getId() const;
 
-        friend std::ostream& operator<<(std::ostream &output_stream, Key &key);
+        friend std::ostream &operator<<(std::ostream &output_stream, Key &key);
 
     protected:
         long id{};
@@ -69,10 +69,13 @@ namespace yuca {
         explicit StringKey(const std::string &string_key, const std::string &my_tag) :
         Key(static_cast<long>(std::hash<std::string>{}(my_tag + string_key)), my_tag), str_key(string_key) {
         }
+
         std::string getString() const {
             return str_key;
         }
-        friend std::ostream& operator<<(std::ostream &output_stream, StringKey &key);
+
+        friend std::ostream &operator<<(std::ostream &output_stream, StringKey &key);
+
     private:
         const std::string str_key;
     };

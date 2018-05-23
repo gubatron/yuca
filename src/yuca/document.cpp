@@ -30,7 +30,7 @@
 #include "document.hpp"
 
 namespace yuca {
-	const Document Document::NULL_DOCUMENT(-1);
+    const Document Document::NULL_DOCUMENT(-1);
 
     std::set<std::string> Document::getTags() const {
         std::set<std::string> tags_out;
@@ -40,30 +40,30 @@ namespace yuca {
         return tag_2_keyset_map.keySet().getStdSet();
     }
 
-	long Document::getId() const {
-		return id;
-	}
+    long Document::getId() const {
+        return id;
+    }
 
-	KeySet Document::getTagKeys(std::string const &tag) const {
+    KeySet Document::getTagKeys(std::string const &tag) const {
         KeySet keySet;
         SPKeySet spKeySet = getTagSPKeys(tag);
-        for (auto const& spKey : spKeySet.getStdSet()) {
-        	keySet.add(*spKey);
+        for (auto const &spKey : spKeySet.getStdSet()) {
+            keySet.add(*spKey);
         }
         return keySet;
     }
 
-	SPKeySet Document::getTagSPKeys(std::string const &tag) const {
+    SPKeySet Document::getTagSPKeys(std::string const &tag) const {
         if (!hasKeys(tag)) {
             return SPKeySet();
         }
         return tag_2_keyset_map.get(tag);
     }
 
-	void Document::addKey(Key const& key) {
-    	auto spKey = std::make_shared<Key>(key);
-    	addKey(std::move(spKey));
-	}
+    void Document::addKey(Key const &key) {
+        auto spKey = std::make_shared<Key>(key);
+        addKey(std::move(spKey));
+    }
 
     void Document::addKey(std::shared_ptr<Key> key) {
         std::string tag(key->getTag());
@@ -102,53 +102,53 @@ namespace yuca {
         tag_2_keyset_map.remove(tag);
     }
 
-	void Document::boolProperty(std::string const &key, bool value) {
-		bool_properties.put(key, value);
-	}
+    void Document::boolProperty(std::string const &key, bool value) {
+        bool_properties.put(key, value);
+    }
 
-	bool Document::boolProperty(std::string const &key) const {
-		return bool_properties.get(key);
-	}
+    bool Document::boolProperty(std::string const &key) const {
+        return bool_properties.get(key);
+    }
 
-	void Document::removeBoolProperty(std::string const &key) {
-		bool_properties.remove(key);
-	}
+    void Document::removeBoolProperty(std::string const &key) {
+        bool_properties.remove(key);
+    }
 
-	void Document::byteProperty(std::string const &key, char value) {
-		byte_properties.put(key, value);
-	}
+    void Document::byteProperty(std::string const &key, char value) {
+        byte_properties.put(key, value);
+    }
 
-	char Document::byteProperty(std::string const &key) const {
-		return byte_properties.get(key);
-	}
+    char Document::byteProperty(std::string const &key) const {
+        return byte_properties.get(key);
+    }
 
-	void Document::removeByteProperty(std::string const &key) {
-		byte_properties.remove(key);
-	}
+    void Document::removeByteProperty(std::string const &key) {
+        byte_properties.remove(key);
+    }
 
-	void Document::intProperty(std::string const &key, int value) {
-		int_properties.put(key, value);
-	}
+    void Document::intProperty(std::string const &key, int value) {
+        int_properties.put(key, value);
+    }
 
-	int Document::intProperty(std::string const &key) const {
-		return int_properties.get(key);
-	}
+    int Document::intProperty(std::string const &key) const {
+        return int_properties.get(key);
+    }
 
-	void Document::removeIntProperty(std::string const &key) {
-		int_properties.remove(key);
-	}
+    void Document::removeIntProperty(std::string const &key) {
+        int_properties.remove(key);
+    }
 
-	void Document::longProperty(std::string const &key, long value) {
-		long_properties.put(key, value);
-	}
+    void Document::longProperty(std::string const &key, long value) {
+        long_properties.put(key, value);
+    }
 
-	long Document::longProperty(std::string const &key) const {
-		return long_properties.get(key);
-	}
+    long Document::longProperty(std::string const &key) const {
+        return long_properties.get(key);
+    }
 
-	void Document::removeLongProperty(std::string const &key) {
-		long_properties.remove(key);
-	}
+    void Document::removeLongProperty(std::string const &key) {
+        long_properties.remove(key);
+    }
 
     void Document::stringProperty(std::string const &key, std::string const &value) {
         string_properties.put(key, value);
@@ -162,21 +162,21 @@ namespace yuca {
         string_properties.remove(key);
     }
 
-	yuca::utils::List<std::string> Document::propertyKeys(PropertyType type) const {
-		switch (type) {
-			case BOOL:
-				return bool_properties.keyList();
-			case BYTE:
-				return byte_properties.keyList();
-			case INT:
-				return int_properties.keyList();
-			case LONG:
-				return long_properties.keyList();
-			case STRING:
-				return string_properties.keyList();
-		}
-		return utils::List<std::string>();
-	}
+    yuca::utils::List<std::string> Document::propertyKeys(PropertyType type) const {
+        switch (type) {
+            case BOOL:
+                return bool_properties.keyList();
+            case BYTE:
+                return byte_properties.keyList();
+            case INT:
+                return int_properties.keyList();
+            case LONG:
+                return long_properties.keyList();
+            case STRING:
+                return string_properties.keyList();
+        }
+        return utils::List<std::string>();
+    }
 
     bool Document::operator<(const Document &other) const {
         return id < other.id;
@@ -186,20 +186,20 @@ namespace yuca {
         return id == other.id;
     }
 
-    std::ostream& operator<<(std::ostream &output_stream, const Document &doc) {
+    std::ostream &operator<<(std::ostream &output_stream, const Document &doc) {
         output_stream << "Document(@" << (long(&doc) % 10000) << ", id=" << doc.id << "):" << std::endl;
         // tags
-	    output_stream << " tags=(";
-	    auto tags_set = doc.getTags();
-	    auto it = tags_set.begin();
-	    auto tags_end = tags_set.end();
-	    for (auto const &tag : tags_set) {
-		    output_stream << tag;
-		    it++;
-		    if (it != tags_end) {
-			    output_stream << ", ";
-		    }
-	    }
+        output_stream << " tags=(";
+        auto tags_set = doc.getTags();
+        auto it = tags_set.begin();
+        auto tags_end = tags_set.end();
+        for (auto const &tag : tags_set) {
+            output_stream << tag;
+            it++;
+            if (it != tags_end) {
+                output_stream << ", ";
+            }
+        }
         output_stream << ")" << std::endl;
         output_stream.flush();
 
@@ -207,20 +207,20 @@ namespace yuca {
         output_stream << " tag_2_keyset_map={";
         unsigned int i = 0;
         yuca::utils::Set<std::string> doc_tags = doc.tag_2_keyset_map.keySet();
-        for (auto const& tag : doc_tags.getStdSet()) {
+        for (auto const &tag : doc_tags.getStdSet()) {
             SPKeySet keys(doc.tag_2_keyset_map.get(tag));
             output_stream << std::endl << "   tag=<" << tag << "> = ";
             output_stream << "[ ";
-            unsigned long j=0;
-            for (auto const& key_sp : keys.getStdSet()) {
-            	// bad design hack, this should happen automatically, it should
-	            // use the << operator of the child Key class
-            	auto cast_key = std::dynamic_pointer_cast<StringKey>(key_sp);
-            	if (cast_key != nullptr) {
-            	    output_stream << *cast_key;
-            	} else {
-		            output_stream << *key_sp;
-	            }
+            unsigned long j = 0;
+            for (auto const &key_sp : keys.getStdSet()) {
+                // bad design hack, this should happen automatically, it should
+                // use the << operator of the child Key class
+                auto cast_key = std::dynamic_pointer_cast<StringKey>(key_sp);
+                if (cast_key != nullptr) {
+                    output_stream << *cast_key;
+                } else {
+                    output_stream << *key_sp;
+                }
                 if (j < keys.size() - 1) {
                     output_stream << ", ";
                 }
