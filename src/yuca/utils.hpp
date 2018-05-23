@@ -373,7 +373,7 @@ namespace yuca {
 
         private:
             std::map<K, V> m;
-            const V default_empty_value;
+            V default_empty_value;
         };
 
         /////////////////////////////////////////////////
