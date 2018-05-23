@@ -29,11 +29,9 @@
 #ifndef YUCA_YUCA_H
 #define YUCA_YUCA_H
 #include <string>
-#include <yuca/indexer.hpp>
+#include "indexer.hpp"
 
 namespace yuca {
-    typedef std::string string;
-
     std::string version() {
         //version: major.minor.build
         return "0.1.1";
