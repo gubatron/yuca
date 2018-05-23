@@ -109,8 +109,8 @@ namespace yuca {
             return *$self >= right_side;
           }
 
-          bool op_gt(const Key &right_side) const {
-            return *$self >= right_side;
+          bool op_eq(const Key &right_side) const {
+            return *$self == right_side;
           }
         }
     };
