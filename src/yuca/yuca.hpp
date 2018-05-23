@@ -28,6 +28,7 @@
 
 #ifndef YUCA_YUCA_H
 #define YUCA_YUCA_H
+
 #include <string>
 #include "indexer.hpp"
 
