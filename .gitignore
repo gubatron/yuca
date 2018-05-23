@@ -13,3 +13,4 @@ CMakeCache.txt
 CMakeFiles/
 .idea/
 cmake-build-debug/
+yuca_java_wrap.cxx
