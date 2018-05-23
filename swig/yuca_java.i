@@ -29,23 +29,53 @@ namespace yuca {
         template <class T>
         class Set {
         public:
-          void add(T const &e);
-          void addAll(Set<T> &other_set) noexcept;
-          bool contains(T const &something) const noexcept;
-          bool containsAll(Set<T> &other) const noexcept;
-          bool isEmpty() const noexcept;
-          bool remove(T something);
-          void removeAll(Set<T> &other_set);
-          void clear() noexcept;
-  	  unsigned long size() const noexcept;
+            void add(T const &e);
+            void addAll(Set<T> &other_set) noexcept;
+            bool contains(T const &something) const noexcept;
+            bool containsAll(Set<T> &other) const noexcept;
+            bool isEmpty() const noexcept;
+            bool remove(T something);
+            void removeAll(Set<T> &other_set);
+            void clear() noexcept;
+  	    unsigned long size() const noexcept;
 	};
-        
 
         template <class T>
-        class List;
+        class List {
+        public:
+            void add(T t) noexcept;
+            void add(long index, T t) noexcept;
+            void addAll(List<T> &other) noexcept;
+            void addAll(Set<T> &other) noexcept;
+            void clear() noexcept;
+            long indexOf(T t) const noexcept; 
+            bool contains(T t) noexcept;
+            T get(unsigned long index) const noexcept(false);
+            List<T> subList(unsigned long start, unsigned long length) const;
+            unsigned long size() const noexcept;
+            bool isEmpty() const noexcept;
+            T set(long index, T t) noexcept(false);
+            T removeAt(unsigned long index) noexcept(false);
+            bool remove(T t) noexcept;
+            bool removeAll(List<T> &other);
+	};
 
         template<class K, class V>
-        class Map;
+        class Map {
+        public:
+            explicit Map(V def_empty_val) : default_empty_value(def_empty_val);
+            void clear() noexcept;
+            bool isEmpty() const noexcept;
+            Set<std::pair<K, V>> entrySet() const noexcept;
+            Set<K> keySet() const noexcept;
+            List<K> keyList() const noexcept;
+            V get(K key) const noexcept;
+            bool containsKey(K key) const noexcept;
+            V remove(K key);
+            void put(K key, V value) noexcept;
+            unsigned long size() const noexcept;
+            void putAll(Map<K, V> other) noexcept;
+        };
 
         std::size_t maxRand(std::size_t maxInclusive);
         yuca::utils::List<std::string> split(std::string &str, char delim);
@@ -60,19 +90,24 @@ namespace yuca {
 class yuca::Key;
 class yuca::StringKey;
 
-typedef std::shared_ptr<Key> yuca::SPKey;
-typedef std::shared_ptr<StringKey> yuca::SPStringKey;
-typedef yuca::utils::Set<Key> yuca::KeySet;
-typedef yuca::utils::Set<SPKey> yuca::SPKeySet;
-typedef yuca::utils::List<SPKey> yuca::SPKeyList;
+//typedef std::shared_ptr<Key> yuca::SPKey;
+%template(SPKey) std::shared_ptr<yuca::Key>;
+//typedef std::shared_ptr<StringKey> yuca::SPStringKey;
+%template(SPStringKey) std::shared_ptr<yuca::StringKey>;
+//typedef yuca::utils::Set<Key> yuca::KeySet;
+%template(KeySet) yuca::utils::Set<yuca::Key>;
+//typedef yuca::utils::Set<SPKey> yuca::SPKeySet;
+%template(SPKeySet) yuca::utils::Set<yuca::SPKey>;
+//typedef yuca::utils::List<SPKey> yuca::SPKeyList;
+%template(SPKeyList) yuca::utils::List<yuca::SPKey>;
 
 class yuca::Document;
-typedef std::shared_ptr<Document> yuca::SPDocument;
-typedef yuca::utils::Set<SPDocument> yuca::SPDocumentSet;
-typedef yuca::utils::List<SPDocument> yuca::SPDocumentList;
-
-%template(Set_Key) yuca::utils::Set<yuca::Key>;
-%template(Set_SPDocument) yuca::utils::Set<yuca::SPDocument>;
+//typedef std::shared_ptr<Document> yuca::SPDocument;
+%template(SPDocument) std::shared_ptr<yuca::Document>;
+//typedef yuca::utils::Set<SPDocument> yuca::SPDocumentSet;
+%template(SPDocumentSet) yuca::utils::Set<yuca::SPDocument>;
+//typedef yuca::utils::List<SPDocument> yuca::SPDocumentList;
+%template(SPDocumentList) yuca::utils::List<yuca::SPDocument>;
 
 class yuca::Indexer;
 
