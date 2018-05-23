@@ -85,9 +85,38 @@ namespace yuca {
         std::size_t levenshteinDistance(std::string source, std::string target);
     }
 
+    class Key {
+    public:
+        Key() = default;
+        explicit Key(long my_id, std::string my_tag) : id(my_id), tag(std::move(my_tag));
+        std::string getTag() const;
+        long getId() const;
+
+        %extend {
+          bool op_lt(const Key &right_side) const {
+            return *$self < right_side;
+          }
+
+          bool op_lte(const Key &right_side) const {
+            return *$self <= right_side;
+          }
+
+          bool op_gt(const Key &right_side) const {
+            return *$self > right_side;
+          }
+
+          bool op_gte(const Key &right_side) const {
+            return *$self >= right_side;
+          }
+
+          bool op_gt(const Key &right_side) const {
+            return *$self >= right_side;
+          }
+        }
+    };
 }
 
-class yuca::Key;
+
 class yuca::StringKey;
 
 //typedef std::shared_ptr<Key> yuca::SPKey;
