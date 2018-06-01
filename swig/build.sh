@@ -31,3 +31,6 @@ make clean
 #TODO have a different Cmake file for each language, e.g. CMakeLists_java.txt, CMakeLists_js.txt, CMakeLists_python.txt
 cmake .
 make
+
+gradle build
+run
