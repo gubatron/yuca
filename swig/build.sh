@@ -27,7 +27,7 @@ swig -c++ -java \
 # TODO: verify current OS and copy right library
 cp ../libyuca_shared.dylib .
 
-#make clean
+make clean
 #TODO have a different Cmake file for each language, e.g. CMakeLists_java.txt, CMakeLists_js.txt, CMakeLists_python.txt
-#cmake .
-#make
+cmake .
+make
