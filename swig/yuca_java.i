@@ -135,7 +135,7 @@ namespace yuca {
       explicit Document(const std::string &str_based_id);
         long getId() const;
         void addKey(Key const &key);
-        void addKey(std::shared_ptr<Key> key);
+        void addKey(yuca::SPKey key);
         bool hasKeys(std::string const &tag) const;
         std::set<std::string> getTags() const;
         yuca::SPKeySet getTagSPKeys(std::string const &tag) const;

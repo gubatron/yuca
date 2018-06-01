@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.7)
 project(yuca_jni CXX)
 
-#include_directories(.)
-
 set(SOURCE_FILES
     yuca_java_wrap.cxx)
 
