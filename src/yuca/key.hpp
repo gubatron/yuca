@@ -77,7 +77,7 @@ namespace yuca {
         friend std::ostream &operator<<(std::ostream &output_stream, StringKey &key);
 
     private:
-        const std::string str_key;
+        std::string str_key;
     };
 }
 
