@@ -52,6 +52,7 @@ namespace yuca {
             void clear() noexcept;
             long indexOf(const T t) const noexcept; 
             bool contains(T t) noexcept;
+            bool containsAll(List<T> &other) const noexcept;
             T get(unsigned long index) const noexcept(false);
             List<T> subList(unsigned long start, unsigned long length) const;
             unsigned long size() const noexcept;
@@ -137,13 +138,19 @@ namespace yuca {
         explicit Document(const std::string &str_based_id);
         long getId() const;
         void addKey(Key const &key);
-        void addKey(yuca::SPKey key);
         bool hasKeys(std::string const &tag) const;
-        std::set<std::string> getTags() const;
-        yuca::SPKeySet getTagSPKeys(std::string const &tag) const;
-        yuca::KeySet getTagKeys(std::string const &tag) const;
+%extend {
+      yuca::utils::List<std::string> getTagsList() const {
+      yuca::utils::List<std::string> r;
+      std::set<std::string> tags_set = $self->getTags();
+      for (const auto& tag : tags_set) {
+        r.add(tag);
+      }
+      return r;
+  }
+}
+        yuca::utils::Set<yuca::Key> getTagKeys(std::string const &tag) const;
         void removeTag(std::string const &tag);
-        void removeKey(std::string const &tag, std::shared_ptr<Key> key);
         void boolProperty(std::string const &key, bool value);
         bool boolProperty(std::string const &key) const;
         void removeBoolProperty(std::string const &key);
@@ -226,6 +233,7 @@ namespace yuca {
     };
 }
 
+
 %template(SPKey) std::shared_ptr<yuca::Key>;
 %template(SPStringKey) std::shared_ptr<yuca::StringKey>;
 
@@ -242,6 +250,8 @@ namespace yuca {
 %template(DocumentList) yuca::utils::List<yuca::Document>;
 
 %template(SearchResultList) yuca::utils::List<yuca::SearchResult>;
+
+%template(StringList) yuca::utils::List<std::string>;
 
 //%template(KeyStdSet) std::set<yuca::Key>;
 //%template(KeyStdVector) std::vector<yuca::Key>;

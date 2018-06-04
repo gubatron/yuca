@@ -168,8 +168,17 @@ namespace yuca {
                 return -1;
             }
 
-            bool contains(const T& t) noexcept {
+            bool contains(const T& t) const noexcept {
                 return indexOf(t) > -1;
+            }
+
+            bool containsAll(List<T> &other) const noexcept {
+                for (const T &x : other.v) {
+                    if (!contains(x)) {
+                        return false;
+                    }
+                }
+                return true;
             }
 
             T get(unsigned long index) const noexcept(false) {
