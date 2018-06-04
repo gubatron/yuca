@@ -105,6 +105,8 @@ namespace yuca {
 
         yuca::utils::Map<std::string, yuca::utils::List<std::string>> tag_keywords_map;
 
+        bool operator==(const SearchRequest &other) const;
+
         const std::string query;
 
         const long id;
@@ -119,6 +121,8 @@ namespace yuca {
         search_request_sp(searchRequest),
         document_sp(docSp) {
         }
+
+        bool operator==(const SearchResult &other) const;
 
         double score; //[0.0 - 1.0]
         long id;

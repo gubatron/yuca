@@ -99,6 +99,14 @@ namespace yuca {
         return tag_keywords_map.get(tag);
     }
 
+    bool SearchRequest::operator==(const SearchRequest &other) const {
+        return this->query == other.query && this->id == other.id && this->total_keywords == other.total_keywords;
+    }
+
+    bool SearchResult::operator==(const SearchResult &other) const {
+        return id == other.id;
+    }
+
     SPDocumentSet ReverseIndex::getDocuments(SPKey key) const {
         if (!hasDocuments(key)) {
             return SPDocumentSet();
