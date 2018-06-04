@@ -25,11 +25,30 @@
 package com.guacal.yuca;
 
 public class StringKey extends Key {
+
     private final com.guacal.yuca.swig.StringKey swig;
+
+    public StringKey(com.guacal.yuca.swig.StringKey swigKey) {
+        this.swig = swigKey;
+    }
+
     public StringKey(String stringKey, String tag) {
         swig = new com.guacal.yuca.swig.StringKey(stringKey, tag);
     }
+
     public com.guacal.yuca.swig.StringKey swig() {
         return swig;
+    }
+
+    public String getString() {
+        return swig.getString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof StringKey)) {
+            return false;
+        }
+        return swig.op_eq(((StringKey) obj).swig);
     }
 }

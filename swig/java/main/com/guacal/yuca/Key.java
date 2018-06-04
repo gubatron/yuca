@@ -35,6 +35,10 @@ public class Key {
         swig = new com.guacal.yuca.swig.Key();
     }
 
+    public Key(com.guacal.yuca.swig.Key swigKey) {
+        swig = swigKey;
+    }
+
     public com.guacal.yuca.swig.Key swig() {
         return swig;
     }

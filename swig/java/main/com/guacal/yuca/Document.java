@@ -24,11 +24,12 @@
 
 package com.guacal.yuca;
 
-import com.guacal.yuca.swig.KeySet;
+import com.guacal.yuca.collections.KeyList;
+import com.guacal.yuca.collections.StringKeyList;
+import com.guacal.yuca.collections.StringList;
 import com.guacal.yuca.swig.PropertyType;
 
 import java.util.List;
-import java.util.Set;
 
 public class Document {
     private final com.guacal.yuca.swig.Document swig;
@@ -53,9 +54,12 @@ public class Document {
         this.swig.addKey(key.swig());
     }
 
-    public Set<Key> getTagKeys(String tag) {
-        KeySet tagKeys = swig.getTagKeys(tag);
-        return new com.guacal.yuca.KeySet(tagKeys);
+    public List<StringKey> getTagKeys(String tag) {
+        return new StringKeyList(swig.getTagKeysList(tag));
+    }
+
+    public List<String> getTags() {
+        return new StringList(swig.getTagsList());
     }
 
     public boolean boolProperty(String key) {
@@ -78,10 +82,6 @@ public class Document {
         swig.delete();
     }
 
-    public List<String> getTags() {
-        return new StringList(swig.getTagsList());
-    }
-
     public boolean hasKeys(String tag) {
         return swig.hasKeys(tag);
     }
@@ -102,10 +102,20 @@ public class Document {
         swig.longProperty(key, (int) value);
     }
 
+    public String stringProperty(String key) {
+        return swig.stringProperty(key);
+    }
+
+    public void stringProperty(String key, String value) {
+        swig.stringProperty(key, value);
+    }
+
     @Override
     public boolean equals(Object obj) {
-        Document other = (Document) obj;
-        return other.swig.op_eq(other.swig);
+        if (!(obj instanceof Document)) {
+            return false;
+        }
+        return swig.op_eq(((Document) obj).swig);
     }
 
     @Override
