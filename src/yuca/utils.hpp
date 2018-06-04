@@ -157,7 +157,7 @@ namespace yuca {
             }
 
             /** Returns the index of the first occurrence of the specified element in this list, or -1 if this list does not contain the element. */
-            long indexOf(T t) const noexcept {
+            long indexOf(const T& t) const noexcept {
                 long i = 0;
                 for (auto const &e : v) {
                     if (e == t) {
@@ -168,7 +168,7 @@ namespace yuca {
                 return -1;
             }
 
-            bool contains(T t) noexcept {
+            bool contains(const T& t) noexcept {
                 return indexOf(t) > -1;
             }
 

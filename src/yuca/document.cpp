@@ -236,4 +236,9 @@ namespace yuca {
         output_stream.flush();
         return output_stream;
     }
+
+    Document &Document::operator=(const Document &d) {
+        *this = d;
+        return *this;
+    }
 }

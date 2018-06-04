@@ -9,6 +9,8 @@
 
 %include <std_string.i>
 %include <stdint.i>
+%include <std_vector.i>
+%include <std_map.i>
 %include <std_shared_ptr.i>
 
 %{
@@ -37,7 +39,7 @@ namespace yuca {
             bool remove(T something);
             void removeAll(Set<T> &other_set);
             void clear() noexcept;
-  	    unsigned long size() const noexcept;
+            unsigned long size() const noexcept;
 	};
 
         template <class T>
@@ -48,7 +50,7 @@ namespace yuca {
             void addAll(List<T> &other) noexcept;
             void addAll(Set<T> &other) noexcept;
             void clear() noexcept;
-            long indexOf(T t) const noexcept; 
+            long indexOf(const T t) const noexcept; 
             bool contains(T t) noexcept;
             T get(unsigned long index) const noexcept(false);
             List<T> subList(unsigned long start, unsigned long length) const;
@@ -94,23 +96,23 @@ namespace yuca {
 
         %extend {
           bool op_lt(const Key &right_side) const {
-            return *$self < right_side;
+            return $self->getId() < right_side.getId();
           }
 
           bool op_lte(const Key &right_side) const {
-            return *$self <= right_side;
+            return $self->getId() <= right_side.getId();
           }
 
           bool op_gt(const Key &right_side) const {
-            return *$self > right_side;
+            return $self->getId() > right_side.getId();
           }
 
           bool op_gte(const Key &right_side) const {
-            return *$self >= right_side;
+            return $self->getId() >= right_side.getId();
           }
 
           bool op_eq(const Key &right_side) const {
-            return *$self == right_side;
+            return $self->getId() == right_side.getId();
           }
         }
     };
@@ -131,8 +133,8 @@ namespace yuca {
 
     class Document {
     public:
-      explicit Document(long doc_id);
-      explicit Document(const std::string &str_based_id);
+        explicit Document(long doc_id);
+        explicit Document(const std::string &str_based_id);
         long getId() const;
         void addKey(Key const &key);
         void addKey(yuca::SPKey key);
@@ -162,11 +164,11 @@ namespace yuca {
 
         %extend {
           bool op_lt(const Document &right_side) const {
-            return *$self < right_side;
+            return $self->getId() < right_side.getId();
           }
 
           bool op_eq(const Document &right_side) const {
-            return *$self == right_side;
+            return $self->getId() == right_side.getId();
           }
         }
     };
@@ -176,6 +178,11 @@ namespace yuca {
         yuca::utils::List<std::string> getTags();
         yuca::utils::List<std::string> getKeywords(std::string &tag);
         yuca::utils::Map<std::string, yuca::utils::List<std::string>> tag_keywords_map;
+        %extend {
+          bool op_eq(const SearchRequest &right_side) const {
+            return $self->query == right_side.query && $self->id == right_side.id && $self->total_keywords == right_side.total_keywords;
+          }
+        }
         const std::string query;
         const long id;
         long total_keywords;
@@ -183,10 +190,15 @@ namespace yuca {
 
     struct SearchResult {
         SearchResult(std::shared_ptr<yuca::SearchRequest> searchRequest, yuca::SPDocument docSp);
+        %extend {
+          bool op_eq(const SearchResult &right_side) const {
+            return $self->id == right_side.id;
+          }
+        }
         double score; //[0.0 - 1.0]
         long id;
         std::shared_ptr<SearchRequest> search_request_sp;
-        std::shared_ptr<yuca::Document> document_sp;
+        yuca::SPDocument document_sp;
     };
 
     class Indexer {
@@ -214,23 +226,27 @@ namespace yuca {
     };
 }
 
-//typedef std::shared_ptr<Key> yuca::SPKey;
 %template(SPKey) std::shared_ptr<yuca::Key>;
-//typedef std::shared_ptr<StringKey> yuca::SPStringKey;
 %template(SPStringKey) std::shared_ptr<yuca::StringKey>;
-//typedef yuca::utils::Set<Key> yuca::KeySet;
-%template(KeySet) yuca::utils::Set<yuca::Key>;
-//typedef yuca::utils::Set<SPKey> yuca::SPKeySet;
+
 %template(SPKeySet) yuca::utils::Set<yuca::SPKey>;
-//typedef yuca::utils::List<SPKey> yuca::SPKeyList;
 %template(SPKeyList) yuca::utils::List<yuca::SPKey>;
 
-//typedef std::shared_ptr<Document> yuca::SPDocument;
 %template(SPDocument) std::shared_ptr<yuca::Document>;
-//typedef yuca::utils::Set<SPDocument> yuca::SPDocumentSet;
 %template(SPDocumentSet) yuca::utils::Set<yuca::SPDocument>;
-//typedef yuca::utils::List<SPDocument> yuca::SPDocumentList;
 %template(SPDocumentList) yuca::utils::List<yuca::SPDocument>;
+
+%template(KeySet) yuca::utils::Set<yuca::Key>;
+%template(KeyList) yuca::utils::List<yuca::Key>;
+%template(DocumentSet) yuca::utils::Set<yuca::Document>;
+%template(DocumentList) yuca::utils::List<yuca::Document>;
+
+%template(SearchResultList) yuca::utils::List<yuca::SearchResult>;
+
+//%template(KeyStdSet) std::set<yuca::Key>;
+//%template(KeyStdVector) std::vector<yuca::Key>;
+//%template(DocumentStdSet) std::set<yuca::Document>;
+//%template(DocumentStdVector) std::vector<yuca::Document>;
 
 %ignore operator();
 %rename(op_eq) operator==;

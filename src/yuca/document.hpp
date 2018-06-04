@@ -168,6 +168,8 @@ namespace yuca {
 
         bool operator==(const Document &other) const;
 
+        Document& operator=(const Document& d);
+
         friend std::ostream& operator<<(std::ostream &output_stream, const Document &doc);
 
         static const Document NULL_DOCUMENT;
