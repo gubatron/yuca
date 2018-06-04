@@ -67,7 +67,7 @@ namespace yuca {
         void addKey(Key const &key);
 
         /** Associate this document to an indexing key under the given tag */
-        void addKey(std::shared_ptr<Key> key);
+        void addKey(SPKey key);
 
         /** Does this document have at least one key under this tag? */
         bool hasKeys(std::string const &tag) const;
@@ -84,7 +84,7 @@ namespace yuca {
         void removeTag(std::string const &tag);
 
         /** Removes the given key. If it's the last key for this tag, the tag itself is removed */
-        void removeKey(std::string const &tag, std::shared_ptr<Key> key);
+        void removeKey(std::string const &tag, SPKey key);
 
         /** Set the value of a bool property under the given key.
          * Properties are not indexed for search, they are meant to be used
@@ -168,14 +168,12 @@ namespace yuca {
 
         bool operator==(const Document &other) const;
 
-        Document& operator=(const Document& d);
-
         friend std::ostream& operator<<(std::ostream &output_stream, const Document &doc);
 
         static const Document NULL_DOCUMENT;
 
     private:
-        const long id;
+        long id;
 
         // maps tags to set<Key>
         yuca::utils::Map<std::string, SPKeySet> tag_2_keyset_map;

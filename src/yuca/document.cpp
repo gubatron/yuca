@@ -65,7 +65,7 @@ namespace yuca {
         addKey(std::move(spKey));
     }
 
-    void Document::addKey(std::shared_ptr<Key> key) {
+    void Document::addKey(SPKey key) {
         std::string tag(key->getTag());
         if (!hasKeys(tag)) {
             tag_2_keyset_map.put(tag, SPKeySet());
@@ -75,7 +75,7 @@ namespace yuca {
         tag_2_keyset_map.put(tag, key_set);
     }
 
-    void Document::removeKey(std::string const &tag, std::shared_ptr<Key> key) {
+    void Document::removeKey(std::string const &tag, SPKey key) {
         if (!hasKeys(tag)) {
             return;
         }
@@ -235,10 +235,5 @@ namespace yuca {
         output_stream << std::endl << " }";
         output_stream.flush();
         return output_stream;
-    }
-
-    Document &Document::operator=(const Document &d) {
-        *this = d;
-        return *this;
     }
 }
