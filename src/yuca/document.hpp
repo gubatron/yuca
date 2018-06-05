@@ -50,7 +50,7 @@ namespace yuca {
     public:
         explicit Document(long doc_id) :
         id(doc_id),
-        tag_2_keyset_map(SPKeySet()),
+        tag_2_keyset_map(SPStringKeySet()),
         bool_properties(false),
         byte_properties(0),
         int_properties(-1),
@@ -64,10 +64,10 @@ namespace yuca {
         long getId() const;
 
         /** Associate this document to an indexing key under the given tag */
-        void addKey(Key const &key);
+        void addKey(StringKey const &key);
 
         /** Associate this document to an indexing key under the given tag */
-        void addKey(SPKey key);
+        void addKey(SPStringKey key);
 
         /** Does this document have at least one key under this tag? */
         bool hasKeys(std::string const &tag) const;
@@ -76,15 +76,15 @@ namespace yuca {
         std::set<std::string> getTags() const;
 
         /** Returns a copy of all keys shared pointers available under a given tag */
-        SPKeySet getTagSPKeys(std::string const &tag) const;
+        SPStringKeySet getTagSPKeys(std::string const &tag) const;
 
-        KeySet getTagKeys(std::string const &tag) const;
+        StringKeySet getTagKeys(std::string const &tag) const;
 
         /** Removes all keys under this tag */
         void removeTag(std::string const &tag);
 
         /** Removes the given key. If it's the last key for this tag, the tag itself is removed */
-        void removeKey(std::string const &tag, SPKey key);
+        void removeKey(std::string const &tag, SPStringKey key);
 
         /** Set the value of a bool property under the given key.
          * Properties are not indexed for search, they are meant to be used
@@ -176,7 +176,7 @@ namespace yuca {
         long id;
 
         // maps tags to set<Key>
-        yuca::utils::Map<std::string, SPKeySet> tag_2_keyset_map;
+        yuca::utils::Map<std::string, SPStringKeySet> tag_2_keyset_map;
 
         // docs can have unique properties that are not necessarily indexed keys
         // but which are meant to be retrieved once they appear in search results

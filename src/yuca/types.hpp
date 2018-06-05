@@ -46,6 +46,8 @@ namespace yuca {
     typedef std::shared_ptr<Document> SPDocument;
     typedef yuca::utils::Set<Key> KeySet;
     typedef yuca::utils::Set<SPKey> SPKeySet;
+    typedef yuca::utils::Set<StringKey> StringKeySet;
+    typedef yuca::utils::Set<SPStringKey> SPStringKeySet;
     typedef yuca::utils::List<SPKey> SPKeyList;
     typedef yuca::utils::Set<SPDocument> SPDocumentSet;
     typedef yuca::utils::List<SPDocument> SPDocumentList;

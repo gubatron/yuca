@@ -19,6 +19,7 @@ OPTS="${OPTS} -Dcom.sun.management.jmxremote.ssl=false"
 OPTS="${OPTS} -Dcom.sun.management.jmxremote.authenticate=false"
 OPTS="${OPTS} -Djava.rmi.server.hostname=127.0.0.1"
 OPTS="${OPTS} -agentlib:jdwp=transport=dt_socket,address=9696,server=y,suspend=n"
+OPTS="${OPTS} -classpath ${CLASSPATH}"
 
 export CLASSPATH
 echo Classpath:
@@ -32,8 +33,8 @@ echo ${JAVA_HOME}
 echo Java Binary:
 echo ${JAVA_BIN}
 echo Java Version:
-$JAVA_BIN -version
+${JAVA_BIN} -version
 echo
 echo "Let's go!"
 
-${JAVA_BIN} ${OPTS} -Ddebug=1 com.guacal.yuca.Demo $*
+${JAVA_BIN} ${OPTS} -Ddebug=1 com.guacal.yuca.Demo

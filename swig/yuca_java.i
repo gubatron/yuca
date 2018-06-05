@@ -151,8 +151,12 @@ namespace yuca {
 
         yuca::utils::List<yuca::StringKey> getTagKeysList(std::string const &tag) {
             yuca::utils::List<yuca::StringKey> r;
-            for(const auto& k : $self->getTagKeys(tag).getStdSetCopy()) {
-              r.add(static_cast<const yuca::StringKey>(k));
+            for(auto& k : $self->getTagKeys(tag).getStdSetCopy()) {
+              //D& another_d = static_cast<D&>(br);
+              const yuca::Key* keyPtr = &k;
+              const yuca::StringKey* strKeyPtr = dynamic_cast<const yuca::StringKey*>(keyPtr);
+              std::cout << "getTagKeysList() adding casted key!" << std::endl;
+              r.add(*strKeyPtr);
             }
             return r;
         }

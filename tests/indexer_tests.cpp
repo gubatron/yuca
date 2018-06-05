@@ -42,9 +42,9 @@ using namespace yuca::utils;
 TEST_CASE("Indexer Basic Tests") {
     std::string foo_tag(":foo");
     std::string bar_tag(":bar");
-    auto foo_key_sp = std::make_shared<Key>(1, foo_tag);
-    auto foo_key2_sp = std::make_shared<Key>(2, foo_tag);
-    auto bar_key_sp = std::make_shared<Key>(1, bar_tag);
+    auto foo_key_sp = std::make_shared<StringKey>("foo key 1", foo_tag);
+    auto foo_key2_sp = std::make_shared<StringKey>("foo key 2", foo_tag);
+    auto bar_key_sp = std::make_shared<StringKey>("bar key", bar_tag);
     SPDocument document_foo_sp;
     SPDocument document_bar_sp;
     SPDocument document_foo_bar_sp;
@@ -425,7 +425,7 @@ TEST_CASE("Indexer Search Tests") {
         SPDocument doc = f.get_document();
         doc->intProperty("offset", i);
         doc->stringProperty("full_name", f.full_name());
-        SPKeySet ext_keys = doc->getTagSPKeys(":extension");
+        SPStringKeySet ext_keys = doc->getTagSPKeys(":extension");
         indexer.indexDocument(doc);
         if (files <= 20) {
             std::cout << i << ". [" << f.full_name() << "]" << std::endl << std::endl;

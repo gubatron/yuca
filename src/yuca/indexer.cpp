@@ -222,7 +222,7 @@ namespace yuca {
         for (auto const &tag : tags) {
             std::shared_ptr<ReverseIndex> reverse_index = getReverseIndex(tag);
 
-            SPKeySet key_set = doc->getTagSPKeys(tag);
+            SPStringKeySet key_set = doc->getTagSPKeys(tag);
             for (auto const &key : key_set.getStdSetCopy()) {
                 reverse_index->removeDocument(key, doc);
             }
@@ -295,7 +295,7 @@ namespace yuca {
 
             for (auto const &tag : search_tags) {
                 std::shared_ptr<ReverseIndex> tag_r_index = getReverseIndex(tag);
-                KeySet documentTagKeys = doc_sp->getTagKeys(tag);
+                StringKeySet documentTagKeys = doc_sp->getTagKeys(tag);
                 yuca::utils::List<std::string> search_keywords = search_request.tag_keywords_map.get(tag);
 
                 for (auto const &keyword : search_keywords.getStdVector()) {
@@ -391,7 +391,7 @@ namespace yuca {
     }
 
     void Indexer::addToIndex(std::string const &tag, SPDocument doc) {
-        SPKeySet doc_keys = doc->getTagSPKeys(tag);
+        SPStringKeySet doc_keys = doc->getTagSPKeys(tag);
         if (doc_keys.isEmpty()) {
             std::cout << "Indexer::addToIndex(" << tag
                       << "): check your logic, document has no doc_keys under this tag <"

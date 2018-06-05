@@ -44,42 +44,42 @@ namespace yuca {
         return id;
     }
 
-    KeySet Document::getTagKeys(std::string const &tag) const {
-        KeySet keySet;
-        SPKeySet spKeySet = getTagSPKeys(tag);
+    StringKeySet Document::getTagKeys(std::string const &tag) const {
+        StringKeySet keySet;
+        SPStringKeySet spKeySet = getTagSPKeys(tag);
         for (auto const &spKey : spKeySet.getStdSet()) {
             keySet.add(*spKey);
         }
         return keySet;
     }
 
-    SPKeySet Document::getTagSPKeys(std::string const &tag) const {
+    SPStringKeySet Document::getTagSPKeys(std::string const &tag) const {
         if (!hasKeys(tag)) {
-            return SPKeySet();
+            return SPStringKeySet();
         }
         return tag_2_keyset_map.get(tag);
     }
 
-    void Document::addKey(Key const &key) {
-        auto spKey = std::make_shared<Key>(key);
+    void Document::addKey(StringKey const &key) {
+        auto spKey = std::make_shared<StringKey>(key);
         addKey(std::move(spKey));
     }
 
-    void Document::addKey(SPKey key) {
+    void Document::addKey(SPStringKey key) {
         std::string tag(key->getTag());
         if (!hasKeys(tag)) {
-            tag_2_keyset_map.put(tag, SPKeySet());
+            tag_2_keyset_map.put(tag, SPStringKeySet());
         }
-        SPKeySet key_set = tag_2_keyset_map.get(tag);
+        SPStringKeySet key_set = tag_2_keyset_map.get(tag);
         key_set.add(key);
         tag_2_keyset_map.put(tag, key_set);
     }
 
-    void Document::removeKey(std::string const &tag, SPKey key) {
+    void Document::removeKey(std::string const &tag, SPStringKey key) {
         if (!hasKeys(tag)) {
             return;
         }
-        SPKeySet keys = getTagSPKeys(tag);
+        SPStringKeySet keys = getTagSPKeys(tag);
         keys.remove(std::move(key));
         tag_2_keyset_map.put(tag, keys);
 
@@ -208,7 +208,7 @@ namespace yuca {
         unsigned int i = 0;
         yuca::utils::Set<std::string> doc_tags = doc.tag_2_keyset_map.keySet();
         for (auto const &tag : doc_tags.getStdSet()) {
-            SPKeySet keys(doc.tag_2_keyset_map.get(tag));
+            SPStringKeySet keys(doc.tag_2_keyset_map.get(tag));
             output_stream << std::endl << "   tag=<" << tag << "> = ";
             output_stream << "[ ";
             unsigned long j = 0;
