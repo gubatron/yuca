@@ -137,7 +137,7 @@ namespace yuca {
         explicit Document(long doc_id);
         explicit Document(const std::string &str_based_id);
         long getId() const;
-        void addKey(Key const &key);
+        void addKey(StringKey const &key);
         bool hasKeys(std::string const &tag) const;
 %extend {
         yuca::utils::List<std::string> getTagsList() const {
@@ -152,11 +152,7 @@ namespace yuca {
         yuca::utils::List<yuca::StringKey> getTagKeysList(std::string const &tag) {
             yuca::utils::List<yuca::StringKey> r;
             for(auto& k : $self->getTagKeys(tag).getStdSetCopy()) {
-              //D& another_d = static_cast<D&>(br);
-              const yuca::Key* keyPtr = &k;
-              const yuca::StringKey* strKeyPtr = dynamic_cast<const yuca::StringKey*>(keyPtr);
-              std::cout << "getTagKeysList() adding casted key!" << std::endl;
-              r.add(*strKeyPtr);
+              r.add(k);
             }
             return r;
         }

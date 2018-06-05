@@ -2,9 +2,7 @@ package com.guacal.yuca;
 
 import com.guacal.yuca.swig.yuca;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 public final class Demo {
     static {
@@ -23,6 +21,8 @@ public final class Demo {
         StringKey fooKey2 = new StringKey("fooKey2",":fooTag");
         StringKey barKey = new StringKey("barKey", ":barTag");
 
+        System.out.println("<" + barKey.getId() + ":" + barKey.getString() + " tag= " + barKey.getTag() + ">");
+
         Document fooDoc = new Document("fooDoc");
         fooDoc.addKey(fooKey);
         fooDoc.addKey(fooKey2);
@@ -35,18 +35,11 @@ public final class Demo {
             System.out.println("Tag -> " + tag);
 
             List<StringKey> tagKeys = fooDoc.getTagKeys(tag);
-            System.out.println("Keys for tag:");
-            for (Key k : tagKeys) {
-                if (k.swig() instanceof com.guacal.yuca.swig.StringKey) {
-                    StringKey sk = (StringKey) k;
-                    System.out.println("\t->" + sk.getString() + " (" + sk.getTag() +")");
-                }
-                System.out.println("\t-> " + k.getId() + " (" + k.getTag() + ")");
+            System.out.println("Keys for tag: " + tag);
+            for (StringKey k : tagKeys) {
+                System.out.println("\t-> id: " + k.getId() + " string: " + k.getString() + " (tag: " + k.getTag() + ")");
             }
-            //Set<Key> tagKeys = fooDoc.getTagKeys(tag);
-            //for (Key k : tagKeys) {
-            //    System.out.println(k);
-            //}
+            System.out.println();
         }
     }
 }

@@ -437,7 +437,7 @@ TEST_CASE("Indexer Search Tests") {
     }
 
     indexer.indexDocument(generateFile("airport fear airport", "txt").get_document());
-    std::cout << indexer << std::endl;
+    //std::cout << indexer << std::endl;
 
     // add one more hard coded
     yuca::utils::List<std::string> f2_keywords;

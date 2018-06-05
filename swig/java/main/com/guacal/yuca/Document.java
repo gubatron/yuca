@@ -24,7 +24,6 @@
 
 package com.guacal.yuca;
 
-import com.guacal.yuca.collections.KeyList;
 import com.guacal.yuca.collections.StringKeyList;
 import com.guacal.yuca.collections.StringList;
 import com.guacal.yuca.swig.PropertyType;
@@ -50,7 +49,7 @@ public class Document {
         return swig.getId();
     }
 
-    public void addKey(Key key) {
+    public void addKey(StringKey key) {
         this.swig.addKey(key.swig());
     }
 

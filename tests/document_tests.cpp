@@ -36,7 +36,7 @@ TEST_CASE("Test If Key Can Be Added") {
 
 	auto foo_key_sp = std::make_shared<StringKey>("foo 1", foo_tag);
 	auto bar_key_sp = std::make_shared<StringKey>("bar key 1", bar_tag);
-	auto bar_key2_sp = std::make_shared<StringKey>("bar key 2", bar_tag);
+	auto bar_key2_sp = std::make_shared<StringKey>("bar key", bar_tag);
 	auto document_sp = std::make_shared<Document>("some_doc_id");
 
 	SPStringKeySet is_empty = document_sp->getTagSPKeys(foo_tag);

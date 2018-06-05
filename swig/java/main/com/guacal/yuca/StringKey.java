@@ -40,9 +40,15 @@ public class StringKey extends Key {
         return swig;
     }
 
+    public int getId() {
+        return swig.getId();
+    }
+
     public String getString() {
         return swig.getString();
     }
+
+    public String getTag() { return swig.getTag(); }
 
     @Override
     public boolean equals(Object obj) {
