@@ -24,19 +24,19 @@
 
 package com.guacal.yuca.collections;
 
-import com.guacal.yuca.Key;
-import com.guacal.yuca.StringKey;
+import com.guacal.yuca.SearchResult;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-public class StringKeyList implements List<StringKey> {
-    private final com.guacal.yuca.swig.StringKeyList swig;
+@SuppressWarnings("unused")
+public class SearchResultList implements List<SearchResult> {
+    private final com.guacal.yuca.swig.SearchResultList swig;
 
-    public StringKeyList(com.guacal.yuca.swig.StringKeyList keyList) {
-        swig = keyList;
+    public SearchResultList(com.guacal.yuca.swig.SearchResultList searchResultList) {
+        swig = searchResultList;
     }
 
     @Override
@@ -51,22 +51,22 @@ public class StringKeyList implements List<StringKey> {
 
     @Override
     public boolean contains(Object o) {
-        if (!(o instanceof Key)) {
+        if (!(o instanceof SearchResult)) {
             return false;
         }
-        return swig.contains(((StringKey) o).swig());
+        return swig.contains(((SearchResult) o).swig());
     }
 
     @Override
-    public Iterator<StringKey> iterator() {
+    public Iterator<SearchResult> iterator() {
         return new YucaListIterator<>(this);
     }
 
     @Override
     public Object[] toArray() {
-        StringKey[] r = new StringKey[size()];
+        SearchResult[] r = new SearchResult[size()];
         for (int i=0; i < r.length; i++) {
-            r[i] = new StringKey(swig.get(i));
+            r[i] = new SearchResult(swig.get(i));
         }
         return r;
     }
@@ -77,37 +77,37 @@ public class StringKeyList implements List<StringKey> {
     }
 
     @Override
-    public boolean add(StringKey key) {
-        swig.add(key.swig());
+    public boolean add(SearchResult sr) {
+        swig.add(sr.swig());
         return true;
     }
 
     @Override
     public boolean remove(Object o) {
-        return swig.remove(((StringKey) o).swig());
+        return swig.remove(((SearchResult) o).swig());
     }
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        StringKeyList other = (StringKeyList) c;
+        SearchResultList other = (SearchResultList) c;
         return swig.containsAll(other.swig);
     }
 
     @Override
-    public boolean addAll(Collection<? extends StringKey> c) {
-        StringKeyList other = (StringKeyList) c;
+    public boolean addAll(Collection<? extends SearchResult> c) {
+        SearchResultList other = (SearchResultList) c;
         swig.addAll(other.swig);
         return true;
     }
 
     @Override
-    public boolean addAll(int index, Collection<? extends StringKey> c) {
+    public boolean addAll(int index, Collection<? extends SearchResult> c) {
         return false;
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        StringKeyList other = (StringKeyList) c;
+        SearchResultList other = (SearchResultList) c;
         return swig.removeAll(other.swig);
     }
 
@@ -122,28 +122,28 @@ public class StringKeyList implements List<StringKey> {
     }
 
     @Override
-    public StringKey get(int index) {
-        return new StringKey(swig.get(index));
+    public SearchResult get(int index) {
+        return new SearchResult(swig.get(index));
     }
 
     @Override
-    public StringKey set(int index, StringKey element) {
-        return new StringKey(swig.set(index, element.swig()));
+    public SearchResult set(int index, SearchResult element) {
+        return new SearchResult(swig.set(index, element.swig()));
     }
 
     @Override
-    public void add(int index, StringKey element) {
+    public void add(int index, SearchResult element) {
         swig.add(index, element.swig());
     }
 
     @Override
-    public StringKey remove(int index) {
-        return new StringKey(swig.removeAt(index));
+    public SearchResult remove(int index) {
+        return new SearchResult(swig.removeAt(index));
     }
 
     @Override
     public int indexOf(Object o) {
-        return swig.indexOf(((StringKey) o).swig());
+        return swig.indexOf(((SearchResult) o).swig());
     }
 
     @Override
@@ -152,18 +152,18 @@ public class StringKeyList implements List<StringKey> {
     }
 
     @Override
-    public ListIterator<StringKey> listIterator() {
+    public ListIterator<SearchResult> listIterator() {
         return null;
     }
 
     @Override
-    public ListIterator<StringKey> listIterator(int index) {
+    public ListIterator<SearchResult> listIterator(int index) {
         return null;
     }
 
     @Override
-    public List<StringKey> subList(int fromIndex, int toIndex) {
-        com.guacal.yuca.swig.StringKeyList keyList = swig.subList(fromIndex, toIndex);
-        return new StringKeyList(keyList);
+    public List<SearchResult> subList(int fromIndex, int toIndex) {
+        com.guacal.yuca.swig.SearchResultList searchResultList = swig.subList(fromIndex, toIndex);
+        return new SearchResultList(searchResultList);
     }
 }

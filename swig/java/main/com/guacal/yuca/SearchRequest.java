@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  * <p>
  * Copyright (c) 2016-2018 Angel Leon, Alden Torres
@@ -47,13 +47,14 @@ public final class SearchRequest {
         groups = new StringList(swig.getTags());
 
         groupKeywordsMap = new HashMap<>();
-        if (groups != null && groups.size() > 0) {
+        if (groups.size() > 0) {
             for (String group : groups) {
                 groupKeywordsMap.put(group, new StringList(swig.getKeywords(group)));
             }
         }
     }
 
+    @SuppressWarnings("unused")
     SearchRequest(String queryString, String implicitTag) {
         this(new com.guacal.yuca.swig.SearchRequest(queryString, implicitTag));
     }
@@ -66,26 +67,32 @@ public final class SearchRequest {
         swig.delete();
     }
 
+    @SuppressWarnings("unused")
     public int getId() {
         return id;
     }
 
+    @SuppressWarnings("unused")
     public String getQuery() {
         return query;
     }
 
+    @SuppressWarnings("unused")
     public List<String> getGroups() {
         return groups;
     }
 
+    @SuppressWarnings("unused")
     public int getTotalKeywords() {
         return totalKeywords;
     }
 
+    @SuppressWarnings("unused")
     public Map<String, List<String>> getTagKeywordsMap(){
         return groupKeywordsMap;
     }
 
+    @SuppressWarnings("unused")
     public List<String> getKeywords(String group) {
         return groupKeywordsMap.get(group);
     }

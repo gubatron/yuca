@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  * <p>
  * Copyright (c) 2016-2018 Angel Leon, Alden Torres
@@ -25,8 +25,6 @@
 
 package com.guacal.yuca;
 
-import com.guacal.yuca.swig.SWIGTYPE_p_std__shared_ptrT_yuca__SearchRequest_t;
-
 public class SearchResult {
     private final com.guacal.yuca.swig.SearchResult swig;
     private final double score;
@@ -40,6 +38,10 @@ public class SearchResult {
         id = swig.getId();
         sr = new SearchRequest(swig.getSearchRequest());
         document = new Document(swig.getDocument());
+    }
+
+    public com.guacal.yuca.swig.SearchResult swig() {
+        return swig;
     }
 
     public double getScore() {

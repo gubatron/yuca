@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  * <p>
  * Copyright (c) 2016-2018 Angel Leon, Alden Torres
@@ -24,6 +24,8 @@
 
 package com.guacal.yuca;
 
+import java.util.List;
+
 public class Indexer {
     private com.guacal.yuca.swig.Indexer swig;
 
@@ -31,35 +33,50 @@ public class Indexer {
         swig = new com.guacal.yuca.swig.Indexer(); // implicit group will be :group
     }
 
-    public Indexer(String implicitGroup) {
+    public Indexer(final String implicitGroup) {
         swig = new com.guacal.yuca.swig.Indexer(implicitGroup);
     }
 
-    public void indexDocument(Document document) {
+    public void indexDocument(final Document document) {
         swig.indexDocument(document.swig());
     }
 
-    public Document getDocument(int docId) {
+    public Document getDocument(final int docId) {
         return new Document(swig.getDocument(docId));
     }
 
-    public Document getDocument(String docId) {
+    public Document getDocument(final String docId) {
         return new Document(swig.getDocument(docId));
     }
 
-    boolean removeDocument(int docId) {
+    boolean removeDocument(final int docId) {
         return swig.removeDocument(docId);
     }
 
-    boolean removeDocument(String docId) {
+    boolean removeDocument(final String docId) {
         return swig.removeDocument(docId);
     }
 
-    boolean removeDocument(Document doc) {
+    boolean removeDocument(final Document doc) {
         return swig.removeDocument(doc.swig());
     }
 
     void clear() {
         swig.clear();
+    }
+
+    List<SearchResult> search(final String query,
+                              final String optMainDocPropertyForQueryComparison,
+                              final int optMaxSearchResults) {
+        return new com.guacal.yuca.collections.SearchResultList(swig.search(query, optMainDocPropertyForQueryComparison, optMaxSearchResults));
+    }
+
+    List<SearchResult> search(final String query,
+                              final String optMainDocPropertyForQueryComparison) {
+        return new com.guacal.yuca.collections.SearchResultList(swig.search(query, optMainDocPropertyForQueryComparison));
+    }
+
+    List<SearchResult> search(final String query) {
+        return new com.guacal.yuca.collections.SearchResultList(swig.search(query));
     }
 }
