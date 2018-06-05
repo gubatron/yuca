@@ -161,7 +161,7 @@ namespace yuca {
         bool removeDocument(std::string const &doc_id);
 
         /** Wrapper meant for non C++ users so their API surface doesn't need to deal with shared_ptr */
-        void removeDocument(Document doc);
+        bool removeDocument(Document doc);
 
         void indexDocument(SPDocument doc);
 

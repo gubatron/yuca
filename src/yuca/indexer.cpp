@@ -189,12 +189,13 @@ namespace yuca {
         return removeDocument(static_cast<long>(std::hash<std::string>{}(doc_id)));
     }
 
-    void Indexer::removeDocument(Document doc) {
+    bool Indexer::removeDocument(Document doc) {
         SPDocument spDoc = docPtrCache.get(doc.getId());
         if (spDoc == nullptr) {
-            return;
+            return false;
         }
         removeDocument(spDoc);
+        return true;
     }
 
     void Indexer::indexDocument(SPDocument spDoc) {
