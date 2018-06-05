@@ -41,6 +41,10 @@ public class Document {
         swig = new com.guacal.yuca.swig.Document(strBasedId);
     }
 
+    public Document(com.guacal.yuca.swig.Document swigDoc) {
+        swig = swigDoc;
+    }
+
     public com.guacal.yuca.swig.Document swig() {
         return swig;
     }
