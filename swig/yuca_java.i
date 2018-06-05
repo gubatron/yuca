@@ -191,8 +191,12 @@ namespace yuca {
         SearchRequest(const std::string &query_str, const std::string &implicit_tag);
         yuca::utils::List<std::string> getTags();
         yuca::utils::List<std::string> getKeywords(std::string &tag);
-      //yuca::utils::Map<std::string, yuca::utils::List<std::string>> tag_keywords_map;
+
         %extend {
+          yuca::utils::List<std::string> getKeywords(const std::string &group) const {
+            return $self->tag_keywords_map.get(group);
+          }
+
           bool op_eq(const SearchRequest &right_side) const {
             return $self->query == right_side.query && $self->id == right_side.id && $self->total_keywords == right_side.total_keywords;
           }
@@ -207,6 +211,14 @@ namespace yuca {
         %extend {
           bool op_eq(const SearchResult &right_side) const {
             return $self->id == right_side.id;
+          }
+
+          SearchRequest getSearchRequest() const {
+            return *($self->search_request_sp);
+          }
+
+          Document getDocument() const {
+            return *($self->document_sp);
           }
         }
         double score; //[0.0 - 1.0]
@@ -224,9 +236,7 @@ namespace yuca {
         yuca::Document getDocument(std::string const &doc_id) const noexcept;
         bool removeDocument(long doc_id);
         bool removeDocument(std::string const &doc_id);
-        void removeDocument(yuca::Document doc);
-        void indexDocument(yuca::SPDocument doc); // maybe remove, could be unusable in java
-        void removeDocument(yuca::SPDocument doc); // maybe remove, could be unusable in java
+        bool removeDocument(yuca::Document doc);
         void clear();
         yuca::utils::List<SearchResult> search(const std::string &query,
                                                const std::string &opt_main_doc_property_for_query_comparison,
@@ -234,9 +244,6 @@ namespace yuca {
         yuca::utils::List<SearchResult> search(const std::string &query);
         yuca::utils::List<SearchResult> search(const std::string &query,
                                                const std::string &opt_main_doc_property_for_query_comparison);
-        //yuca::utils::Map<std::string, yuca::SPDocumentSet> findDocuments(yuca::SearchRequest &search_request) const;
-        //yuca::SPDocumentSet findDocuments(yuca::SPKey key) const;
-        //yuca::SPDocumentSet findDocuments(yuca::SPKeyList keys) const;
     };
 }
 
