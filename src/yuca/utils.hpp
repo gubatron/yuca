@@ -132,11 +132,11 @@ namespace yuca {
         class List {
         public:
             /** Adds element at the end */
-            void add(T t) noexcept {
+            void add(const T &t) noexcept {
                 v.push_back(t);
             }
 
-            void add(long index, T t) noexcept {
+            void add(long index, const T &t) noexcept {
                 v.insert(v.begin() + index, t);
             }
 

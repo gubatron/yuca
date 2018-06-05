@@ -140,16 +140,23 @@ namespace yuca {
         void addKey(Key const &key);
         bool hasKeys(std::string const &tag) const;
 %extend {
-      yuca::utils::List<std::string> getTagsList() const {
-      yuca::utils::List<std::string> r;
-      std::set<std::string> tags_set = $self->getTags();
-      for (const auto& tag : tags_set) {
-        r.add(tag);
-      }
-      return r;
-  }
+        yuca::utils::List<std::string> getTagsList() const {
+            yuca::utils::List<std::string> r;
+            std::set<std::string> tags_set = $self->getTags();
+            for (const auto& tag : tags_set) {
+                r.add(tag);
+            }
+            return r;
+        }
+
+        yuca::utils::List<yuca::StringKey> getTagKeysList(std::string const &tag) {
+            yuca::utils::List<yuca::StringKey> r;
+            for(const auto& k : $self->getTagKeys(tag).getStdSetCopy()) {
+              r.add(static_cast<const yuca::StringKey>(k));
+            }
+            return r;
+        }
 }
-        yuca::utils::Set<yuca::Key> getTagKeys(std::string const &tag) const;
         void removeTag(std::string const &tag);
         void boolProperty(std::string const &key, bool value);
         bool boolProperty(std::string const &key) const;
@@ -184,7 +191,7 @@ namespace yuca {
         SearchRequest(const std::string &query_str, const std::string &implicit_tag);
         yuca::utils::List<std::string> getTags();
         yuca::utils::List<std::string> getKeywords(std::string &tag);
-        yuca::utils::Map<std::string, yuca::utils::List<std::string>> tag_keywords_map;
+      //yuca::utils::Map<std::string, yuca::utils::List<std::string>> tag_keywords_map;
         %extend {
           bool op_eq(const SearchRequest &right_side) const {
             return $self->query == right_side.query && $self->id == right_side.id && $self->total_keywords == right_side.total_keywords;
@@ -227,9 +234,9 @@ namespace yuca {
         yuca::utils::List<SearchResult> search(const std::string &query);
         yuca::utils::List<SearchResult> search(const std::string &query,
                                                const std::string &opt_main_doc_property_for_query_comparison);
-        yuca::utils::Map<std::string, yuca::SPDocumentSet> findDocuments(yuca::SearchRequest &search_request) const;
-        yuca::SPDocumentSet findDocuments(yuca::SPKey key) const;
-        yuca::SPDocumentSet findDocuments(yuca::SPKeyList keys) const;
+        //yuca::utils::Map<std::string, yuca::SPDocumentSet> findDocuments(yuca::SearchRequest &search_request) const;
+        //yuca::SPDocumentSet findDocuments(yuca::SPKey key) const;
+        //yuca::SPDocumentSet findDocuments(yuca::SPKeyList keys) const;
     };
 }
 
@@ -246,17 +253,15 @@ namespace yuca {
 
 %template(KeySet) yuca::utils::Set<yuca::Key>;
 %template(KeyList) yuca::utils::List<yuca::Key>;
+
+%template(StringKeyList) yuca::utils::List<yuca::StringKey>;
+
 %template(DocumentSet) yuca::utils::Set<yuca::Document>;
 %template(DocumentList) yuca::utils::List<yuca::Document>;
 
 %template(SearchResultList) yuca::utils::List<yuca::SearchResult>;
 
 %template(StringList) yuca::utils::List<std::string>;
-
-//%template(KeyStdSet) std::set<yuca::Key>;
-//%template(KeyStdVector) std::vector<yuca::Key>;
-//%template(DocumentStdSet) std::set<yuca::Document>;
-//%template(DocumentStdVector) std::vector<yuca::Document>;
 
 %ignore operator();
 %rename(op_eq) operator==;
