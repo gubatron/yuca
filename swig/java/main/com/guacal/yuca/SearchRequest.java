@@ -22,19 +22,36 @@
  * SOFTWARE.
  */
 
-
 package com.guacal.yuca;
 
 import com.guacal.yuca.collections.StringList;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public final class SearchRequest {
     private final com.guacal.yuca.swig.SearchRequest swig;
+    private final int id;
+    private final int totalKeywords;
+    private final String query;
+    private final List<String> groups;
+    private final Map<String, List<String>> groupKeywordsMap;
+
 
     SearchRequest(com.guacal.yuca.swig.SearchRequest swig) {
         this.swig = swig;
+        id = swig.getId();
+        totalKeywords = swig.getTotal_keywords();
+        query = swig.getQuery();
+        groups = new StringList(swig.getTags());
+
+        groupKeywordsMap = new HashMap<>();
+        if (groups != null && groups.size() > 0) {
+            for (String group : groups) {
+                groupKeywordsMap.put(group, new StringList(swig.getKeywords(group)));
+            }
+        }
     }
 
     SearchRequest(String queryString, String implicitTag) {
@@ -43,17 +60,6 @@ public final class SearchRequest {
 
     public com.guacal.yuca.swig.SearchRequest swig() {
         return swig;
-
-//        swig.getId();
-//        swig.getKeywords(String tag);
-//        swig.getQuery() -> String
-//                swig.getTag_keywords_map();
-//        swig.getTags() -> List<String>
-//                swig.getTotal_keywords() -> int
-//                swig.op_eq()
-//        //swig.setTag_keywords_map()
-//        com.guacal.yuca.swig.SearchRequest sr = new com.guacal.yuca.swig.SearchRequest(String query_str, String implicit_tag)
-
     }
 
     public void delete() {
@@ -61,19 +67,27 @@ public final class SearchRequest {
     }
 
     public int getId() {
-        return swig.getId();
+        return id;
     }
 
     public String getQuery() {
-        return swig.getQuery();
+        return query;
     }
 
-    public List<String> getTags() {
-        return new StringList(swig.getTags());
+    public List<String> getGroups() {
+        return groups;
     }
 
     public int getTotalKeywords() {
-        return swig.getTotal_keywords();
+        return totalKeywords;
+    }
+
+    public Map<String, List<String>> getTagKeywordsMap(){
+        return groupKeywordsMap;
+    }
+
+    public List<String> getKeywords(String group) {
+        return groupKeywordsMap.get(group);
     }
 
     @Override
@@ -82,10 +96,5 @@ public final class SearchRequest {
             return false;
         }
         return swig.op_eq(((SearchRequest) obj).swig);
-    }
-
-    public Map<String, List<String>> getTagKeywordsMap(){
-        //swig.getTag_keywords_map()
-        return null;
     }
 }
