@@ -26,9 +26,6 @@
 // Created by gubatron on 4/11/18.
 //
 
-#ifndef YUCA_UTILS_TESTS_H
-#define YUCA_UTILS_TESTS_H
-
 #include "tests_includes.hpp"
 
 using namespace yuca;
@@ -417,5 +414,3 @@ TEST_CASE("yuca:utils static functions") {
     }
 
 }
-
-#endif
