@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.7)
 project(yuca_jni CXX)
 
+if(NOT DEFINED ENV{SHARED_LIB_EXT})
+  # Valid values for SHARED_LIB_EXT are 'so','dylib','dll'
+  message(FATAL_ERROR "Environment variable SHARED_LIB_EXT does not exist, check build.sh script")
+  exit()
+endif()
+
 set(SOURCE_FILES
     yuca_java_wrap.cxx)
 
@@ -18,7 +24,8 @@ include_directories(
   $ENV{YUCA_ROOT}/src)
 
 add_library(libyuca_shared SHARED IMPORTED)
-set_property(TARGET libyuca_shared PROPERTY IMPORTED_LOCATION "./libyuca_shared.dylib")
+message("Shared Libray extension is -> [${SHARED_LIB_EXT}]")
+set_property(TARGET libyuca_shared PROPERTY IMPORTED_LOCATION "../libyuca_shared.$ENV{SHARED_LIB_EXT}")
 
 add_library(yuca_jni_shared SHARED ${SOURCE_FILES})
 
