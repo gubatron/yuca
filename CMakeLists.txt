@@ -51,5 +51,5 @@ set(TEST_FILES
 
 add_executable(yuca_tests ${SOURCE_FILES} ${TEST_FILES})
 set_target_properties(yuca_tests PROPERTIES LINKER_LANGUAGE CXX)
-# TODO: remove this weh tests link to the library
+# TODO: remove this when tests link to the library
 target_compile_features(yuca_tests PUBLIC cxx_std_11)
