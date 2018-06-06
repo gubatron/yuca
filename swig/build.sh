@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 
 ${YUCA_ROOT?"Error: YUCA_ROOT environment variable is not set"}
 
@@ -34,9 +34,22 @@ case "$(uname -s)" in
     CYGWIN*|MINGW*) SHARED_LIB_EXT='dll';;
 esac
 
-make clean
-cp ../libyuca_shared.${SHARED_LIB_EXT} .
+if [ ! -f ../libyuca_shared.${SHARED_LIB_EXT} ]; then
+    echo
+    echo "Error: Missing libyuca_shared.${SHARED_LIB_EXT} library"
+    echo
+    echo "Please build libyuca_shared.${SHARED_LIB_EXT} before building language bindings"
+    echo "Try:"
+    echo "$ cd ..; cmake .; make -j4; cd swig; ./build.sh"
+    echo
+    echo
+  exit 1
+fi
+
 export SHARED_LIB_EXT
+
+make clean
+
 #TODO (maybe) have a different Cmake file for each language or parametrized cmake, e.g. CMakeLists_java.txt, CMakeLists_js.txt, CMakeLists_python.txt
 cmake .
 make
