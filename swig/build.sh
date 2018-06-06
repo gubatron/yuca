@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 
 ${YUCA_ROOT?"Error: YUCA_ROOT environment variable is not set"}
 
@@ -9,7 +9,8 @@ ${YUCA_ROOT?"Error: YUCA_ROOT environment variable is not set"}
 JAVA_SRC_OUTPUT=java/main/com/guacal/yuca/swig
 rm -rf ${JAVA_SRC_OUTPUT}
 mkdir -p ${JAVA_SRC_OUTPUT}
-rm *.cxx *.dylib *.cmake
+rm *.cxx *.dylib *.so *.dll *.cmake
+
 rm -fr CMakeFiles
 rm CMakeCache.txt Makefile
 
@@ -26,11 +27,17 @@ swig -c++ -java \
 #-DSOME_OPTION="value"
 
 # Copy libraries here
-# TODO: verify current OS and copy right library
-cp ../libyuca_shared.dylib .
+SHARED_LIB_EXT='.dylib'
+case "$(uname -s)" in
+    Darwin) SHARED_LIB_EXT='dylib';;
+    Linux)  SHARED_LIB_EXT='so';;
+    CYGWIN*|MINGW*) SHARED_LIB_EXT='dll';;
+esac
 
 make clean
-#TODO have a different Cmake file for each language, e.g. CMakeLists_java.txt, CMakeLists_js.txt, CMakeLists_python.txt
+cp ../libyuca_shared.${SHARED_LIB_EXT} .
+export SHARED_LIB_EXT
+#TODO (maybe) have a different Cmake file for each language or parametrized cmake, e.g. CMakeLists_java.txt, CMakeLists_js.txt, CMakeLists_python.txt
 cmake .
 make
 
