@@ -10,7 +10,7 @@ The shared library currently weighs ~170kb without any packing optimizations, we
 ## BUILDING
 
 Requirements:
- - cmake, make
+ - cmake 3.8, make
  - C++11 compiler (clang recommended)
 
 Instructions:
@@ -28,6 +28,22 @@ Shared and static libraries will be available on the root folder of the project,
 
 There's a also `yuca_tests` executable in case you want to make sure all the unit tests are passing.
 
+## BUILDING JAVA (SWIG/JNI) WRAPPER
+
+The `swig` folder holds swig scripts and high level wrappers to use yuca from other programming languages, the first being `java`.
+
+The current intention is to have the `swig/build.sh` be a one step build process to create bindings for other languages.
+
+For now it's a very rough script that will create java bindings, currently supports bindings for Java on MacOS since we're still early in the development of the bindings. In the long run, options will be passed to build.sh to output bindings for the language and architecture of your choice.
+
+To build JNI bingings, fist make sure to have built the C++ library as explained in the previous build instructions section and then:
+
+```
+$ cd swig
+$ ./build.sh
+```
+
+This will output programatically created C++ JNI code and Java code to access the JNI native wrappers inside a `swig/java` folder. In there we have a java package which is Java Programmer friendly `com.guacal.yuca.*` In there you will find the main classes to use Yuca in your Java/Android app `Indexer`, `Document`, `StringKey`, `SearchRequest`, `SearchResult`.
 
 ## Debug Build
 
@@ -39,8 +55,10 @@ If you want to build libraries with debug symbols edit `CMakeLists.txt` and unco
 ```
 
 you will have to execute `cmake .` again, perform a `make clean` and rebuild with `make -j 8`
+
+
  
- ## Feedback and patches welcome
+## Feedback and patches welcome
  
  Please open an issue on the github issue tracker if you have any problems, ideas.
  If you feel like extending or patching, please open an issue first so that you don't waste your time coding something that might not be accepted for a good reason.
