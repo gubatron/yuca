@@ -15,9 +15,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES Clang)
 endif()
 
 include_directories(
-  $ENV{YUCA_ROOT}/src
-  /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/include
-  /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/include/darwin)
+  $ENV{YUCA_ROOT}/src)
 
 add_library(libyuca_shared SHARED IMPORTED)
 set_property(TARGET libyuca_shared PROPERTY IMPORTED_LOCATION "./libyuca_shared.dylib")
@@ -26,6 +24,9 @@ add_library(yuca_jni_shared SHARED ${SOURCE_FILES})
 
 set_target_properties(yuca_jni_shared PROPERTIES LINKED_LANGUAGE CXX)
 target_compile_features(yuca_jni_shared PUBLIC cxx_std_11)
+
+find_package(JNI REQUIRED)
+target_include_directories(yuca_jni_shared PUBLIC ${JNI_INCLUDE_DIRS})
 
 #using darwin : x86_64 : clang++ :
 #    <cxxflags>-std=c++11
