@@ -1,5 +1,7 @@
 #!/bin/bash
 
+${YUCA_ROOT?"Error: YUCA_ROOT environment variable is not set"}
+
 # TODO: once java is done, pack everything into functions and parametrize this build script
 # so we can build bindings for each different language.
 
@@ -33,4 +35,4 @@ cmake .
 make
 
 gradle build
-run
+./run
