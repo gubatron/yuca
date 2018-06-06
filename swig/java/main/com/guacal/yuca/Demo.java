@@ -65,5 +65,23 @@ public final class Demo {
             }
             System.out.println();
         }
+
+        Indexer indexer = new Indexer();
+        indexer.indexDocument(fooDoc);
+
+        List<SearchResult> dont_find_me = indexer.search("dont find me");
+        assert (dont_find_me.size() == 0);
+
+        List<SearchResult> findMe1 = indexer.search(":fooTag fooKey");
+        List<SearchResult> findMe2 = indexer.search(":barTag fooKey2");
+        List<SearchResult> findMe3 = indexer.search(":barTag barKey");
+
+        System.out.println("findMe1 -> " + findMe1.size() + " results");
+        System.out.println("\\_ fileName: " + findMe1.get(0).getDocument().stringProperty("fileName"));
+        System.out.println("findMe2 -> " + findMe2.size() + " results");
+        System.out.println("findMe3 -> " + findMe3.size() + " results");
+        System.out.println("\\_ fileName: " + findMe3.get(0).getDocument().stringProperty("fileName"));
+        System.out.println(fooDoc.equals(findMe1.get(0).getDocument()));
+        System.out.println(fooDoc.equals(findMe3.get(0).getDocument()));
     }
 }
