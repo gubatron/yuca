@@ -37,7 +37,7 @@ namespace yuca {
     public:
         Key() = default;
 
-        explicit Key(long my_id, std::string my_tag) : id(my_id), tag(std::move(my_tag)) {
+        explicit Key(long my_id, std::string my_group) : id(my_id), group(std::move(my_group)) {
         }
 
         Key(Key const&) = default;
@@ -55,7 +55,7 @@ namespace yuca {
 
         virtual bool operator==(const Key &other) const;
 
-        std::string getTag() const;
+        std::string getGroup() const;
 
         long getId() const;
 
@@ -63,13 +63,13 @@ namespace yuca {
 
     protected:
         long id{};
-        std::string tag;
+        std::string group;
     };
 
     class StringKey : public Key {
     public:
-        explicit StringKey(const std::string &string_key, const std::string &my_tag) :
-        Key(static_cast<long>(std::hash<std::string>{}(my_tag + string_key)), my_tag), str_key(string_key) {
+        explicit StringKey(const std::string &string_key, const std::string &my_group) :
+        Key(static_cast<long>(std::hash<std::string>{}(my_group + string_key)), my_group), str_key(string_key) {
         }
 
         std::string getString() const {

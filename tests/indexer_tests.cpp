@@ -27,7 +27,7 @@
 //
 
 // A Document can have many keys.
-// Each key has to have a tag, which serves as a search dimension/partition parameter
+// Each key has to have a group, which serves as a search dimension/partition parameter
 // The indexer indexes documents with its keys.
 // Documents store their own keys
 // And the indexer keeps a reverse spkey_to_spdocset_map which maps keys to sets of documents.
@@ -40,11 +40,11 @@ using namespace yuca::utils;
 
 
 TEST_CASE("Indexer Basic Tests") {
-    std::string foo_tag(":foo");
-    std::string bar_tag(":bar");
-    auto foo_key_sp = std::make_shared<StringKey>("foo key 1", foo_tag);
-    auto foo_key2_sp = std::make_shared<StringKey>("foo key 2", foo_tag);
-    auto bar_key_sp = std::make_shared<StringKey>("bar key", bar_tag);
+    std::string foo_group(":foo");
+    std::string bar_group(":bar");
+    auto foo_key_sp = std::make_shared<StringKey>("foo key 1", foo_group);
+    auto foo_key2_sp = std::make_shared<StringKey>("foo key 2", foo_group);
+    auto bar_key_sp = std::make_shared<StringKey>("bar key", bar_group);
     SPDocument document_foo_sp;
     SPDocument document_bar_sp;
     SPDocument document_foo_bar_sp;
@@ -62,7 +62,7 @@ TEST_CASE("Indexer Basic Tests") {
 
     SECTION("Indexer.indexDocument") {
 
-        // Index one doc with 'foo' tagged keys and find it.
+        // Index one doc with 'foo' groupged keys and find it.
         Indexer indexer;
         indexer.indexDocument(document_foo_sp);
         SPDocumentSet foo_key_docs = indexer.findDocuments(foo_key_sp);
@@ -72,11 +72,11 @@ TEST_CASE("Indexer Basic Tests") {
         SPDocumentSet bar_key_docs = indexer.findDocuments(bar_key_sp);
         REQUIRE(bar_key_docs.size() == 0);
 
-        // Look for the same doc using another key that also has a 'foo' tag
+        // Look for the same doc using another key that also has a 'foo' group
         SPDocumentSet foo_key2_docs = indexer.findDocuments(foo_key2_sp);
         REQUIRE(foo_key2_docs.size() == 1);
 
-        // Index a document with 'bar' tagged key and find it
+        // Index a document with 'bar' groupged key and find it
         indexer.indexDocument(document_bar_sp);
         bar_key_docs = indexer.findDocuments(bar_key_sp);
         REQUIRE(bar_key_docs.size() == 1);
@@ -182,8 +182,8 @@ TEST_CASE("Indexer Basic Tests") {
 TEST_CASE("Indexer non shared pointer methods tests") {
     Document foo_doc("foo_id");
     std::string foo_str("foo");
-    std::string keyword_tag(":keyword");
-    StringKey stringKey(foo_str, keyword_tag);
+    std::string keyword_group(":keyword");
+    StringKey stringKey(foo_str, keyword_group);
     //foo_doc.addKey(stringKey); //TODO: addKey(Key) methods that don't depend on shared pointers
     SPStringKey spStringKey = std::make_shared<StringKey>(stringKey);
     foo_doc.addKey(spStringKey);
@@ -231,34 +231,34 @@ TEST_CASE("Indexer non shared pointer methods tests") {
 }
 
 TEST_CASE("Indexer SearchRequest struct tests") {
-    std::string keyword_tag(":keyword");
-    std::string title_tag(":title");
-    std::string extension_tag(":extension");
-    std::string simple_query("simple search with no specific tags");
-    std::string multi_tag_query(":title love is all you need :extension mp4");
-    SearchRequest taggedKeywords(simple_query, ":keyword");
+    std::string keyword_group(":keyword");
+    std::string title_group(":title");
+    std::string extension_group(":extension");
+    std::string simple_query("simple search with no specific groups");
+    std::string multi_group_query(":title love is all you need :extension mp4");
+    SearchRequest groupgedKeywords(simple_query, ":keyword");
 
-    List<std::string> tags = taggedKeywords.getTags();
+    List<std::string> groups = groupgedKeywords.getGroups();
 
-    REQUIRE(tags.size() == 1);
-    REQUIRE(tags.get(0) == keyword_tag);
+    REQUIRE(groups.size() == 1);
+    REQUIRE(groups.get(0) == keyword_group);
 
-    List<std::string> keywords = taggedKeywords.getKeywords(keyword_tag);
+    List<std::string> keywords = groupgedKeywords.getKeywords(keyword_group);
     REQUIRE(keywords.get(0) == "simple");
     REQUIRE(keywords.get(1) == "search");
     REQUIRE(keywords.get(2) == "with");
     REQUIRE(keywords.get(3) == "no");
     REQUIRE(keywords.get(4) == "specific");
-    REQUIRE(keywords.get(5) == "tags");
+    REQUIRE(keywords.get(5) == "groups");
 
-    SearchRequest multiTagKeywords(multi_tag_query, ":keyword");
-    tags = multiTagKeywords.getTags();
-    REQUIRE(tags.size() == 2);
-    REQUIRE(tags.contains(":title"));
-    REQUIRE(tags.contains(":extension"));
-    REQUIRE(!tags.contains(":keyword"));
+    SearchRequest multiGroupKeywords(multi_group_query, ":keyword");
+    groups = multiGroupKeywords.getGroups();
+    REQUIRE(groups.size() == 2);
+    REQUIRE(groups.contains(":title"));
+    REQUIRE(groups.contains(":extension"));
+    REQUIRE(!groups.contains(":keyword"));
 
-    List<std::string> title_keywords = multiTagKeywords.getKeywords(title_tag);
+    List<std::string> title_keywords = multiGroupKeywords.getKeywords(title_group);
     REQUIRE(title_keywords.size() == 5);
     REQUIRE(title_keywords.get(0) == "love");
     REQUIRE(title_keywords.get(1) == "is");
@@ -425,7 +425,7 @@ TEST_CASE("Indexer Search Tests") {
         SPDocument doc = f.get_document();
         doc->intProperty("offset", i);
         doc->stringProperty("full_name", f.full_name());
-        SPStringKeySet ext_keys = doc->getTagSPKeys(":extension");
+        SPStringKeySet ext_keys = doc->getGroupSPKeys(":extension");
         indexer.indexDocument(doc);
         if (files <= 20) {
             std::cout << i << ". [" << f.full_name() << "]" << std::endl << std::endl;

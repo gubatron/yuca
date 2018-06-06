@@ -44,7 +44,7 @@ public final class SearchRequest {
         id = swig.getId();
         totalKeywords = swig.getTotal_keywords();
         query = swig.getQuery();
-        groups = new StringList(swig.getTags());
+        groups = new StringList(swig.getGroups());
 
         groupKeywordsMap = new HashMap<>();
         if (groups.size() > 0) {

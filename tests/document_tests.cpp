@@ -31,19 +31,19 @@
 using namespace yuca;
 
 TEST_CASE("Test If Key Can Be Added") {
-	std::string foo_tag(":foo");
-	std::string bar_tag(":bar");
+	std::string foo_group(":foo");
+	std::string bar_group(":bar");
 
-	auto foo_key_sp = std::make_shared<StringKey>("foo 1", foo_tag);
-	auto bar_key_sp = std::make_shared<StringKey>("bar key 1", bar_tag);
-	auto bar_key2_sp = std::make_shared<StringKey>("bar key", bar_tag);
+	auto foo_key_sp = std::make_shared<StringKey>("foo 1", foo_group);
+	auto bar_key_sp = std::make_shared<StringKey>("bar key 1", bar_group);
+	auto bar_key2_sp = std::make_shared<StringKey>("bar key", bar_group);
 	auto document_sp = std::make_shared<Document>("some_doc_id");
 
-	SPStringKeySet is_empty = document_sp->getTagSPKeys(foo_tag);
+	SPStringKeySet is_empty = document_sp->getGroupSPKeys(foo_group);
 	REQUIRE(is_empty.isEmpty());
 
 	document_sp->addKey(foo_key_sp);
-	SPStringKeySet foo_keys = document_sp->getTagSPKeys(foo_tag);
+	SPStringKeySet foo_keys = document_sp->getGroupSPKeys(foo_group);
 	REQUIRE(foo_keys.size() == 1);
 
 	REQUIRE(bar_key_sp.get()->getId() < bar_key2_sp.get()->getId());
@@ -52,7 +52,7 @@ TEST_CASE("Test If Key Can Be Added") {
 	document_sp->addKey(bar_key2_sp);
 	//std::cout << *document_sp << std::endl;
 
-	SPStringKeySet bar_keys = document_sp->getTagSPKeys(bar_tag);
+	SPStringKeySet bar_keys = document_sp->getGroupSPKeys(bar_group);
 	REQUIRE(bar_keys.size() == 2);
 
 	// make sure it's the same one we've added
@@ -63,19 +63,19 @@ TEST_CASE("Test If Key Can Be Added") {
 
 	// now let's try adding the same element again, size should be the same as we're dealing with a set of unique keys
 	document_sp->addKey(bar_key_sp);
-	bar_keys = document_sp->getTagSPKeys(bar_tag);
+	bar_keys = document_sp->getGroupSPKeys(bar_group);
 	REQUIRE(bar_keys.size() == 2);
 }
 
 TEST_CASE("Test with non shared pointer argument methods") {
 	Document doc("test_doc_id");
-	std::string tag(":tag");
-	StringKey sKey("foo", tag);
+	std::string group(":group");
+	StringKey sKey("foo", group);
 	doc.addKey(sKey);
 
-	REQUIRE(doc.hasKeys(":tag"));
+	REQUIRE(doc.hasKeys(":group"));
 
-	auto spKeys = doc.getTagSPKeys(tag);
+	auto spKeys = doc.getGroupSPKeys(group);
 	REQUIRE(spKeys.size() == 1);
 
 	// yes, this is meant to do just one iteration.
@@ -90,96 +90,96 @@ TEST_CASE("Test with non shared pointer argument methods") {
 
 
 TEST_CASE("Test if a single Key can be removed") {
-	std::string foo_tag(":foo");
-	std::string bar_tag(":bar");
+	std::string foo_group(":foo");
+	std::string bar_group(":bar");
 
-	const auto foo_key_sp = std::make_shared<StringKey>("foo 1", foo_tag);
-	const auto bar_key_sp = std::make_shared<StringKey>("bar 1", bar_tag);
-	const auto bar_key2_sp = std::make_shared<StringKey>("bar 2", bar_tag);
+	const auto foo_key_sp = std::make_shared<StringKey>("foo 1", foo_group);
+	const auto bar_key_sp = std::make_shared<StringKey>("bar 1", bar_group);
+	const auto bar_key2_sp = std::make_shared<StringKey>("bar 2", bar_group);
 	const auto document_sp = std::make_shared<Document>("doc_id");
 
 	document_sp->addKey(foo_key_sp);
 	document_sp->addKey(bar_key_sp); // Doc { foo:[Key(1])], bar:[Key(1)] }
-	SPStringKeySet foo_key_set = document_sp->getTagSPKeys(foo_tag);
+	SPStringKeySet foo_key_set = document_sp->getGroupSPKeys(foo_group);
 	REQUIRE(foo_key_set.size() == 1);
 
-	SPStringKeySet bar_key_set = document_sp->getTagSPKeys(bar_tag);
+	SPStringKeySet bar_key_set = document_sp->getGroupSPKeys(bar_group);
 	REQUIRE(bar_key_set.size() == 1);
 
 	document_sp->addKey(bar_key2_sp); // Doc { foo:[Key(1)], bar:[Key(1),Key(2)] }
-	bar_key_set = document_sp->getTagSPKeys(bar_tag);
+	bar_key_set = document_sp->getGroupSPKeys(bar_group);
 	REQUIRE(bar_key_set.size() == 2);
 
-	foo_key_set = document_sp->getTagSPKeys(foo_tag);
+	foo_key_set = document_sp->getGroupSPKeys(foo_group);
 	REQUIRE(foo_key_set.size() == 1);
-	document_sp->removeKey(foo_tag, foo_key_sp);
+	document_sp->removeKey(foo_group, foo_key_sp);
 
 	// test that yoy need to fetch another copy of the set
 	REQUIRE(foo_key_set.size() == 1); // if we don't fetch it's still 1
 	REQUIRE(foo_key_set.contains(foo_key_sp));
-	REQUIRE(!document_sp->hasKeys(foo_tag)); // but you can ask directly without asking for a set if there are no more
-	foo_key_set = document_sp->getTagSPKeys(foo_tag);
+	REQUIRE(!document_sp->hasKeys(foo_group)); // but you can ask directly without asking for a set if there are no more
+	foo_key_set = document_sp->getGroupSPKeys(foo_group);
 
 	REQUIRE(!foo_key_set.contains(foo_key_sp));
 	REQUIRE(foo_key_set.size() == 0);
 	REQUIRE(!foo_key_set.contains(foo_key_sp));
 
-	bar_key_set = document_sp->getTagSPKeys(bar_tag);
+	bar_key_set = document_sp->getGroupSPKeys(bar_group);
 	REQUIRE(bar_key_set.contains(bar_key_sp));
 	REQUIRE(bar_key_set.contains(bar_key2_sp));
 }
 
-TEST_CASE("Test Get Tags") {
-	std::string foo_tag(":foo");
-	std::string bar_tag(":bar");
-	auto foo_key_sp = std::make_shared<StringKey>("foo key", foo_tag);
-	auto bar_key_sp = std::make_shared<StringKey>("bar key", bar_tag);
-	auto bar_key2_sp = std::make_shared<StringKey>("bar key 2", bar_tag);
+TEST_CASE("Test Get Groups") {
+	std::string foo_group(":foo");
+	std::string bar_group(":bar");
+	auto foo_key_sp = std::make_shared<StringKey>("foo key", foo_group);
+	auto bar_key_sp = std::make_shared<StringKey>("bar key", bar_group);
+	auto bar_key2_sp = std::make_shared<StringKey>("bar key 2", bar_group);
 	auto document_sp = std::make_shared<Document>("doc_id");
 
-	std::string zee_tag = ":zee";
-	auto zee_key_sp = std::make_shared<StringKey>("zee key", zee_tag);
+	std::string zee_group = ":zee";
+	auto zee_key_sp = std::make_shared<StringKey>("zee key", zee_group);
 
 	document_sp->addKey(zee_key_sp);
 	document_sp->addKey(foo_key_sp);
 	document_sp->addKey(bar_key_sp);
 
-	std::set<std::string> tags = document_sp->getTags();
-	auto it = tags.begin();
+	std::set<std::string> groups = document_sp->getGroups();
+	auto it = groups.begin();
 
 	// elements will be sorted as they're inserted in the set
 	// they are not in the set in the order they were inserted.
-	REQUIRE(*it++ == bar_tag);
-	REQUIRE(*it++ == foo_tag);
-	REQUIRE(*it == zee_tag);
+	REQUIRE(*it++ == bar_group);
+	REQUIRE(*it++ == foo_group);
+	REQUIRE(*it == zee_group);
 }
 
-TEST_CASE("Test Removing a Tag") {
-	std::string foo_tag(":foo");
-	std::string bar_tag(":bar");
-	std::string name_tag = ":name";
-	auto foo_key_sp = std::make_shared<StringKey>("foo key", foo_tag);
-	auto bar_key_sp = std::make_shared<StringKey>("bar key", bar_tag);
-	auto bar_key2_sp = std::make_shared<StringKey>("ba key2", bar_tag);
+TEST_CASE("Test Removing a Group") {
+	std::string foo_group(":foo");
+	std::string bar_group(":bar");
+	std::string name_group = ":name";
+	auto foo_key_sp = std::make_shared<StringKey>("foo key", foo_group);
+	auto bar_key_sp = std::make_shared<StringKey>("bar key", bar_group);
+	auto bar_key2_sp = std::make_shared<StringKey>("ba key2", bar_group);
 	auto document_sp = std::make_shared<Document>("doc_id");
 
-	auto name_key_sp = std::make_shared<StringKey>("name key", name_tag);
+	auto name_key_sp = std::make_shared<StringKey>("name key", name_group);
 	document_sp->addKey(name_key_sp);
 	document_sp->addKey(bar_key_sp);
 	document_sp->addKey(bar_key2_sp);
 
-	SPStringKeySet name_tag_keys = document_sp->getTagSPKeys(":name");
-	REQUIRE(!name_tag_keys.contains(bar_key_sp));
-	REQUIRE(name_tag_keys.contains(name_key_sp));
+	SPStringKeySet name_group_keys = document_sp->getGroupSPKeys(":name");
+	REQUIRE(!name_group_keys.contains(bar_key_sp));
+	REQUIRE(name_group_keys.contains(name_key_sp));
 
-	document_sp->removeKey(name_tag, name_key_sp);
-	name_tag_keys = document_sp->getTagSPKeys(":name");
-	REQUIRE(name_tag_keys.isEmpty());
+	document_sp->removeKey(name_group, name_key_sp);
+	name_group_keys = document_sp->getGroupSPKeys(":name");
+	REQUIRE(name_group_keys.isEmpty());
 	SPStringKeySet bar_keys;
-	bar_keys = document_sp->getTagSPKeys(bar_key_sp->getTag());
+	bar_keys = document_sp->getGroupSPKeys(bar_key_sp->getGroup());
 	REQUIRE(bar_keys.size() == 2);
-	document_sp->removeTag(bar_key_sp->getTag());
-	bar_keys = document_sp->getTagSPKeys(bar_key_sp->getTag());
+	document_sp->removeGroup(bar_key_sp->getGroup());
+	bar_keys = document_sp->getGroupSPKeys(bar_key_sp->getGroup());
 	REQUIRE(bar_keys.isEmpty());
 }
 

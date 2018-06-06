@@ -32,32 +32,32 @@
 namespace yuca {
     const Document Document::NULL_DOCUMENT(-1);
 
-    std::set<std::string> Document::getTags() const {
-        std::set<std::string> tags_out;
-        if (tag_2_keyset_map.isEmpty()) {
-            return tags_out;
+    std::set<std::string> Document::getGroups() const {
+        std::set<std::string> groups_out;
+        if (group_2_keyset_map.isEmpty()) {
+            return groups_out;
         }
-        return tag_2_keyset_map.keySet().getStdSet();
+        return group_2_keyset_map.keySet().getStdSet();
     }
 
     long Document::getId() const {
         return id;
     }
 
-    StringKeySet Document::getTagKeys(std::string const &tag) const {
+    StringKeySet Document::getGroupKeys(std::string const &group) const {
         StringKeySet keySet;
-        SPStringKeySet spKeySet = getTagSPKeys(tag);
+        SPStringKeySet spKeySet = getGroupSPKeys(group);
         for (auto const &spKey : spKeySet.getStdSet()) {
             keySet.add(*spKey);
         }
         return keySet;
     }
 
-    SPStringKeySet Document::getTagSPKeys(std::string const &tag) const {
-        if (!hasKeys(tag)) {
+    SPStringKeySet Document::getGroupSPKeys(std::string const &group) const {
+        if (!hasKeys(group)) {
             return SPStringKeySet();
         }
-        return tag_2_keyset_map.get(tag);
+        return group_2_keyset_map.get(group);
     }
 
     void Document::addKey(StringKey const &key) {
@@ -66,40 +66,40 @@ namespace yuca {
     }
 
     void Document::addKey(SPStringKey key) {
-        std::string tag(key->getTag());
-        if (!hasKeys(tag)) {
-            tag_2_keyset_map.put(tag, SPStringKeySet());
+        std::string group(key->getGroup());
+        if (!hasKeys(group)) {
+            group_2_keyset_map.put(group, SPStringKeySet());
         }
-        SPStringKeySet key_set = tag_2_keyset_map.get(tag);
+        SPStringKeySet key_set = group_2_keyset_map.get(group);
         key_set.add(key);
-        tag_2_keyset_map.put(tag, key_set);
+        group_2_keyset_map.put(group, key_set);
     }
 
-    void Document::removeKey(std::string const &tag, SPStringKey key) {
-        if (!hasKeys(tag)) {
+    void Document::removeKey(std::string const &group, SPStringKey key) {
+        if (!hasKeys(group)) {
             return;
         }
-        SPStringKeySet keys = getTagSPKeys(tag);
+        SPStringKeySet keys = getGroupSPKeys(group);
         keys.remove(std::move(key));
-        tag_2_keyset_map.put(tag, keys);
+        group_2_keyset_map.put(group, keys);
 
         // once we know the keySet has been cleared we remove it altogether from our { string -> [key0, key1] } map.
-        keys = getTagSPKeys(tag);
+        keys = getGroupSPKeys(group);
         if (keys.isEmpty()) {
-            removeTag(tag);
+            removeGroup(group);
         }
     }
 
-    bool Document::hasKeys(std::string const &tag) const {
-        return tag_2_keyset_map.containsKey(tag);
+    bool Document::hasKeys(std::string const &group) const {
+        return group_2_keyset_map.containsKey(group);
     }
 
-    void Document::removeTag(std::string const &tag) {
-        if (!hasKeys(tag)) {
+    void Document::removeGroup(std::string const &group) {
+        if (!hasKeys(group)) {
             return;
         }
-        tag_2_keyset_map.get(tag).clear();
-        tag_2_keyset_map.remove(tag);
+        group_2_keyset_map.get(group).clear();
+        group_2_keyset_map.remove(group);
     }
 
     void Document::boolProperty(std::string const &key, bool value) {
@@ -188,28 +188,28 @@ namespace yuca {
 
     std::ostream &operator<<(std::ostream &output_stream, const Document &doc) {
         output_stream << "Document(@" << (long(&doc) % 10000) << ", id=" << doc.id << "):" << std::endl;
-        // tags
-        output_stream << " tags=(";
-        auto tags_set = doc.getTags();
-        auto it = tags_set.begin();
-        auto tags_end = tags_set.end();
-        for (auto const &tag : tags_set) {
-            output_stream << tag;
+        // groups
+        output_stream << " groups=(";
+        auto groups_set = doc.getGroups();
+        auto it = groups_set.begin();
+        auto groups_end = groups_set.end();
+        for (auto const &group : groups_set) {
+            output_stream << group;
             it++;
-            if (it != tags_end) {
+            if (it != groups_end) {
                 output_stream << ", ";
             }
         }
         output_stream << ")" << std::endl;
         output_stream.flush();
 
-        // tags_2_keys_map
-        output_stream << " tag_2_keyset_map={";
+        // groups_2_keys_map
+        output_stream << " group_2_keyset_map={";
         unsigned int i = 0;
-        yuca::utils::Set<std::string> doc_tags = doc.tag_2_keyset_map.keySet();
-        for (auto const &tag : doc_tags.getStdSet()) {
-            SPStringKeySet keys(doc.tag_2_keyset_map.get(tag));
-            output_stream << std::endl << "   tag=<" << tag << "> = ";
+        yuca::utils::Set<std::string> doc_groups = doc.group_2_keyset_map.keySet();
+        for (auto const &group : doc_groups.getStdSet()) {
+            SPStringKeySet keys(doc.group_2_keyset_map.get(group));
+            output_stream << std::endl << "   group=<" << group << "> = ";
             output_stream << "[ ";
             unsigned long j = 0;
             for (auto const &key_sp : keys.getStdSet()) {
@@ -220,7 +220,7 @@ namespace yuca {
                 j++;
             }
             output_stream << " ]";
-            if (i < doc_tags.size() - 1) {
+            if (i < doc_groups.size() - 1) {
                 output_stream << "," << std::endl;
             }
             i++;

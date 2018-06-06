@@ -41,11 +41,11 @@ public final class Demo {
     public static void main(String[] args) {
         System.out.println("Yuca Java Wrapper version: " + yuca.version() + "\nLast Updated: " + yuca.getLAST_UPDATED() + "\n\n");
 
-        StringKey fooKey = new StringKey("fooKey",":fooTag");
-        StringKey fooKey2 = new StringKey("fooKey2",":fooTag");
-        StringKey barKey = new StringKey("barKey", ":barTag");
+        StringKey fooKey = new StringKey("fooKey",":fooGroup");
+        StringKey fooKey2 = new StringKey("fooKey2",":fooGroup");
+        StringKey barKey = new StringKey("barKey", ":barGroup");
 
-        System.out.println("<" + barKey.getId() + ":" + barKey.getString() + " tag= " + barKey.getTag() + ">");
+        System.out.println("<" + barKey.getId() + ":" + barKey.getString() + " group= " + barKey.getGroup() + ">");
 
         Document fooDoc = new Document("fooDoc");
         fooDoc.addKey(fooKey);
@@ -53,15 +53,15 @@ public final class Demo {
         fooDoc.addKey(barKey);
         fooDoc.swig().stringProperty("fileName", "The Foo Doc.txt");
 
-        List<String> tags = fooDoc.getTags();
+        List<String> groups = fooDoc.getGroups();
 
-        for (String tag : tags) {
-            System.out.println("Tag -> " + tag);
+        for (String group : groups) {
+            System.out.println("Group -> " + group);
 
-            List<StringKey> tagKeys = fooDoc.getTagKeys(tag);
-            System.out.println("Keys for tag: " + tag);
-            for (StringKey k : tagKeys) {
-                System.out.println("\t-> id: " + k.getId() + " string: " + k.getString() + " (tag: " + k.getTag() + ")");
+            List<StringKey> groupKeys = fooDoc.getGroupKeys(group);
+            System.out.println("Keys for group: " + group);
+            for (StringKey k : groupKeys) {
+                System.out.println("\t-> id: " + k.getId() + " string: " + k.getString() + " (group: " + k.getGroup() + ")");
             }
             System.out.println();
         }
@@ -72,9 +72,9 @@ public final class Demo {
         List<SearchResult> dont_find_me = indexer.search("dont find me");
         assert (dont_find_me.size() == 0);
 
-        List<SearchResult> findMe1 = indexer.search(":fooTag fooKey");
-        List<SearchResult> findMe2 = indexer.search(":barTag fooKey2");
-        List<SearchResult> findMe3 = indexer.search(":barTag barKey");
+        List<SearchResult> findMe1 = indexer.search(":fooGroup fooKey");
+        List<SearchResult> findMe2 = indexer.search(":barGroup fooKey2");
+        List<SearchResult> findMe3 = indexer.search(":barGroup barKey");
 
         System.out.println("findMe1 -> " + findMe1.size() + " results");
         System.out.println("\\_ fileName: " + findMe1.get(0).getDocument().stringProperty("fileName"));

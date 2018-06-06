@@ -91,12 +91,12 @@ namespace yuca {
         keyPtrCache.remove(key->getId());
     }
 
-    yuca::utils::List<std::string> SearchRequest::getTags() {
-        return tag_keywords_map.keyList();
+    yuca::utils::List<std::string> SearchRequest::getGroups() {
+        return group_keywords_map.keyList();
     }
 
-    yuca::utils::List<std::string> SearchRequest::getKeywords(std::string &tag) {
-        return tag_keywords_map.get(tag);
+    yuca::utils::List<std::string> SearchRequest::getKeywords(std::string &group) {
+        return group_keywords_map.get(group);
     }
 
     bool SearchRequest::operator==(const SearchRequest &other) const {
@@ -201,45 +201,45 @@ namespace yuca {
     void Indexer::indexDocument(SPDocument spDoc) {
         docPtrCache.put(spDoc->getId(), spDoc);
 
-        std::set<std::string> tags = spDoc->getTags();
-        for (auto const &tag : tags) {
-            addToIndex(tag, spDoc);
+        std::set<std::string> groups = spDoc->getGroups();
+        for (auto const &group : groups) {
+            addToIndex(group, spDoc);
         }
         // look for each one of the keys defined for this document
-        // the keys come along with their tag, which is used
+        // the keys come along with their group, which is used
         // by the indexer to partition the reverse indexes
         //
-        // Document -> { tagName -> [ Key, Key2, ..., KeyN ], ... }
+        // Document -> { groupName -> [ Key, Key2, ..., KeyN ], ... }
         //
         //
-        // REVERSE_INDICES[tag] ->
+        // REVERSE_INDICES[group] ->
         //      \_
         //        [key1] = [Document1, Document2, ... ]
         //        [key2] = [Document1, Document2, ... ]
     }
 
     void Indexer::removeDocument(SPDocument doc) {
-        std::set<std::string> tags = doc->getTags();
-        for (auto const &tag : tags) {
-            std::shared_ptr<ReverseIndex> reverse_index = getReverseIndex(tag);
+        std::set<std::string> groups = doc->getGroups();
+        for (auto const &group : groups) {
+            std::shared_ptr<ReverseIndex> reverse_index = getReverseIndex(group);
 
-            SPStringKeySet key_set = doc->getTagSPKeys(tag);
+            SPStringKeySet key_set = doc->getGroupSPKeys(group);
             for (auto const &key : key_set.getStdSetCopy()) {
                 reverse_index->removeDocument(key, doc);
             }
             if (reverse_index->getKeyCount() == 0) {
                 reverse_index->clear();
-                reverseIndices.remove(tag);
+                reverseIndices.remove(group);
             } else {
-                reverseIndices.put(tag, reverse_index);
+                reverseIndices.put(group, reverse_index);
             }
         }
         docPtrCache.remove(doc->getId());
     }
 
     void Indexer::clear() {
-        for (auto const &tag : reverseIndices.keySet().getStdSetCopy()) {
-            auto spReverseIndex = getReverseIndex(tag);
+        for (auto const &group : reverseIndices.keySet().getStdSetCopy()) {
+            auto spReverseIndex = getReverseIndex(group);
             spReverseIndex->clear();
         }
         reverseIndices.clear();
@@ -249,32 +249,32 @@ namespace yuca {
     yuca::utils::List<SearchResult> Indexer::search(const std::string &query,
                                                     const std::string &opt_main_doc_property_for_query_comparison,
                                                     unsigned long opt_max_search_results) const {
-        SearchRequest search_request(query, implicit_tag);
+        SearchRequest search_request(query, implicit_group);
 
-        // 1. Get SETs of Documents (by tag) whose StringKey's match at least one of the
-        // query keywords + corresponding tags as they come from the query string.
-        yuca::utils::Map<std::string, SPDocumentSet> tagSPDocumentSetMap = findDocuments(search_request);
+        // 1. Get SETs of Documents (by group) whose StringKey's match at least one of the
+        // query keywords + corresponding groups as they come from the query string.
+        yuca::utils::Map<std::string, SPDocumentSet> groupSPDocumentSetMap = findDocuments(search_request);
 
-        // 1. Count document appearances per tag
-        yuca::utils::Set<std::string> tags = tagSPDocumentSetMap.keySet();
+        // 1. Count document appearances per group
+        yuca::utils::Set<std::string> groups = groupSPDocumentSetMap.keySet();
         yuca::utils::Map<SPDocument, unsigned int> spDocs_appearances(0);
-        for (auto const &tag : tags.getStdSet()) {
-            SPDocumentSet spDocumentSet = tagSPDocumentSetMap.get(tag);
-            // let's count doc appearances per tag as a way to intersect those that match in all asked tags
+        for (auto const &group : groups.getStdSet()) {
+            SPDocumentSet spDocumentSet = groupSPDocumentSetMap.get(group);
+            // let's count doc appearances per group as a way to intersect those that match in all asked groups
             for (auto const &spDocument : spDocumentSet.getStdSet()) {
                 spDocs_appearances.put(spDocument, 1 + spDocs_appearances.get(spDocument));
             }
         }
 
         // filter out those documents that didn't meet the minimum number of appearances, that didn't appear
-        // in ALL given tag groups.
-        unsigned long num_tag_groups = search_request.getTags().size();
+        // in ALL given group groups.
+        unsigned long num_group_groups = search_request.getGroups().size();
         auto allSpDocsFound = spDocs_appearances.keySet().getStdSet();
         SPDocumentSet intersectedSPDocumentSet;
 
-        if (num_tag_groups > 1) {
+        if (num_group_groups > 1) {
             for (auto const &spDoc : allSpDocsFound) {
-                if (spDocs_appearances.get(spDoc) == num_tag_groups) {
+                if (spDocs_appearances.get(spDoc) == num_group_groups) {
                     intersectedSPDocumentSet.add(spDoc);
                 }
             }
@@ -283,25 +283,25 @@ namespace yuca {
         }
 
         // Up to this point we have intersected (narrowed down) documents because they have matched
-        // all the tags or groups specified in the search, now we need to see
+        // all the groups or groups specified in the search, now we need to see
         // why. How many of the given keywords in the search are matched by these guys.
 
         // 3. create search results and score them
         std::shared_ptr<SearchRequest> search_request_sp = std::make_shared<SearchRequest>(search_request);
         yuca::utils::List<SearchResult> results;
-        std::set<std::string> search_tags = search_request.tag_keywords_map.keySet().getStdSetCopy();
+        std::set<std::string> search_groups = search_request.group_keywords_map.keySet().getStdSetCopy();
 
         for (auto const &doc_sp : intersectedSPDocumentSet.getStdSet()) {
             SearchResult sr(search_request_sp, doc_sp);
 
-            for (auto const &tag : search_tags) {
-                std::shared_ptr<ReverseIndex> tag_r_index = getReverseIndex(tag);
-                StringKeySet documentTagKeys = doc_sp->getTagKeys(tag);
-                yuca::utils::List<std::string> search_keywords = search_request.tag_keywords_map.get(tag);
+            for (auto const &group : search_groups) {
+                std::shared_ptr<ReverseIndex> group_r_index = getReverseIndex(group);
+                StringKeySet documentGroupKeys = doc_sp->getGroupKeys(group);
+                yuca::utils::List<std::string> search_keywords = search_request.group_keywords_map.get(group);
 
                 for (auto const &keyword : search_keywords.getStdVector()) {
-                    StringKey searchStringKey(keyword, tag);
-                    if (documentTagKeys.contains(searchStringKey)) {
+                    StringKey searchStringKey(keyword, group);
+                    if (documentGroupKeys.contains(searchStringKey)) {
                         sr.score++;
                     }
                 }
@@ -351,19 +351,19 @@ namespace yuca {
         SPDocumentSet emptyDocSet;
         yuca::utils::Map<std::string, SPDocumentSet> r(emptyDocSet);
 
-        yuca::utils::List<std::string> search_tags = search_request.getTags();
-        for (auto &tag : search_tags.getStdVector()) {
+        yuca::utils::List<std::string> search_groups = search_request.getGroups();
+        for (auto &group : search_groups.getStdVector()) {
             SPDocumentSet matchedSPDocSet;
             SPKeyList search_spkey_list;
-            yuca::utils::List<std::string> keywords = search_request.getKeywords(tag);
+            yuca::utils::List<std::string> keywords = search_request.getKeywords(group);
 
             for (auto keyword : keywords.getStdVector()) {
-                search_spkey_list.add(std::make_shared<StringKey>(keyword, tag));
+                search_spkey_list.add(std::make_shared<StringKey>(keyword, group));
             }
-            SPDocumentSet tag_matched_spDoc_set = findDocuments(search_spkey_list);
-            if (!tag_matched_spDoc_set.isEmpty()) {
-                matchedSPDocSet.addAll(tag_matched_spDoc_set);
-                r.put(tag, matchedSPDocSet);
+            SPDocumentSet group_matched_spDoc_set = findDocuments(search_spkey_list);
+            if (!group_matched_spDoc_set.isEmpty()) {
+                matchedSPDocSet.addAll(group_matched_spDoc_set);
+                r.put(group, matchedSPDocSet);
             }
         }
         return r;
@@ -371,10 +371,10 @@ namespace yuca {
 
     SPDocumentSet Indexer::findDocuments(SPKey key) const {
         // code remains in commented for step-by-step debugging purposes
-        //std::shared_ptr<ReverseIndex>spRIndex = getReverseIndex((key->getTag()));
+        //std::shared_ptr<ReverseIndex>spRIndex = getReverseIndex((key->getGroup()));
         //SPDocumentSet results = spRIndex->getDocuments(key);
         //return results;
-        return getReverseIndex(key->getTag())->getDocuments(key);
+        return getReverseIndex(key->getGroup())->getDocuments(key);
     }
 
     SPDocumentSet Indexer::findDocuments(SPKeyList keys) const {
@@ -391,27 +391,27 @@ namespace yuca {
         return docs_out;
     }
 
-    void Indexer::addToIndex(std::string const &tag, SPDocument doc) {
-        SPStringKeySet doc_keys = doc->getTagSPKeys(tag);
+    void Indexer::addToIndex(std::string const &group, SPDocument doc) {
+        SPStringKeySet doc_keys = doc->getGroupSPKeys(group);
         if (doc_keys.isEmpty()) {
-            std::cout << "Indexer::addToIndex(" << tag
-                      << "): check your logic, document has no doc_keys under this tag <"
-                      << tag << ">" << std::endl;
+            std::cout << "Indexer::addToIndex(" << group
+                      << "): check your logic, document has no doc_keys under this group <"
+                      << group << ">" << std::endl;
             return;
         }
         // Make sure there's a ReverseIndex, if there isn't one, create an empty one
-        std::shared_ptr<ReverseIndex> r_index = getReverseIndex(tag);
+        std::shared_ptr<ReverseIndex> r_index = getReverseIndex(group);
         for (auto const &k_sp : doc_keys.getStdSet()) {
             r_index->putDocument(k_sp, doc);
         }
-        reverseIndices.put(tag, r_index);
+        reverseIndices.put(group, r_index);
     }
 
-    std::shared_ptr<ReverseIndex> Indexer::getReverseIndex(std::string const &tag) const {
-        if (!reverseIndices.containsKey(tag)) {
+    std::shared_ptr<ReverseIndex> Indexer::getReverseIndex(std::string const &group) const {
+        if (!reverseIndices.containsKey(group)) {
             return std::make_shared<ReverseIndex>();
         }
-        return reverseIndices.get(tag);
+        return reverseIndices.get(group);
     }
 
     std::ostream &operator<<(std::ostream &output_stream, Indexer &indexer) {
@@ -433,10 +433,10 @@ namespace yuca {
             output_stream << "<empty>";
         } else {
             output_stream.flush();
-            auto r_index_tags = indexer.reverseIndices.keySet();
-            for (auto const &r_index_tag : r_index_tags.getStdSet()) {
-                output_stream << "\t\t" << r_index_tag << " => ";
-                output_stream << *indexer.reverseIndices.get(r_index_tag);
+            auto r_index_groups = indexer.reverseIndices.keySet();
+            for (auto const &r_index_group : r_index_groups.getStdSet()) {
+                output_stream << "\t\t" << r_index_group << " => ";
+                output_stream << *indexer.reverseIndices.get(r_index_group);
                 output_stream << std::endl;
             }
         }

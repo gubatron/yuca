@@ -91,8 +91,8 @@ namespace yuca {
     class Key {
     public:
         Key() = default;
-      explicit Key(long my_id, std::string my_tag);
-        std::string getTag() const;
+      explicit Key(long my_id, std::string my_group);
+        std::string getGroup() const;
         long getId() const;
 
         %extend {
@@ -120,7 +120,7 @@ namespace yuca {
 
     class StringKey : public Key {
     public:
-        explicit StringKey(const std::string &string_key, const std::string &my_tag);
+        explicit StringKey(const std::string &string_key, const std::string &my_group);
         std::string getString() const;
     };
 
@@ -138,26 +138,26 @@ namespace yuca {
         explicit Document(const std::string &str_based_id);
         long getId() const;
         void addKey(StringKey const &key);
-        bool hasKeys(std::string const &tag) const;
+        bool hasKeys(std::string const &group) const;
 %extend {
-        yuca::utils::List<std::string> getTagsList() const {
+        yuca::utils::List<std::string> getGroupsList() const {
             yuca::utils::List<std::string> r;
-            std::set<std::string> tags_set = $self->getTags();
-            for (const auto& tag : tags_set) {
-                r.add(tag);
+            std::set<std::string> groups_set = $self->getGroups();
+            for (const auto& group : groups_set) {
+                r.add(group);
             }
             return r;
         }
 
-        yuca::utils::List<yuca::StringKey> getTagKeysList(std::string const &tag) {
+        yuca::utils::List<yuca::StringKey> getGroupKeysList(std::string const &group) {
             yuca::utils::List<yuca::StringKey> r;
-            for(auto& k : $self->getTagKeys(tag).getStdSetCopy()) {
+            for(auto& k : $self->getGroupKeys(group).getStdSetCopy()) {
               r.add(k);
             }
             return r;
         }
 }
-        void removeTag(std::string const &tag);
+        void removeGroup(std::string const &group);
         void boolProperty(std::string const &key, bool value);
         bool boolProperty(std::string const &key) const;
         void removeBoolProperty(std::string const &key);
@@ -188,13 +188,13 @@ namespace yuca {
     };
 
     struct SearchRequest {
-        SearchRequest(const std::string &query_str, const std::string &implicit_tag);
-        yuca::utils::List<std::string> getTags();
-        yuca::utils::List<std::string> getKeywords(std::string &tag);
+        SearchRequest(const std::string &query_str, const std::string &implicit_group);
+        yuca::utils::List<std::string> getGroups();
+        yuca::utils::List<std::string> getKeywords(std::string &group);
 
         %extend {
           yuca::utils::List<std::string> getKeywords(const std::string &group) const {
-            return $self->tag_keywords_map.get(group);
+            return $self->group_keywords_map.get(group);
           }
 
           bool op_eq(const SearchRequest &right_side) const {
@@ -229,7 +229,7 @@ namespace yuca {
 
     class Indexer {
     public:
-        Indexer(const std::string &an_implicit_tag);
+        Indexer(const std::string &an_implicit_group);
         Indexer();
         void indexDocument(yuca::Document doc);
         yuca::Document getDocument(long doc_id) const noexcept;

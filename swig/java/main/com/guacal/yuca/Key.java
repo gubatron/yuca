@@ -31,7 +31,7 @@ public class Key {
          swig = new com.guacal.yuca.swig.Key();
     }
 
-    public Key(int id, String tag) {
+    public Key(int id, String group) {
         swig = new com.guacal.yuca.swig.Key();
     }
 
@@ -47,8 +47,8 @@ public class Key {
         return swig.getId();
     }
 
-    public String getTag() {
-        return swig.getTag();
+    public String getGroup() {
+        return swig.getGroup();
     }
 
     @Override

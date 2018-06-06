@@ -50,7 +50,7 @@ namespace yuca {
     public:
         explicit Document(long doc_id) :
         id(doc_id),
-        tag_2_keyset_map(SPStringKeySet()),
+        group_2_keyset_map(SPStringKeySet()),
         bool_properties(false),
         byte_properties(0),
         int_properties(-1),
@@ -63,28 +63,28 @@ namespace yuca {
 
         long getId() const;
 
-        /** Associate this document to an indexing key under the given tag */
+        /** Associate this document to an indexing key under the given group */
         void addKey(StringKey const &key);
 
-        /** Associate this document to an indexing key under the given tag */
+        /** Associate this document to an indexing key under the given group */
         void addKey(SPStringKey key);
 
-        /** Does this document have at least one key under this tag? */
-        bool hasKeys(std::string const &tag) const;
+        /** Does this document have at least one key under this group? */
+        bool hasKeys(std::string const &group) const;
 
-        /** Returns a copy of all tags under which we have KeySets */
-        std::set<std::string> getTags() const;
+        /** Returns a copy of all groups under which we have KeySets */
+        std::set<std::string> getGroups() const;
 
-        /** Returns a copy of all keys shared pointers available under a given tag */
-        SPStringKeySet getTagSPKeys(std::string const &tag) const;
+        /** Returns a copy of all keys shared pointers available under a given group */
+        SPStringKeySet getGroupSPKeys(std::string const &group) const;
 
-        StringKeySet getTagKeys(std::string const &tag) const;
+        StringKeySet getGroupKeys(std::string const &group) const;
 
-        /** Removes all keys under this tag */
-        void removeTag(std::string const &tag);
+        /** Removes all keys under this group */
+        void removeGroup(std::string const &group);
 
-        /** Removes the given key. If it's the last key for this tag, the tag itself is removed */
-        void removeKey(std::string const &tag, SPStringKey key);
+        /** Removes the given key. If it's the last key for this group, the group itself is removed */
+        void removeKey(std::string const &group, SPStringKey key);
 
         /** Set the value of a bool property under the given key.
          * Properties are not indexed for search, they are meant to be used
@@ -175,8 +175,8 @@ namespace yuca {
     private:
         long id;
 
-        // maps tags to set<Key>
-        yuca::utils::Map<std::string, SPStringKeySet> tag_2_keyset_map;
+        // maps groups to set<Key>
+        yuca::utils::Map<std::string, SPStringKeySet> group_2_keyset_map;
 
         // docs can have unique properties that are not necessarily indexed keys
         // but which are meant to be retrieved once they appear in search results

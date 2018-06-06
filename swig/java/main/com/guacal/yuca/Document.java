@@ -57,12 +57,12 @@ public class Document {
         this.swig.addKey(key.swig());
     }
 
-    public List<StringKey> getTagKeys(String tag) {
-        return new StringKeyList(swig.getTagKeysList(tag));
+    public List<StringKey> getGroupKeys(String group) {
+        return new StringKeyList(swig.getGroupKeysList(group));
     }
 
-    public List<String> getTags() {
-        return new StringList(swig.getTagsList());
+    public List<String> getGroups() {
+        return new StringList(swig.getGroupsList());
     }
 
     public boolean boolProperty(String key) {
@@ -85,8 +85,8 @@ public class Document {
         swig.delete();
     }
 
-    public boolean hasKeys(String tag) {
-        return swig.hasKeys(tag);
+    public boolean hasKeys(String group) {
+        return swig.hasKeys(group);
     }
 
     public int intProperty(String key) {
@@ -146,8 +146,8 @@ public class Document {
         swig.removeStringProperty(key);
     }
 
-    public void removeTag(String tag) {
-        swig.removeTag(tag);
+    public void removeGroup(String group) {
+        swig.removeGroup(group);
     }
 
     public List<String> propertyList(PropertyType propertyType) {

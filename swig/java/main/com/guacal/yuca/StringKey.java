@@ -32,8 +32,8 @@ public class StringKey extends Key {
         this.swig = swigKey;
     }
 
-    public StringKey(String stringKey, String tag) {
-        swig = new com.guacal.yuca.swig.StringKey(stringKey, tag);
+    public StringKey(String stringKey, String group) {
+        swig = new com.guacal.yuca.swig.StringKey(stringKey, group);
     }
 
     public com.guacal.yuca.swig.StringKey swig() {
@@ -48,7 +48,7 @@ public class StringKey extends Key {
         return swig.getString();
     }
 
-    public String getTag() { return swig.getTag(); }
+    public String getGroup() { return swig.getGroup(); }
 
     @Override
     public boolean equals(Object obj) {

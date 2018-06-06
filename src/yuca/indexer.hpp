@@ -73,37 +73,37 @@ namespace yuca {
 
     /**
      * Given a search query it creates a structure that maps
-     * possible search tags to specified OffsetKeywords
+     * possible search groups to specified OffsetKeywords
      */
     struct SearchRequest {
-        SearchRequest(const std::string &query_str, const std::string &implicit_tag) :
-        tag_keywords_map(yuca::utils::List<std::string>()),
+        SearchRequest(const std::string &query_str, const std::string &implicit_group) :
+        group_keywords_map(yuca::utils::List<std::string>()),
         query(query_str),
         id(rand()),
         total_keywords(0) {
-            std::string tag_prefix(":");
-            std::string current_tag = implicit_tag;
+            std::string group_prefix(":");
+            std::string current_group = implicit_group;
             auto query_tokens = yuca::utils::split(query_str);
 
             for (auto &keyword : query_tokens.getStdVectorCopy()) {
-                if (yuca::utils::startsWith(keyword, tag_prefix)) {
-                    current_tag = keyword;
+                if (yuca::utils::startsWith(keyword, group_prefix)) {
+                    current_group = keyword;
 
                     continue;
                 }
-                auto tag_keywords = tag_keywords_map.get(current_tag);
+                auto group_keywords = group_keywords_map.get(current_group);
 
-                tag_keywords.add(keyword);
+                group_keywords.add(keyword);
                 total_keywords++;
-                tag_keywords_map.put(current_tag, tag_keywords);
+                group_keywords_map.put(current_group, group_keywords);
             }
         }
 
-        yuca::utils::List<std::string> getTags();
+        yuca::utils::List<std::string> getGroups();
 
-        yuca::utils::List<std::string> getKeywords(std::string &tag);
+        yuca::utils::List<std::string> getKeywords(std::string &group);
 
-        yuca::utils::Map<std::string, yuca::utils::List<std::string>> tag_keywords_map;
+        yuca::utils::Map<std::string, yuca::utils::List<std::string>> group_keywords_map;
 
         bool operator==(const SearchRequest &other) const;
 
@@ -140,10 +140,10 @@ namespace yuca {
 
     class Indexer {
     public:
-        Indexer(const std::string &an_implicit_tag) :
+        Indexer(const std::string &an_implicit_group) :
         reverseIndices(std::shared_ptr<ReverseIndex>()),
         docPtrCache(nullptr),
-        implicit_tag(an_implicit_tag) {
+        implicit_group(an_implicit_group) {
         }
 
         Indexer() : Indexer(":keyword") {
@@ -172,19 +172,19 @@ namespace yuca {
 
         /**
          *
-         * @param query - Search string with support for :tagged keywords.
+         * @param query - Search string with support for :groupged keywords.
          *
-         * If no :tags are specified, all keywords are grouped under the `:keyword` tag by default, meaning
+         * If no :groups are specified, all keywords are grouped under the `:keyword` group by default, meaning
          * the user just gave a list of keywords to look for.
          *
-         * Multiple <:tagged> key groups are expected in the following format
-         * ":tag1 t1_keyword_1 ... t1_keyword_N :tag2 t2_keyword_1 ... t2_keyword_N .... :tagN tN_keyword1 ... tN_keywordN
+         * Multiple <:groupged> key groups are expected in the following format
+         * ":group1 t1_keyword_1 ... t1_keyword_N :group2 t2_keyword_1 ... t2_keyword_N .... :groupN tN_keyword1 ... tN_keywordN
          *
          * "the twilight zone :extension mp4"
          * ":city new york :year 2018 :sex female"
          *
          * @param opt_main_doc_property_for_query_comparison - Optional. Pass "" if you don't intend to use it.
-         * After tagged keys are used to filter out search results we can compare the given document property value
+         * After groupged keys are used to filter out search results we can compare the given document property value
          * against the given query. The lowest the Levenshtein distance the higher ranked the search result will be.
          * If the given property name does not exist in the document, this parameter will simply be ignored.
          *
@@ -218,7 +218,7 @@ namespace yuca {
 
         yuca::utils::Map<std::string, SPDocumentSet> findDocuments(SearchRequest &search_request) const;
 
-        /** Given a key, it finds all related documents to its tag */
+        /** Given a key, it finds all related documents to its group */
         SPDocumentSet findDocuments(SPKey key) const;
 
         SPDocumentSet findDocuments(SPKeyList keys) const;
@@ -226,10 +226,10 @@ namespace yuca {
     private:
         /**
          * The Indexer is conformed by multiple reverse indexes,
-         * which are identified by a 'tag', this helps us partition our indexing
+         * which are identified by a 'group', this helps us partition our indexing
          * by categories.
          *
-         * If there isn't a ReverseIndex for this tag, it'll create an empty one.
+         * If there isn't a ReverseIndex for this group, it'll create an empty one.
          *
          * For example, we could have a reverse index that catalogs documents by "file_extension"
          *
@@ -239,15 +239,15 @@ namespace yuca {
          * Documents provide the indexer with the Keys to be used.
          *
          * */
-        std::shared_ptr<ReverseIndex> getReverseIndex(std::string const &tag) const;
+        std::shared_ptr<ReverseIndex> getReverseIndex(std::string const &group) const;
 
-        void addToIndex(std::string const &tag, SPDocument doc);
+        void addToIndex(std::string const &group, SPDocument doc);
 
         yuca::utils::Map<std::string, std::shared_ptr<ReverseIndex>> reverseIndices;
 
         yuca::utils::Map<long, SPDocument> docPtrCache;
 
-        const std::string implicit_tag;
+        const std::string implicit_group;
     };
 }
 
