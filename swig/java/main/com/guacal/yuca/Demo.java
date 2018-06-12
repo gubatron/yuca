@@ -30,7 +30,7 @@ import java.util.List;
 
 public final class Demo {
     public static void main(String[] args) {
-	Yuca.loadLibrary();
+        Yuca.loadLibrary();
         System.out.println("Yuca Java Wrapper version: " + yuca.version() + "\nLast Updated: " + yuca.getLAST_UPDATED() + "\n\n");
 
         StringKey fooKey = new StringKey("fooKey",":fooGroup");

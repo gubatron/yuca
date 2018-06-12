@@ -30,6 +30,7 @@ public final class Yuca {
             System.load(OSUtils.USER_DIR + "/libyuca_jni_shared." + OSUtils.SHARED_LIB_EXT);
         } catch (Throwable t) {
             t.printStackTrace();
+            throw t;
         }
     }
 }

@@ -25,7 +25,7 @@
 package com.guacal.yuca;
 
 public final class OSUtils {
-    public static final String OS_NAME = System.getProperty("os.name");
+    public static final String OS_NAME = System.getProperty("os.name").toLowerCase();
     public static final boolean IS_WINDOWS = OS_NAME.indexOf("windows") != -1;
     public static final boolean IS_MACOS = OS_NAME.indexOf("mac") != -1;
     public static final boolean IS_LINUX = OS_NAME.indexOf("linux") != -1;
