@@ -311,6 +311,14 @@ namespace yuca {
                 return result;
             }
 
+            List<V> values() const noexcept {
+                List<V> result;
+                for (std::pair<K, V> const &entry_pair : m) {
+                    result.add(entry_pair.second);
+                }
+                return result;
+            }	  
+
             V get(K key) const noexcept {
                 auto it = m.find(key);
                 if (it == m.end()) {

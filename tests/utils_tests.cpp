@@ -127,6 +127,11 @@ TEST_CASE("yuca::utils::Map") {
         REQUIRE(key_set.contains("sarah"));
         REQUIRE(key_set.contains("paulina"));
         REQUIRE(!key_set.contains("angel"));
+        auto values_list = m.values();
+        REQUIRE(values_list.contains(1));
+        REQUIRE(values_list.contains(2));
+        REQUIRE(values_list.contains(3));
+        REQUIRE(!values_list.contains(1337));
         m.clear();
         key_set = m.keySet();
         REQUIRE(key_set.isEmpty());
