@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+function rmfile() {
+  if [ -f $1 ]; then rm -f $1 ; fi
+}
+function rmdir() {
+  if [ -d $1 ]; then rm -fr $1; fi
+}
+rmfile CTestTestfile.cmake
+rmfile install_manifest.txt
+rmfile CMakeCache.txt
+rmfile cmake_install.cmake
+rmdir CMakeFiles
+rmdir cmake-build-debug
+rm -f *.cbp        
