@@ -9,6 +9,7 @@ rmfile CTestTestfile.cmake
 rmfile install_manifest.txt
 rmfile CMakeCache.txt
 rmfile cmake_install.cmake
+rmfile Makefile
 rmdir CMakeFiles
 rmdir cmake-build-debug
 rm -f *.cbp        
