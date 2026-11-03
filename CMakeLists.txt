@@ -1,71 +1,86 @@
-cmake_minimum_required(VERSION 3.8)
-project(yuca CXX)
+cmake_minimum_required(VERSION 3.16)
+project(yuca VERSION 0.1.1 LANGUAGES CXX)
 
-include_directories(src)
+include(CTest)
+include(GNUInstallDirs)
+option(YUCA_BUILD_DEMOS "Build shared/static library demos" ON)
+option(YUCA_BUILD_BENCHMARKS "Build deterministic microbenchmarks" OFF)
+option(YUCA_ENABLE_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
+option(YUCA_BUILD_FUZZERS "Build Clang libFuzzer targets (also enables sanitizers)" OFF)
 
-set(SOURCE_FILES
-        src/yuca/yuca.hpp
-        src/yuca/types.hpp
-        src/yuca/key.hpp
-        src/yuca/key.cpp
-        src/yuca/document.hpp
-        src/yuca/document.cpp
-        src/yuca/indexer.hpp
-        src/yuca/indexer.cpp
-        src/yuca/utils.hpp
-        )
-
-add_compile_options(-Wno-padded)
-
-if(CMAKE_CXX_COMPILER_ID MATCHES Clang)
-    add_compile_options(
-        -Weverything
-        -Wno-c++98-compat
-        -Wno-global-constructors
-        -Wno-exit-time-destructors
-        -Wno-weak-vtables)
+if(YUCA_BUILD_FUZZERS)
+    if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        message(FATAL_ERROR "libFuzzer targets require Clang")
+    endif()
+    set(YUCA_ENABLE_SANITIZERS ON)
+endif()
+if(YUCA_ENABLE_SANITIZERS AND NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    message(FATAL_ERROR "Sanitizer configuration requires Clang or GCC")
 endif()
 
-if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
-    add_compile_options(
-        -Wall
-        -Wextra
-        -Wpedantic
-        -Wparentheses
-        -Wvla
-        -Wno-format-zero-length
-        -fPIC)
+function(yuca_configure_target target)
+    set_target_properties(${target} PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)
+    if(MSVC)
+        target_compile_options(${target} PRIVATE /W4)
+    else()
+        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic -Wparentheses -Wvla)
+    endif()
+    if(YUCA_ENABLE_SANITIZERS)
+        target_compile_options(${target} PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
+        target_link_options(${target} PRIVATE -fsanitize=address,undefined)
+    endif()
+    if(YUCA_BUILD_FUZZERS)
+        target_compile_options(${target} PRIVATE -fsanitize=fuzzer-no-link)
+    endif()
+endfunction()
+
+set(SOURCE_FILES src/yuca/key.cpp src/yuca/document.cpp src/yuca/indexer.cpp)
+foreach(kind shared static)
+    if(kind STREQUAL "shared")
+        add_library(yuca_${kind} SHARED ${SOURCE_FILES})
+    else()
+        add_library(yuca_${kind} STATIC ${SOURCE_FILES})
+    endif()
+    add_library(yuca::${kind} ALIAS yuca_${kind})
+    target_include_directories(yuca_${kind} PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+    target_compile_features(yuca_${kind} PUBLIC cxx_std_11)
+    set_target_properties(yuca_${kind} PROPERTIES POSITION_INDEPENDENT_CODE ON WINDOWS_EXPORT_ALL_SYMBOLS ON)
+    yuca_configure_target(yuca_${kind})
+endforeach()
+
+if(YUCA_BUILD_DEMOS)
+    foreach(kind shared static)
+        add_executable(yuca_demo_${kind} demo.cpp)
+        target_link_libraries(yuca_demo_${kind} PRIVATE yuca_${kind})
+        yuca_configure_target(yuca_demo_${kind})
+        if(BUILD_TESTING)
+            add_test(NAME demo_${kind} COMMAND yuca_demo_${kind})
+        endif()
+    endforeach()
 endif()
 
-# the libyuca_* libraries
-add_library(yuca_shared SHARED ${SOURCE_FILES})
-add_library(yuca_static STATIC ${SOURCE_FILES})
+if(BUILD_TESTING)
+    add_executable(yuca_tests tests/utils_tests.cpp tests/document_tests.cpp
+        tests/indexer_tests.cpp tests/tests_main.cpp)
+    target_link_libraries(yuca_tests PRIVATE yuca_static)
+    yuca_configure_target(yuca_tests)
+    add_test(NAME unit_tests COMMAND yuca_tests)
+    set_tests_properties(unit_tests PROPERTIES TIMEOUT 60)
+endif()
 
-set_target_properties(yuca_shared PROPERTIES LINKER_LANGUAGE CXX)
-set_target_properties(yuca_static PROPERTIES LINKER_LANGUAGE CXX)
+if(YUCA_BUILD_BENCHMARKS)
+    add_executable(yuca_benchmarks benchmarks/benchmarks.cpp)
+    target_link_libraries(yuca_benchmarks PRIVATE yuca_static)
+    yuca_configure_target(yuca_benchmarks)
+    if(BUILD_TESTING)
+        add_test(NAME benchmark_smoke COMMAND yuca_benchmarks 1 50)
+    endif()
+endif()
 
-target_compile_features(yuca_shared PUBLIC cxx_std_11)
-target_compile_features(yuca_static PUBLIC cxx_std_11)
-
-# demo executable to show how to use the library
-add_executable(yuca_demo_shared demo.cpp)
-add_executable(yuca_demo_static demo.cpp)
-
-target_link_libraries(yuca_demo_shared yuca_shared)
-target_link_libraries(yuca_demo_static yuca_static)
-
-# unit tests with catch 2 (files are checked in the order they are declared, the ones on top first)
-set(TEST_FILES
-        tests/utils_tests.cpp
-        tests/document_tests.cpp
-        tests/indexer_tests.cpp
-        tests/tests_main.cpp)
-
-add_executable(yuca_tests ${SOURCE_FILES} ${TEST_FILES})
-set_target_properties(yuca_tests PROPERTIES LINKER_LANGUAGE CXX)
-# TODO: remove this when tests link to the library
-target_compile_features(yuca_tests PUBLIC cxx_std_11)
-
-install(TARGETS yuca_shared yuca_demo_shared
-        LIBRARY DESTINATION lib
-        RUNTIME DESTINATION doc)
+install(TARGETS yuca_shared yuca_static
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(DIRECTORY src/yuca DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} FILES_MATCHING PATTERN "*.hpp")

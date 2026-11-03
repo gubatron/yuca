@@ -10,21 +10,22 @@ The shared library currently weighs ~170kb without any packing optimizations, we
 ## BUILDING
 
 Requirements:
- - cmake 3.8, make
+ - CMake 3.16 or newer, and a supported build tool (Make or Ninja)
  - C++11 compiler (clang recommended)
 
 Instructions:
 
-The first time, create your Makefile with cmake
+Configure and build out of source (no dependencies are downloaded):
 ```
-$ cmake .
+$ cmake -S . -B build/release -DCMAKE_BUILD_TYPE=Release
 ```
 then after that just build
 ```
-$ make -j 8
+$ cmake --build build/release --parallel 4
+$ ctest --test-dir build/release --output-on-failure
 ```
 
-Shared and static libraries will be available on the root folder of the project, as well as `yuca_demo_shared` and `yuca_demo_static` executables you can use to test that everything has been compiled and linked correctly with both the shared and dynamic libraries.
+Shared/static libraries, `yuca_demo_shared`, `yuca_demo_static`, and `yuca_tests` are created in `build/release`. CTest exercises both linking modes and the unit tests. Install libraries and public headers with `cmake --install build/release --prefix /your/prefix`.
 
 There's a also `yuca_tests` executable in case you want to make sure all the unit tests are passing.
 
@@ -47,14 +48,14 @@ This will output programatically created C++ JNI code and Java code to access th
 
 ## Debug Build
 
-If you want to build libraries with debug symbols edit `CMakeLists.txt` and uncomment the `CMAKE_BUILD_TYPE` setting, 
-```
-# If you need step by step debugging, uncomment below,
-# or invoke `cmake -DCMAKE_BUILD_TYPE=Debug .` in the command line
-#set(CMAKE_BUILD_TYPE Debug)
+Use a separate build directory; do not edit the build script:
+```sh
+cmake -S . -B build/debug -DCMAKE_BUILD_TYPE=Debug -DYUCA_ENABLE_SANITIZERS=ON
+cmake --build build/debug --parallel 4
+ctest --test-dir build/debug --output-on-failure
 ```
 
-you will have to execute `cmake .` again, perform a `make clean` and rebuild with `make -j 8`
+AddressSanitizer and UndefinedBehaviorSanitizer require Clang or GCC. See [the development manual](docs/development.md) for benchmarks and fuzz testing.
 
 
  

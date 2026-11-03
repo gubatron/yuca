@@ -15,3 +15,15 @@ CMakeFiles/
 cmake-build-debug/
 yuca_java_wrap.cxx
 swig/java/main/com/guacal/yuca/swig/*
+build/
+build-*/
+.DS_Store
+.vscode/
+swig/.gradle/
+swig/build/
+swig/out/
+hs_err_pid*.log
+crash-*
+leak-*
+timeout-*
+oom-*
