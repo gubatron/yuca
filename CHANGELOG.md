@@ -13,3 +13,6 @@
 - Deterministic Release benchmarks, CSV comparison tooling, and checked-in per-fix measurements.
 - A versioned C++ engineering skill, offline fallback, and explicit MentisDB synchronization protocol.
 - Instrumented libFuzzer targets with differential distance/index oracles, seed corpora, bounded mutation runs, and CI checks with benchmark artifacts.
+
+### Performance
+- Update posting lists in place rather than copying the entire document set on insertion, existence checks, and removal. Public result sets remain independent snapshots.

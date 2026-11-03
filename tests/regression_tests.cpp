@@ -161,3 +161,27 @@ TEST_CASE("Search result identifiers do not overflow for large document ids", "[
     CHECK(result.id >= 0);
     CHECK(result.document_sp->getId() == std::numeric_limits<long>::max());
 }
+
+TEST_CASE("Posting updates retain canonical keys and independent result snapshots", "[regression]") {
+    ReverseIndex reverse;
+    auto key = std::make_shared<StringKey>("common", ":keyword");
+    auto equivalent = std::make_shared<StringKey>("common", ":keyword");
+    auto first = std::make_shared<Document>(1);
+    auto second = std::make_shared<Document>(2);
+    reverse.putDocument(key, first);
+    auto snapshot = reverse.getDocuments(equivalent);
+    reverse.putDocument(equivalent, second);
+    reverse.putDocument(equivalent, second);
+    CHECK(reverse.getKeyCount() == 1);
+    CHECK(reverse.keyCacheGet(equivalent) == key);
+    CHECK(reverse.getDocuments(key).size() == 2);
+    CHECK(snapshot.size() == 1);
+    reverse.removeDocument(equivalent, first);
+    CHECK(reverse.hasDocuments(key));
+    CHECK(reverse.getDocuments(key).size() == 1);
+    reverse.removeDocument(key, second);
+    CHECK_FALSE(reverse.hasDocuments(equivalent));
+    CHECK(reverse.getKeyCount() == 0);
+    reverse.removeDocument(key, first);
+    CHECK(reverse.getKeyCount() == 0);
+}

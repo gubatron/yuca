@@ -48,6 +48,8 @@ Arguments are the number of samples (1–100) and documents (1–100000). The co
 
 Lifecycle timings deliberately include setup/cleanup and are not isolated insertion/removal latency. These are initial microbenchmarks, not representative production guarantees. Checksums detect cardinality changes, not full ranking correctness; unit tests verify semantics. The suite does not yet count allocations or RSS, provide confidence intervals, or cover concurrent access. Use Instruments/Allocations on macOS or `perf`/heaptrack on Linux for deeper evidence. Never make noisy timing thresholds a unit-test gate.
 
+Posting-list insertion/removal modifies the stored set in place. For a posting list containing P document pointers, set insertion/removal is O(log P) rather than O(P) copying plus insertion/removal; key-cache/map lookups add their own logarithmic costs. Public `getDocuments`/`findDocuments` still return copied sets, preserving independent result snapshots. Retrieval and scoring retain other copy/allocation costs; the improvement is not a claim that all indexing/search work is logarithmic.
+
 ## Sanitizers
 
 ```sh

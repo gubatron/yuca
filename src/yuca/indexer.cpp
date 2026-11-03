@@ -31,38 +31,29 @@
 namespace yuca {
 
     void ReverseIndex::putDocument(SPKey key, SPDocument doc) {
-        if (!hasDocuments(key)) {
+        SPKey cached_key = keyCacheGet(key);
+        if (cached_key == nullptr) {
             keyCachePut(key);
-            SPDocumentSet newDocSet;
-            newDocSet.add(doc);
-            spkey_to_spdocset_map.put(key, newDocSet);
-        } else {
-            SPDocumentSet oldDocSet = getDocuments(key);
-            oldDocSet.add(doc);
-            auto cached_key = keyCacheGet(key);
-            spkey_to_spdocset_map.put(cached_key, oldDocSet);
+            cached_key = key;
         }
+        // Mutate the stored posting list, not a full copy on every insertion.
+        spkey_to_spdocset_map.getStdMap()[cached_key].add(doc);
     }
 
     void ReverseIndex::removeDocument(SPKey key, SPDocument doc) {
-        if (!hasDocuments(key)) {
-            std::cout << "ReverseIndex::removeDocument aborted. ReverseIndex has no documents under key "
-                      << key->getId() << std::endl;
+        SPKey cached_key = keyCacheGet(key);
+        if (cached_key == nullptr) {
             return;
         }
-        SPDocumentSet docs = getDocuments(key);
-        SPKey cached_key = keyCacheGet(key);
-        if (docs.isEmpty()) {
-            spkey_to_spdocset_map.remove(cached_key);
+        auto &postings = spkey_to_spdocset_map.getStdMap();
+        const auto found = postings.find(cached_key);
+        if (found == postings.end()) {
+            return;
+        }
+        found->second.remove(doc);
+        if (found->second.isEmpty()) {
+            postings.erase(found);
             keyCacheRemove(cached_key);
-        } else if (docs.contains(doc)) {
-            docs.remove(doc);
-            if (!docs.isEmpty()) {
-                spkey_to_spdocset_map.put(cached_key, docs);
-            } else {
-                spkey_to_spdocset_map.remove(cached_key);
-                keyCacheRemove(cached_key);
-            }
         }
     }
 
@@ -71,7 +62,9 @@ namespace yuca {
         if (cached_key_sp == nullptr) {
             return false;
         }
-        return spkey_to_spdocset_map.containsKey(cached_key_sp) && spkey_to_spdocset_map.get(cached_key_sp).size() > 0;
+        const auto &postings = spkey_to_spdocset_map.getStdMap();
+        const auto found = postings.find(cached_key_sp);
+        return found != postings.end() && !found->second.isEmpty();
     }
 
     void ReverseIndex::clear() {
