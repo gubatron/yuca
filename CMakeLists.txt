@@ -31,6 +31,9 @@ if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
         -Wall
         -Wextra
         -Wpedantic
+        -Wparentheses
+        -Wvla
+        -Wno-format-zero-length
         -fPIC)
 endif()
 
