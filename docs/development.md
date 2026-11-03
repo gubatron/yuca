@@ -65,3 +65,11 @@ The binding-friendly `utils::List`, `Set`, and `Map` wrap standard containers. T
 List insertion accepts indices from zero through size, inclusive. Invalid insertion or replacement indices throw `std::out_of_range`. `subList(start, length)` clamps to available elements, returns empty when start is outside the list, and performs work proportional to the returned range—not the requested length. Self-add duplicates a list exactly once; self-remove clears lists and sets.
 
 These accessor signature changes require recompilation of C++ consumers. Legacy SWIG generation must be validated separately before shipping new bindings.
+
+## Search contracts
+
+Queries are whitespace-separated, case-sensitive byte strings. A token beginning with `:` changes the active group for subsequent keywords. The default group is `:keyword`. Repeated whitespace (spaces, tabs, newlines) does not create empty keywords. Explicit-delimiter `utils::split(text, delimiter)` retains its original delimiter-based behavior.
+
+Search unions keyword matches within each requested group and intersects across groups. A missing requested group yields no results. Base score is the number of matching query keywords (repeated query terms count repeatedly); a non-empty comparison property adds `1 / distance`, or 1 for an exact match. The distance is byte-oriented Levenshtein, not Unicode code-point distance. Scores are **not** normalized to [0,1]. A zero result limit means unlimited.
+
+`SearchResult::id` is a legacy non-negative wrapping combination of document and request IDs, not a globally unique identifier. Request IDs still use the process RNG; neither identifier is suitable for security, persistence, or deduplicating unrelated requests. Prefer document IDs for application identity.

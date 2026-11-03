@@ -334,7 +334,7 @@ namespace yuca {
                     continue;
                 }
                 std::size_t LD = yuca::utils::levenshteinDistance(query, target_string);
-                sr.score += LD == 0 ? 1.0 : 1 / LD;
+                sr.score += LD == 0 ? 1.0 : 1.0 / static_cast<double>(LD);
             }
         }
 

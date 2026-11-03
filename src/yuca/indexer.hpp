@@ -36,6 +36,7 @@
 #include <set>
 #include <memory>
 #include <algorithm>
+#include <limits>
 
 namespace yuca {
     /** Maps *Key -> [Document Set] */
@@ -117,14 +118,16 @@ namespace yuca {
     struct SearchResult {
         SearchResult(std::shared_ptr<SearchRequest> searchRequest, SPDocument docSp) :
         score(0),
-        id(docSp->getId() + searchRequest->id),
+        id(static_cast<long>((static_cast<unsigned long>(docSp->getId()) +
+                              static_cast<unsigned long>(searchRequest->id)) &
+                             static_cast<unsigned long>(std::numeric_limits<long>::max()))),
         search_request_sp(searchRequest),
         document_sp(docSp) {
         }
 
         bool operator==(const SearchResult &other) const;
 
-        double score; //[0.0 - 1.0]
+        double score; // matched keyword count plus an optional distance bonus in (0, 1]
         long id;
         std::shared_ptr<SearchRequest> search_request_sp;
         std::shared_ptr<Document> document_sp;

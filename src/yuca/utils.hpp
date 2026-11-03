@@ -465,8 +465,13 @@ namespace yuca {
         }
 
         inline List<std::string> split(const std::string &str) {
-            std::string str_copy = str;
-            return split(str_copy, ' ');
+            std::istringstream input(str);
+            List<std::string> results;
+            std::string word;
+            while (input >> word) {
+                results.add(word);
+            }
+            return results;
         }
 
         inline bool startsWith(std::string &source, std::string &target) {

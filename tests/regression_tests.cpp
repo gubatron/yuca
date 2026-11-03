@@ -122,3 +122,42 @@ TEST_CASE("Collection copy failures propagate instead of terminating", "[regress
     CHECK_THROWS_AS(list.getStdVectorCopy(), std::runtime_error);
     CHECK_THROWS_AS(map.get(0), std::runtime_error);
 }
+
+TEST_CASE("Whitespace is not a search keyword", "[regression]") {
+    SearchRequest request(" \t hello  \n :extension\t txt \r\n", ":keyword");
+    CHECK(request.total_keywords == 2);
+    CHECK(request.getGroups().size() == 2);
+    Indexer indexer;
+    Document doc(1);
+    doc.addKey(StringKey("hello", ":keyword"));
+    doc.addKey(StringKey("txt", ":extension"));
+    indexer.indexDocument(doc);
+    CHECK(indexer.search(" \t hello  \n :extension\t txt \r\n").size() == 1);
+    CHECK(indexer.search(" \t\n ").isEmpty());
+    CHECK(indexer.search("hello :missing nope").isEmpty());
+}
+
+TEST_CASE("Levenshtein ranking preserves fractional scores", "[regression]") {
+    Indexer indexer;
+    Document near_doc(1);
+    near_doc.addKey(StringKey("cat", ":keyword"));
+    near_doc.stringProperty("title", "coatx");
+    Document far_doc(2);
+    far_doc.addKey(StringKey("cat", ":keyword"));
+    far_doc.stringProperty("title", "zzzzz");
+    indexer.indexDocument(far_doc);
+    indexer.indexDocument(near_doc);
+    auto results = indexer.search("cat", "title");
+    REQUIRE(results.size() == 2);
+    CHECK(results.get(0).document_sp->getId() == 1);
+    CHECK(results.get(0).score == Approx(1.5));
+    CHECK(results.get(1).score == Approx(1.2));
+}
+
+TEST_CASE("Search result identifiers do not overflow for large document ids", "[regression]") {
+    auto request = std::make_shared<SearchRequest>("hello", ":keyword");
+    auto doc = std::make_shared<Document>(std::numeric_limits<long>::max());
+    SearchResult result(request, doc);
+    CHECK(result.id >= 0);
+    CHECK(result.document_sp->getId() == std::numeric_limits<long>::max());
+}
