@@ -1,0 +1,10 @@
+{
+  "skill_id": "cpp-engineer",
+  "chain_key": "yuca",
+  "agent_id": "yuca-engineer",
+  "version_id": "de980f31-ed89-4625-9d17-f7e1c66d5fdd",
+  "source_commit": "4552197",
+  "source_sha256": "c398425fe43d6df06b3f01633494f6122506a3b3599404610fcb3717328be1bf",
+  "verified_at": "2026-11-03T14:31:43Z",
+  "verification": "Latest active version read back; original source body preserved in normalized Markdown export. Repository and OpenCode global source copies match byte-for-byte."
+}
