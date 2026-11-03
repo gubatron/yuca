@@ -207,3 +207,12 @@ TEST_CASE("Limited search is a deterministic prefix of the full ranking", "[regr
         }
     }
 }
+
+TEST_CASE("Random bounds support the entire size_t range without division by zero", "[regression]") {
+    CHECK(utils::maxRand(0) == 0);
+    const std::size_t bounds[] = {1, 2, static_cast<std::size_t>(RAND_MAX),
+        static_cast<std::size_t>(RAND_MAX) + 1, std::numeric_limits<std::size_t>::max()};
+    for (std::size_t bound : bounds) {
+        CHECK(utils::maxRand(bound) <= bound);
+    }
+}

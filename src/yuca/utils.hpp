@@ -44,6 +44,7 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <random>
 
 namespace yuca {
     namespace utils {
@@ -447,11 +448,19 @@ namespace yuca {
 
         /////////////////////////////////////////////////
 
-        inline std::size_t maxRand(std::size_t maxInclusive) noexcept {
+        /** Uniform sample in [0, maxInclusive] using the legacy process RNG; not cryptographic. */
+        inline std::size_t maxRand(std::size_t maxInclusive) {
             if (maxInclusive == 0) {
                 return 0;
             }
-            return static_cast<std::size_t>(std::rand()) / ((RAND_MAX + 1u) / maxInclusive);
+            struct RandSource {
+                typedef unsigned int result_type;
+                static constexpr result_type min() { return 0; }
+                static constexpr result_type max() { return RAND_MAX; }
+                result_type operator()() { return static_cast<result_type>(std::rand()); }
+            } source;
+            std::uniform_int_distribution<std::size_t> distribution(0, maxInclusive);
+            return distribution(source);
         }
 
         inline List<std::string> split(std::string &str, char delim) {

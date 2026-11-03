@@ -7,6 +7,7 @@
 - Replace documents by ID without retaining old postings; remove using cached keys, including ID -1; define null-document behavior.
 - Prevent dangling container references from temporaries, invalid list insertion, overflowing/limit-sized sublist loops, invalidated self-operation iterators, and termination through incorrect `noexcept` declarations.
 - Ignore repeated query whitespace, retain fractional Levenshtein ranking bonuses, and avoid signed overflow in search result IDs.
+- Fix division by zero and the excluded upper endpoint in `utils::maxRand`; support the full `size_t` bound range with a standard uniform distribution.
 
 ### Added
 - Out-of-source, target-based CMake, CTest integration, library/header installation, and optional ASan/UBSan builds.

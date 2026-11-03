@@ -38,6 +38,11 @@ extern "C" int LLVMFuzzerTestOneInput(const std::uint8_t *data, std::size_t size
         return 0;
     }
     const std::size_t length = std::min<std::size_t>(size - 1, 128);
+    std::size_t bound = 0;
+    for (std::size_t i = 0; i < std::min(size, sizeof(bound)); ++i) {
+        bound = (bound << 8) | data[i];
+    }
+    check(yuca::utils::maxRand(bound) <= bound);
     const std::string input(reinterpret_cast<const char *>(data + 1), length);
     const std::size_t cut = data[0] % (length + 1);
     const std::string left = input.substr(0, cut);

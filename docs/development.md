@@ -66,6 +66,8 @@ The binding-friendly `utils::List`, `Set`, and `Map` wrap standard containers. T
 
 List insertion accepts indices from zero through size, inclusive. Invalid insertion or replacement indices throw `std::out_of_range`. `subList(start, length)` clamps to available elements, returns empty when start is outside the list, and performs work proportional to the returned range—not the requested length. Self-add duplicates a list exactly once; self-remove clears lists and sets.
 
+`utils::maxRand(maxInclusive)` samples the inclusive range [0, maxInclusive], including full-width `size_t` bounds. It adapts the legacy process `rand()` source to `std::uniform_int_distribution` instead of dividing by a potentially zero scale factor. It is not cryptographic and retains global RNG state; sequences may vary across standard-library implementations. Do not use it for security or cross-platform reproducibility.
+
 These accessor signature changes require recompilation of C++ consumers. Legacy SWIG generation must be validated separately before shipping new bindings.
 
 ## Search contracts
@@ -102,6 +104,8 @@ If the linker cannot find the libFuzzer runtime, install a Clang distribution th
 On macOS, Apple's bundled Clang may omit libFuzzer. Homebrew LLVM can be selected explicitly in a **new** build directory with `-DCMAKE_CXX_COMPILER="$(brew --prefix llvm)/bin/clang++"`; do not change compilers inside an existing CMake cache. Local corpus replay was verified with Homebrew LLVM 23.1.4 as well as core ASan/UBSan tests with AppleClang 21.
 
 Initial bounded local qualification: both fuzzers completed 10,000 runs with seed 444, ASan/UBSan, maximum input 512 bytes, 5-second per-input timeout and 1024 MiB RSS limit, with no finding. This is a smoke budget, not exhaustive security qualification.
+
+Extending the utility harness to random bounds subsequently reproduced division by zero in `maxRand` on the existing text corpus. The fixed implementation is covered by a named deterministic maximum-bound regression and the corpus; new mutation runs are required after the fix. This illustrates why a clean fuzz run only covers the behaviors exercised by its harness.
 
 ## Continuous integration
 
