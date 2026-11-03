@@ -57,3 +57,11 @@ ctest --test-dir build/sanitize --output-on-failure
 ```
 
 ASan and UBSan instrument library and executable code. LeakSanitizer availability depends on the OS/toolchain; do not interpret lack of leak detection on macOS as a leak-free proof. Sanitizer findings must be fixed, not suppressed globally.
+
+## Collection ownership and failures
+
+The binding-friendly `utils::List`, `Set`, and `Map` wrap standard containers. Their `getStdVector`, `getStdSet`, and `getStdMap` accessors borrow storage only from lvalues. On rvalues they return an owning container, so `for (const auto &key : doc.propertyKeys(STRING).getStdVector())` is safe even in C++11. References from lvalue accessors follow the underlying standard container's invalidation rules. Copy accessors may allocate and throw; generic allocation, comparison, and copy failures propagate rather than terminating through incorrect `noexcept` declarations.
+
+List insertion accepts indices from zero through size, inclusive. Invalid insertion or replacement indices throw `std::out_of_range`. `subList(start, length)` clamps to available elements, returns empty when start is outside the list, and performs work proportional to the returned range—not the requested length. Self-add duplicates a list exactly once; self-remove clears lists and sets.
+
+These accessor signature changes require recompilation of C++ consumers. Legacy SWIG generation must be validated separately before shipping new bindings.

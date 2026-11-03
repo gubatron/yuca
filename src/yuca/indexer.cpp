@@ -164,7 +164,7 @@ namespace yuca {
         indexDocument(spDoc);
     }
 
-    Document Indexer::getDocument(long doc_id) const noexcept {
+    Document Indexer::getDocument(long doc_id) const {
         SPDocument spDocument = docPtrCache.get(doc_id);
         if (spDocument == nullptr) {
             return Document::NULL_DOCUMENT;
@@ -172,7 +172,7 @@ namespace yuca {
         return *spDocument;
     }
 
-    Document Indexer::getDocument(std::string const &doc_id) const noexcept {
+    Document Indexer::getDocument(std::string const &doc_id) const {
         return getDocument(static_cast<long>(std::hash<std::string>{}(doc_id)));
     }
 

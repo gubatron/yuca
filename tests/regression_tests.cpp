@@ -1,4 +1,5 @@
 #include "tests_includes.hpp"
+#include <limits>
 
 using namespace yuca;
 
@@ -43,4 +44,81 @@ TEST_CASE("The sentinel document id can still be removed", "[regression]") {
     indexer.indexDocument(doc);
     CHECK(indexer.removeDocument(-1));
     CHECK(indexer.search("hello").isEmpty());
+}
+
+TEST_CASE("Collection bounds do not wrap", "[regression]") {
+    utils::List<int> list;
+    list.add(7);
+    CHECK(list.subList(std::numeric_limits<unsigned long>::max(), 2).isEmpty());
+    CHECK(list.subList(0, std::numeric_limits<unsigned long>::max()).size() == 1);
+    CHECK_THROWS_AS(list.add(-1, 9), std::out_of_range);
+    CHECK_THROWS_AS(list.add(2, 9), std::out_of_range);
+    CHECK_THROWS_AS(list.set(-1, 9), std::out_of_range);
+}
+
+TEST_CASE("Temporary collection access owns its storage", "[regression]") {
+    Document doc(1);
+    doc.stringProperty("title", "hello");
+    unsigned count = 0;
+    for (const auto &key : doc.propertyKeys(STRING).getStdVector()) {
+        CHECK(key == "title");
+        ++count;
+    }
+    CHECK(count == 1);
+    for (const auto &key : doc.getGroupKeys(":missing").getStdSet()) {
+        (void)key;
+        FAIL("missing group must be empty");
+    }
+    utils::Set<int> set;
+    set.add(9);
+    for (int value : utils::Set<int>(set).getStdSet()) {
+        CHECK(value == 9);
+    }
+    utils::Map<int, int> map(0);
+    map.put(1, 2);
+    for (const auto &entry : utils::Map<int, int>(map).getStdMap()) {
+        CHECK(entry.first == 1);
+        CHECK(entry.second == 2);
+    }
+}
+
+TEST_CASE("Collection self operations preserve valid iterators", "[regression]") {
+    utils::List<int> list;
+    list.add(1);
+    list.add(2);
+    list.addAll(list);
+    REQUIRE(list.size() == 4);
+    CHECK(list.get(2) == 1);
+    CHECK(list.get(3) == 2);
+    CHECK(list.removeAll(list));
+    CHECK(list.isEmpty());
+    utils::Set<int> set;
+    set.add(1);
+    set.add(2);
+    set.removeAll(set);
+    CHECK(set.isEmpty());
+}
+
+namespace {
+    struct ThrowingCopy {
+        bool *fail;
+        explicit ThrowingCopy(bool *flag) : fail(flag) {}
+        ThrowingCopy(const ThrowingCopy &other) : fail(other.fail) {
+            if (*fail) {
+                throw std::runtime_error("test copy failure");
+            }
+        }
+    };
+}
+
+TEST_CASE("Collection copy failures propagate instead of terminating", "[regression]") {
+    bool fail = false;
+    ThrowingCopy value(&fail);
+    utils::List<ThrowingCopy> list;
+    list.add(value);
+    utils::Map<int, ThrowingCopy> map(value);
+    fail = true;
+    CHECK_THROWS_AS(list.add(value), std::runtime_error);
+    CHECK_THROWS_AS(list.getStdVectorCopy(), std::runtime_error);
+    CHECK_THROWS_AS(map.get(0), std::runtime_error);
 }

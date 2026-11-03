@@ -39,6 +39,11 @@
 #include <numeric>
 #include <chrono>
 #include <algorithm>
+#include <cstdint>
+#include <cstdlib>
+#include <stdexcept>
+#include <string>
+#include <utility>
 
 namespace yuca {
     namespace utils {
@@ -52,17 +57,17 @@ namespace yuca {
                 s.insert(e);
             }
 
-            void addAll(Set<T> &other_set) noexcept {
+            void addAll(const Set<T> &other_set) {
                 for (auto const &x : other_set.s) {
                     add(x);
                 }
             }
 
-            bool contains(T const &something) const noexcept {
+            bool contains(T const &something) const {
                 return s.find(something) != s.end();
             }
 
-            bool containsAll(Set<T> &other) const noexcept {
+            bool containsAll(const Set<T> &other) const {
                 for (auto const &x : other.s) {
                     if (!contains(x)) {
                         return false;
@@ -84,7 +89,11 @@ namespace yuca {
                 return true;
             }
 
-            void removeAll(Set<T> &other_set) {
+            void removeAll(const Set<T> &other_set) {
+                if (this == &other_set) {
+                    clear();
+                    return;
+                }
                 for (auto const &x : other_set.s) {
                     remove(x);
                 }
@@ -97,11 +106,23 @@ namespace yuca {
             /**
              * @return a copied std::set<T> instance of the containing std::set<T> s
              */
-            std::set<T> getStdSetCopy() const noexcept {
+            std::set<T> getStdSetCopy() const {
                 return s;
             }
 
-            std::set<T> &getStdSet() noexcept {
+            std::set<T> &getStdSet() & noexcept {
+                return s;
+            }
+
+            const std::set<T> &getStdSet() const & noexcept {
+                return s;
+            }
+
+            std::set<T> getStdSet() && noexcept {
+                return std::move(s);
+            }
+
+            std::set<T> getStdSet() const && {
                 return s;
             }
 
@@ -132,21 +153,27 @@ namespace yuca {
         class List {
         public:
             /** Adds element at the end */
-            void add(const T &t) noexcept {
+            void add(const T &t) {
                 v.push_back(t);
             }
 
-            void add(long index, const T &t) noexcept {
+            void add(long index, const T &t) {
+                if (index < 0 || static_cast<unsigned long>(index) > v.size()) {
+                    throw std::out_of_range("add(long index, T t): index out of range");
+                }
                 v.insert(v.begin() + index, t);
             }
 
-            void addAll(List<T> &other) noexcept {
-                for (auto const &t : other.v) {
-                    add(t);
+            void addAll(const List<T> &other) {
+                if (this == &other) {
+                    const List<T> copy(other);
+                    addAll(copy);
+                    return;
                 }
+                v.insert(v.end(), other.v.begin(), other.v.end());
             }
 
-            void addAll(Set<T> &other) noexcept {
+            void addAll(const Set<T> &other) {
                 for (auto const &t : other.getStdSet()) {
                     add(t);
                 }
@@ -157,7 +184,7 @@ namespace yuca {
             }
 
             /** Returns the index of the first occurrence of the specified element in this list, or -1 if this list does not contain the element. */
-            long indexOf(const T& t) const noexcept {
+            long indexOf(const T& t) const {
                 long i = 0;
                 for (auto const &e : v) {
                     if (e == t) {
@@ -168,11 +195,11 @@ namespace yuca {
                 return -1;
             }
 
-            bool contains(const T& t) const noexcept {
+            bool contains(const T& t) const {
                 return indexOf(t) > -1;
             }
 
-            bool containsAll(List<T> &other) const noexcept {
+            bool containsAll(const List<T> &other) const {
                 for (const T &x : other.v) {
                     if (!contains(x)) {
                         return false;
@@ -190,15 +217,12 @@ namespace yuca {
 
             List<T> subList(unsigned long start, unsigned long length) const {
                 List<T> result;
-                if (size() == 0) {
+                if (start >= size()) {
                     return result;
                 }
-                unsigned long max_offset = size() - 1;
-                for (unsigned long i = 0; i < length; i++) {
-                    if (start + i <= max_offset) {
-                        result.add(get(start + i));
-                    }
-                }
+                const unsigned long count = std::min(length, size() - start);
+                result.v.assign(v.begin() + static_cast<typename std::vector<T>::difference_type>(start),
+                                v.begin() + static_cast<typename std::vector<T>::difference_type>(start + count));
                 return result;
             }
 
@@ -212,11 +236,11 @@ namespace yuca {
 
             /** Replaces the element at the specified position in this list with the specified element (optional operation). */
             T set(long index, T t) noexcept(false) {
-                if (index >= v.size()) {
+                if (index < 0 || static_cast<unsigned long>(index) >= v.size()) {
                     throw std::out_of_range("set(long index, T t): index out of range exception");
                 }
-                T old_value = v.at(index);
-                v.at(index) = t;
+                T old_value = v.at(static_cast<unsigned long>(index));
+                v.at(static_cast<unsigned long>(index)) = t;
                 return old_value;
             }
 
@@ -230,7 +254,7 @@ namespace yuca {
                 return old_value;
             }
 
-            bool remove(T t) noexcept {
+            bool remove(T t) {
                 long index = indexOf(t);
                 if (index == -1) {
                     return false;
@@ -239,19 +263,35 @@ namespace yuca {
                 return true;
             }
 
-            bool removeAll(List<T> &other) {
+            bool removeAll(const List<T> &other) {
                 unsigned long original_size = v.size();
+                if (this == &other) {
+                    clear();
+                    return original_size != 0;
+                }
                 for (auto const &t : other.v) {
                     remove(t);
                 }
                 return original_size > v.size();
             }
 
-            std::vector<T> getStdVectorCopy() const noexcept {
+            std::vector<T> getStdVectorCopy() const {
                 return v;
             }
 
-            std::vector<T> &getStdVector() noexcept {
+            std::vector<T> &getStdVector() & noexcept {
+                return v;
+            }
+
+            const std::vector<T> &getStdVector() const & noexcept {
+                return v;
+            }
+
+            std::vector<T> getStdVector() && noexcept {
+                return std::move(v);
+            }
+
+            std::vector<T> getStdVector() const && {
                 return v;
             }
 
@@ -287,7 +327,7 @@ namespace yuca {
                 return m.empty();
             }
 
-            Set<std::pair<K, V>> entrySet() const noexcept {
+            Set<std::pair<K, V>> entrySet() const {
                 Set<std::pair<K, V>> result;
                 for (auto const &entry_pair : m) {
                     result.add(entry_pair);
@@ -295,31 +335,31 @@ namespace yuca {
                 return result;
             }
 
-            Set<K> keySet() const noexcept {
+            Set<K> keySet() const {
                 Set<K> result;
-                for (std::pair<K, V> const &entry_pair : m) {
+                for (auto const &entry_pair : m) {
                     result.add(entry_pair.first);
                 }
                 return result;
             }
 
-            List<K> keyList() const noexcept {
+            List<K> keyList() const {
                 List<K> result;
-                for (std::pair<K, V> const &entry_pair : m) {
+                for (auto const &entry_pair : m) {
                     result.add(entry_pair.first);
                 }
                 return result;
             }
 
-            List<V> values() const noexcept {
+            List<V> values() const {
                 List<V> result;
-                for (std::pair<K, V> const &entry_pair : m) {
+                for (auto const &entry_pair : m) {
                     result.add(entry_pair.second);
                 }
                 return result;
             }	  
 
-            V get(K key) const noexcept {
+            V get(const K &key) const {
                 auto it = m.find(key);
                 if (it == m.end()) {
                     return default_empty_value;
@@ -327,7 +367,7 @@ namespace yuca {
                 return it->second;
             }
 
-            bool containsKey(K key) const noexcept {
+            bool containsKey(const K &key) const {
                 if (m.empty()) {
                     return false;
                 }
@@ -344,7 +384,7 @@ namespace yuca {
                 return result;
             }
 
-            void put(K key, V value) noexcept {
+            void put(K key, V value) {
                 if (containsKey(key)) {
                     m.erase(key);
                 }
@@ -355,18 +395,30 @@ namespace yuca {
                 return m.size();
             }
 
-            void putAll(Map<K, V> other) noexcept {
+            void putAll(const Map<K, V> &other) {
                 auto entry_set = other.entrySet().getStdSet();
                 for (auto const &entry : entry_set) {
                     put(entry.first, entry.second);
                 }
             }
 
-            std::map<K, V> getStdMapCopy() const noexcept {
+            std::map<K, V> getStdMapCopy() const {
                 return m;
             }
 
-            std::map<K, V> &getStdMap() noexcept {
+            std::map<K, V> &getStdMap() & noexcept {
+                return m;
+            }
+
+            const std::map<K, V> &getStdMap() const & noexcept {
+                return m;
+            }
+
+            std::map<K, V> getStdMap() && noexcept {
+                return std::move(m);
+            }
+
+            std::map<K, V> getStdMap() const && {
                 return m;
             }
 
