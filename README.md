@@ -3,6 +3,8 @@
 
 **Yuca: A light-weight, in-memory, fast and simple to use search engine library.**
 
+**Start here:** [User manual](docs/manual.md) · [Development, benchmarks, and fuzz testing](docs/development.md) · [Changelog](CHANGELOG.md) · [C++ engineering skill](skills/cpp-engineer/SKILL.md)
+
 If your app can't handle or doesn't really need installing a full featured and heavy search engine like Lucene, nor you want to depend on a SQL database for indexing and doing simple search based strings you can use Yuca to index documents under any number of arbitrary keys which can be grouped under tags.
 
 The shared library currently weighs ~170kb without any packing optimizations, we hope to reduce the size further in the near future.
@@ -37,7 +39,7 @@ The current intention is to have the `swig/build.sh` be a one step build process
 
 For now it's a very rough script that will create java bindings, currently supports bindings for Java on MacOS since we're still early in the development of the bindings. In the long run, options will be passed to build.sh to output bindings for the language and architecture of your choice.
 
-To build JNI bingings, fist make sure to have built the C++ library as explained in the previous build instructions section and then:
+The JNI scripts are legacy and currently assume libraries in the repository root; they have **not** been updated or verified with the new out-of-source build. The commands below describe the historical workflow, not a qualified build path:
 
 ```
 $ cd swig

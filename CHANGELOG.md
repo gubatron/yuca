@@ -13,6 +13,7 @@
 - Out-of-source, target-based CMake, CTest integration, library/header installation, and optional ASan/UBSan builds.
 - Deterministic Release benchmarks, CSV comparison tooling, and checked-in per-fix measurements.
 - A versioned C++ engineering skill, offline fallback, and explicit MentisDB synchronization protocol.
+- User and development manuals with an executable CTest-verified lifecycle example and explicit ownership, query, ranking, security, and compatibility limitations.
 - Instrumented libFuzzer targets with differential distance/index oracles, seed corpora, bounded mutation runs, and CI checks with benchmark artifacts.
 
 ### Performance
