@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: hostile-topk
+expected_outcome: |
+  Prefer measured algorithm/data-layout work over speculative intrinsics and unsafe portable build flags. Explain bounded adversarial work, collision-safe keys, top-k determinism, benchmark controls, and regression/security tests without invented gains or a silent language upgrade.

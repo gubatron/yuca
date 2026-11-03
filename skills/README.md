@@ -20,3 +20,9 @@ cmp skills/cpp-engineer/SKILL.md "$HOME/.config/opencode/skills/cpp-engineer/SKI
 ```
 
 When MentisDB is unavailable, the repository copy remains authoritative for this checkout. Record pending synchronization in the work summary; reconcile with the latest trusted version when connectivity returns. This is an agent-enforced protocol, not a background synchronization daemon: metadata records the last verified synchronization, not a guarantee against subsequent remote edits.
+
+## Skill smoke evaluations
+
+`cpp-engineer/evals/` contains two review-only cases in skill-creator's case-folder format: a C++11 temporary-lifetime/range-overflow review, and a portable hostile-input top-k performance plan. Each has explicit acceptance criteria and can be run with/without the skill in fresh sessions. Keep generated results under `build/skill-eval/`, not in the source tree.
+
+These cases check that the guidance yields useful, honest reviews. They do **not** establish that the skill improves coding outcomes over an already capable baseline. Stronger evaluation should include actual compiled repairs, seeded defects, sanitizer evidence, repeated independent runs, and human review. Adding evaluation fixtures does not change the skill body or require a duplicate immutable MentisDB skill upload.
