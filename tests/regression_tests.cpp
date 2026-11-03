@@ -185,3 +185,25 @@ TEST_CASE("Posting updates retain canonical keys and independent result snapshot
     reverse.removeDocument(key, first);
     CHECK(reverse.getKeyCount() == 0);
 }
+
+TEST_CASE("Limited search is a deterministic prefix of the full ranking", "[regression]") {
+    Indexer indexer;
+    for (long id = 30; id >= 1; --id) {
+        Document doc(id);
+        doc.addKey(StringKey("common", ":keyword"));
+        indexer.indexDocument(doc);
+    }
+    const auto all = indexer.search("common");
+    REQUIRE(all.size() == 30);
+    for (unsigned long i = 0; i < all.size(); ++i) {
+        CHECK(all.get(i).document_sp->getId() == static_cast<long>(i + 1));
+    }
+    const unsigned long limits[] = {1, 10, 29, 30, 31, std::numeric_limits<unsigned long>::max()};
+    for (unsigned long limit : limits) {
+        const auto results = indexer.search("common", "", limit);
+        REQUIRE(results.size() == std::min(limit, all.size()));
+        for (unsigned long i = 0; i < results.size(); ++i) {
+            CHECK(results.get(i).document_sp->getId() == all.get(i).document_sp->getId());
+        }
+    }
+}

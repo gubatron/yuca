@@ -135,8 +135,9 @@ namespace yuca {
 
     struct SearchResultSortFunctor {
         /** Use to sort SearchResults in descending order by score */
-        bool operator()(const SearchResult a, const SearchResult b) const {
-            return a.score > b.score;
+        bool operator()(const SearchResult &a, const SearchResult &b) const {
+            return a.score != b.score ? a.score > b.score
+                                     : a.document_sp->getId() < b.document_sp->getId();
         }
     };
 
@@ -194,8 +195,8 @@ namespace yuca {
          * against the given query. The lowest the Levenshtein distance the higher ranked the search result will be.
          * If the given property name does not exist in the document, this parameter will simply be ignored.
          *
-         * @param opt_max_search_results -  if > 0 it will limit the maximum search results to that number. Pass 0 or a
-         * negative number to obtain all possible search results.
+         * @param opt_max_search_results - if > 0, limit results to that number; 0 means unlimited.
+         * Equal scores are ordered by ascending document ID.
          *
          * @return A List of matching SearchResult objects.
          */

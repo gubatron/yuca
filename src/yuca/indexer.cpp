@@ -332,14 +332,13 @@ namespace yuca {
         }
 
         // 5. sort list by final score
-        auto v = results.getStdVectorCopy();
-        std::sort(v.begin(), v.end(), SearchResultSortFunctor());
-        results.clear();
-        for (auto const &result : v) {
-            results.add(result);
-        }
-        if (opt_max_search_results > 0) {
-            results = results.subList(0, opt_max_search_results);
+        auto &v = results.getStdVector();
+        if (opt_max_search_results > 0 && opt_max_search_results < v.size()) {
+            const auto end = v.begin() + static_cast<std::vector<SearchResult>::difference_type>(opt_max_search_results);
+            std::partial_sort(v.begin(), end, v.end(), SearchResultSortFunctor());
+            v.erase(end, v.end());
+        } else {
+            std::sort(v.begin(), v.end(), SearchResultSortFunctor());
         }
         return results;
     }

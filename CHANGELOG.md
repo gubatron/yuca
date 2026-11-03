@@ -16,3 +16,4 @@
 
 ### Performance
 - Update posting lists in place rather than copying the entire document set on insertion, existence checks, and removal. Public result sets remain independent snapshots.
+- Sort search results in place, compare by reference, and partially sort only the requested top-k. Equal scores are deterministically ordered by document ID.

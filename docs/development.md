@@ -76,6 +76,8 @@ Search unions keyword matches within each requested group and intersects across 
 
 `SearchResult::id` is a legacy non-negative wrapping combination of document and request IDs, not a globally unique identifier. Request IDs still use the process RNG; neither identifier is suitable for security, persistence, or deduplicating unrelated requests. Prefer document IDs for application identity.
 
+Results are ordered by descending score, then ascending document ID. A limited search returns exactly the corresponding prefix of the unlimited ranking. Sorting operates on the result vector in place: O(R log K) comparison work for top-K out of R candidates (when 0 < K < R), otherwise O(R log R). Candidate discovery and scoring still process all matches, so a result limit is not a cap on query CPU or memory. Very large limits are clamped by actual result count without limit-sized loops.
+
 ## Coverage-guided fuzz testing
 
 Clang with libFuzzer is required. The option below instruments the **library as well as the harnesses**, with coverage, ASan, and UBSan. It is a separate build, not a benchmark configuration:
