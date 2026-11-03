@@ -52,7 +52,13 @@ int main(int argc, char **argv) {
             doc.stringProperty("title", "common title " + std::to_string(i));
             documents.push_back(doc);
         }
-        std::cout << "# compiler=" << __VERSION__ << " cplusplus=" << __cplusplus
+        std::cout << "# compiler="
+#ifdef _MSC_VER
+                  << "MSVC " << _MSC_VER
+#else
+                  << __VERSION__
+#endif
+                  << " cplusplus=" << __cplusplus
                   << " documents=" << count << " samples=" << samples << '\n';
         std::cout << "workload,sample,ns_per_operation,checksum\n";
         measure("index_document", samples, count, [&]() {

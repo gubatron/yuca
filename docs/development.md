@@ -73,3 +73,32 @@ Queries are whitespace-separated, case-sensitive byte strings. A token beginning
 Search unions keyword matches within each requested group and intersects across groups. A missing requested group yields no results. Base score is the number of matching query keywords (repeated query terms count repeatedly); a non-empty comparison property adds `1 / distance`, or 1 for an exact match. The distance is byte-oriented Levenshtein, not Unicode code-point distance. Scores are **not** normalized to [0,1]. A zero result limit means unlimited.
 
 `SearchResult::id` is a legacy non-negative wrapping combination of document and request IDs, not a globally unique identifier. Request IDs still use the process RNG; neither identifier is suitable for security, persistence, or deduplicating unrelated requests. Prefer document IDs for application identity.
+
+## Coverage-guided fuzz testing
+
+Clang with libFuzzer is required. The option below instruments the **library as well as the harnesses**, with coverage, ASan, and UBSan. It is a separate build, not a benchmark configuration:
+
+```sh
+cmake -S . -B build/fuzz -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DYUCA_BUILD_FUZZERS=ON
+cmake --build build/fuzz --parallel 4
+ctest --test-dir build/fuzz --output-on-failure
+mkdir -p build/fuzz/corpus
+cp -R fuzz/corpus/utils build/fuzz/corpus/
+cp -R fuzz/corpus/indexer build/fuzz/corpus/
+UBSAN_OPTIONS=halt_on_error=1 build/fuzz/yuca_fuzz_utils build/fuzz/corpus/utils -max_total_time=60 -max_len=512 -timeout=5 -rss_limit_mb=1024
+UBSAN_OPTIONS=halt_on_error=1 build/fuzz/yuca_fuzz_indexer build/fuzz/corpus/indexer -max_total_time=60 -max_len=512 -timeout=5 -rss_limit_mb=1024
+```
+
+CTest replays the checked-in seeds without mutation (`-runs=0`); the explicit commands mutate **build-directory copies**, not tracked source seeds. `utils` compares Levenshtein against an independent full-matrix reference, checks whitespace splitting, range bounds (including unsigned maximum), and collection self-operations. `indexer` interprets bounded operation streams and compares insert/replace/remove/clear/grouped-search/top-one results against a simple map model after each step. It also exercises arbitrary-byte queries. Each input is capped at 512 bytes; distance strings at 128 bytes and state at 16 document IDs, so fuzzing spends time exploring behavior rather than inducing unbounded test work.
+
+For repeatable bounded smoke runs, replace `-max_total_time=60` with `-runs=10000 -seed=444`. Fuzzing is not proof of correctness; increase budgets and corpora for release qualification. On failure, retain the `crash-*`, `timeout-*`, or sanitizer artifact, reproduce with `build/fuzz/yuca_fuzz_indexer path/to/artifact`, minimize with libFuzzer's `-minimize_crash=1`, and add a named deterministic regression test plus the minimized seed. Ignore rules prevent accidental artifact commits; explicitly add reviewed minimized seeds under `fuzz/corpus/`.
+
+If the linker cannot find the libFuzzer runtime, install a Clang distribution that includes it. Do not silently skip instrumentation or replace the target with a non-fuzz executable.
+
+On macOS, Apple's bundled Clang may omit libFuzzer. Homebrew LLVM can be selected explicitly in a **new** build directory with `-DCMAKE_CXX_COMPILER="$(brew --prefix llvm)/bin/clang++"`; do not change compilers inside an existing CMake cache. Local corpus replay was verified with Homebrew LLVM 23.1.4 as well as core ASan/UBSan tests with AppleClang 21.
+
+Initial bounded local qualification: both fuzzers completed 10,000 runs with seed 444, ASan/UBSan, maximum input 512 bytes, 5-second per-input timeout and 1024 MiB RSS limit, with no finding. This is a smoke budget, not exhaustive security qualification.
+
+## Continuous integration
+
+`.github/workflows/native.yml` runs macOS core tests in Release and ASan/UBSan configurations, archives Release benchmark CSV/environment information, and runs instrumented Clang fuzzers on Linux. CI timings are informational; heterogeneous hosted runners are unsuitable for hard performance gates. Legacy Catch portability on modern Linux and a full GCC/MSVC unit-test matrix remain follow-up work; Linux's initial job exercises library behavior through differential fuzz oracles instead.

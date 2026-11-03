@@ -1,0 +1,67 @@
+name: Native checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        sanitizers: ['OFF', 'ON']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build/ci -DCMAKE_BUILD_TYPE=Release -DYUCA_ENABLE_SANITIZERS=${{ matrix.sanitizers }} -DYUCA_BUILD_BENCHMARKS=ON
+      - name: Build
+        run: cmake --build build/ci --parallel 4
+      - name: Test
+        env:
+          UBSAN_OPTIONS: halt_on_error=1
+        run: ctest --test-dir build/ci --output-on-failure
+      - name: Benchmark artifact (informational, no timing threshold)
+        if: matrix.sanitizers == 'OFF'
+        run: |
+          git rev-parse HEAD > build/ci/environment.txt
+          uname -a >> build/ci/environment.txt
+          c++ --version >> build/ci/environment.txt
+          build/ci/yuca_benchmarks 7 1000 > build/ci/benchmarks.csv
+      - uses: actions/upload-artifact@v4
+        if: matrix.sanitizers == 'OFF'
+        with:
+          name: release-benchmarks
+          path: |
+            build/ci/benchmarks.csv
+            build/ci/environment.txt
+
+  linux-fuzz:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure instrumented library and fuzzers
+        run: cmake -S . -B build/fuzz -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DYUCA_BUILD_FUZZERS=ON -DBUILD_TESTING=OFF -DYUCA_BUILD_DEMOS=OFF
+      - name: Build
+        run: cmake --build build/fuzz --parallel 4
+      - name: Replay and mutate both corpora
+        env:
+          UBSAN_OPTIONS: halt_on_error=1
+        run: |
+          mkdir -p build/fuzz/corpus
+          cp -R fuzz/corpus/utils build/fuzz/corpus/
+          cp -R fuzz/corpus/indexer build/fuzz/corpus/
+          build/fuzz/yuca_fuzz_utils build/fuzz/corpus/utils -runs=10000 -seed=444 -max_len=512 -timeout=5 -rss_limit_mb=1024
+          build/fuzz/yuca_fuzz_indexer build/fuzz/corpus/indexer -runs=10000 -seed=444 -max_len=512 -timeout=5 -rss_limit_mb=1024
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: fuzz-failure-artifacts
+          path: |
+            crash-*
+            timeout-*
+            oom-*
+            leak-*
+            build/fuzz/corpus/

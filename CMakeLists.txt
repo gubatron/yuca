@@ -79,6 +79,21 @@ if(YUCA_BUILD_BENCHMARKS)
     endif()
 endif()
 
+if(YUCA_BUILD_FUZZERS)
+    foreach(name utils indexer)
+        add_executable(yuca_fuzz_${name} fuzz/${name}_fuzz.cpp)
+        target_link_libraries(yuca_fuzz_${name} PRIVATE yuca_static)
+        yuca_configure_target(yuca_fuzz_${name})
+        target_link_options(yuca_fuzz_${name} PRIVATE -fsanitize=fuzzer)
+        if(BUILD_TESTING)
+            add_test(NAME fuzz_${name}_corpus COMMAND yuca_fuzz_${name}
+                -runs=0 -max_len=512 "${CMAKE_CURRENT_SOURCE_DIR}/fuzz/corpus/${name}")
+            set_tests_properties(fuzz_${name}_corpus PROPERTIES TIMEOUT 30
+                ENVIRONMENT "UBSAN_OPTIONS=halt_on_error=1")
+        endif()
+    endforeach()
+endif()
+
 install(TARGETS yuca_shared yuca_static
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
