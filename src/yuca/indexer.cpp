@@ -177,8 +177,8 @@ namespace yuca {
     }
 
     bool Indexer::removeDocument(long const doc_id) {
-        Document document = getDocument(doc_id);
-        if (document == Document::NULL_DOCUMENT) {
+        SPDocument document = docPtrCache.get(doc_id);
+        if (document == nullptr) {
             return false;
         }
         removeDocument(document);
@@ -199,6 +199,11 @@ namespace yuca {
     }
 
     void Indexer::indexDocument(SPDocument spDoc) {
+        if (spDoc == nullptr) {
+            throw std::invalid_argument("indexDocument requires a non-null document");
+        }
+        // IDs identify documents, not shared_ptr instances. Replace all old postings.
+        removeDocument(spDoc->getId());
         docPtrCache.put(spDoc->getId(), spDoc);
 
         std::set<std::string> groups = spDoc->getGroups();
@@ -219,6 +224,14 @@ namespace yuca {
     }
 
     void Indexer::removeDocument(SPDocument doc) {
+        if (doc == nullptr) {
+            return;
+        }
+        // Callers may supply an equivalent document with different or missing keys.
+        doc = docPtrCache.get(doc->getId());
+        if (doc == nullptr) {
+            return;
+        }
         std::set<std::string> groups = doc->getGroups();
         for (auto const &group : groups) {
             std::shared_ptr<ReverseIndex> reverse_index = getReverseIndex(group);

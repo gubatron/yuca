@@ -63,7 +63,7 @@ endif()
 
 if(BUILD_TESTING)
     add_executable(yuca_tests tests/utils_tests.cpp tests/document_tests.cpp
-        tests/indexer_tests.cpp tests/tests_main.cpp)
+        tests/indexer_tests.cpp tests/regression_tests.cpp tests/tests_main.cpp)
     target_link_libraries(yuca_tests PRIVATE yuca_static)
     yuca_configure_target(yuca_tests)
     add_test(NAME unit_tests COMMAND yuca_tests)

@@ -163,8 +163,11 @@ namespace yuca {
         /** Wrapper meant for non C++ users so their API surface doesn't need to deal with shared_ptr */
         bool removeDocument(Document doc);
 
+        /** Insert or replace by ID. Rejects nullptr with std::invalid_argument.
+         * The pointer is retained: remove the document before mutating its keys. */
         void indexDocument(SPDocument doc);
 
+        /** Remove the cached document with this ID; nullptr or unknown IDs are no-ops. */
         void removeDocument(SPDocument doc);
 
         /** Remove all documents from the index */
