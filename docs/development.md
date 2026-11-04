@@ -109,4 +109,22 @@ Extending the utility harness to random bounds subsequently reproduced division 
 
 ## Continuous integration
 
-`.github/workflows/native.yml` runs macOS core tests in Release and ASan/UBSan configurations, archives Release benchmark CSV/environment information, and runs instrumented Clang fuzzers on Linux. CI timings are informational; heterogeneous hosted runners are unsuitable for hard performance gates. Legacy Catch portability on modern Linux and a full GCC/MSVC unit-test matrix remain follow-up work; Linux's initial job exercises library behavior through differential fuzz oracles instead.
+`.github/workflows/native.yml` runs macOS core tests in Release and ASan/UBSan configurations, full Linux GCC/Clang unit tests, blocking Linux static analysis, and instrumented Linux Clang fuzzers. Release benchmark CSV/environment information is archived. CI timings are informational; heterogeneous hosted runners are unsuitable for hard performance gates. Windows/MSVC, Linux libc++, and cross-architecture execution beyond hosted runner architectures remain follow-up work.
+
+## Blocking static analysis and strict warnings
+
+The core compiles with `-Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow` on GCC/Clang. Enable `YUCA_WARNINGS_AS_ERRORS=ON` to reject core compiler warnings. These options are private to Yuca, not requirements imposed on consumers or the vendored test runner.
+
+The optional analysis build needs clang-tidy and Python 3 (for the analyzer gate self-test):
+
+```sh
+cmake -S . -B build/analysis -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Debug -DYUCA_ENABLE_CLANG_TIDY=ON -DYUCA_WARNINGS_AS_ERRORS=ON
+cmake --build build/analysis --parallel 4
+ctest --test-dir build/analysis --output-on-failure
+```
+
+If the tool is outside PATH, supply `-DYUCA_CLANG_TIDY_EXECUTABLE=/path/to/clang-tidy`. On macOS, Homebrew LLVM provides both tools; select its compiler explicitly in a fresh build directory. Missing tools fail configuration rather than silently disabling the requested checks.
+
+`.clang-tidy` enables the Clang Static Analyzer plus selected bug-prone, portability, and inefficient-operation checks. Findings are errors. The static target is analyzed because static/shared targets compile the same core source; this avoids duplicate reports. `clang_tidy_gate` proves the active configuration rejects integer division incorrectly returned as floating point and accepts the corrected C++11 fixture. Analysis does not replace runtime tests or instrumented fuzzing.
+
+The legacy non-cryptographic `rand()` adapter has one documented, check-specific suppression to preserve `srand` compatibility; it is never suitable for security. Broad style/performance suggestions, ABI-changing parameter rewrites, enum-size changes, and static-initialization advisories require separate review rather than automatic edits. For an advisory full scan, configure `CMAKE_EXPORT_COMPILE_COMMANDS=ON` and run clang-tidy with an explicit broader `--checks` list; do not weaken the blocking gate to hide a real defect.

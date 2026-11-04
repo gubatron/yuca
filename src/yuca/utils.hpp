@@ -457,6 +457,8 @@ namespace yuca {
                 typedef unsigned int result_type;
                 static constexpr result_type min() { return 0; }
                 static constexpr result_type max() { return RAND_MAX; }
+                // Legacy, non-cryptographic RNG; preserve srand() compatibility.
+                // NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.rand)
                 result_type operator()() { return static_cast<result_type>(std::rand()); }
             } source;
             std::uniform_int_distribution<std::size_t> distribution(0, maxInclusive);

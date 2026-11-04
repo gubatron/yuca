@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Configure
-        run: cmake -S . -B build/ci -DCMAKE_BUILD_TYPE=Release -DYUCA_ENABLE_SANITIZERS=${{ matrix.sanitizers }} -DYUCA_BUILD_BENCHMARKS=ON
+        run: cmake -S . -B build/ci -DCMAKE_BUILD_TYPE=Release -DYUCA_ENABLE_SANITIZERS=${{ matrix.sanitizers }} -DYUCA_BUILD_BENCHMARKS=ON -DYUCA_WARNINGS_AS_ERRORS=ON
       - name: Build
         run: cmake --build build/ci --parallel 4
       - name: Test
@@ -37,6 +37,34 @@ jobs:
           path: |
             build/ci/benchmarks.csv
             build/ci/environment.txt
+
+  linux-compilers:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [g++, clang++]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure strict C++11 core and full unit tests
+        run: cmake -S . -B build/ci -DCMAKE_CXX_COMPILER=${{ matrix.compiler }} -DCMAKE_BUILD_TYPE=Release -DYUCA_WARNINGS_AS_ERRORS=ON -DYUCA_BUILD_BENCHMARKS=ON
+      - name: Build
+        run: cmake --build build/ci --parallel 4
+      - name: Test
+        run: ctest --test-dir build/ci --output-on-failure
+
+  static-analysis:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Clang analysis tools
+        run: sudo apt-get update && sudo apt-get install -y clang-tidy
+      - name: Configure
+        run: cmake -S . -B build/analysis -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Debug -DYUCA_ENABLE_CLANG_TIDY=ON -DYUCA_WARNINGS_AS_ERRORS=ON
+      - name: Build with blocking analysis
+        run: cmake --build build/analysis --parallel 4
+      - name: Test analyzer gate and library
+        run: ctest --test-dir build/analysis --output-on-failure
 
   linux-fuzz:
     runs-on: ubuntu-latest

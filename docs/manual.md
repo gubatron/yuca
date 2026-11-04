@@ -19,7 +19,7 @@ This is **not yet** a full-text analyzer or a durable search database. It has no
 
 ## Build, link, and run
 
-Requirements: CMake 3.16+, a C++11 compiler and standard library, and Make/Ninja or another supported generator. The current locally verified platform is macOS arm64 (AppleClang 21 and Homebrew LLVM 23). CI also exercises the core via Linux Clang differential fuzz tests; a complete GCC/MSVC unit-test matrix is not yet established.
+Requirements: CMake 3.16+, a C++11 compiler and standard library, and Make/Ninja or another supported generator. The current locally verified platform is macOS arm64 (AppleClang 21 and Homebrew LLVM 23). CI includes full Linux GCC/Clang unit tests and Clang differential fuzz tests. MSVC and a complete cross-architecture/standard-library matrix are not yet established.
 
 ```sh
 cmake -S . -B build/release -DCMAKE_BUILD_TYPE=Release
