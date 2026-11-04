@@ -32,6 +32,7 @@ jobs:
           build/ci/yuca_benchmarks 7 1000 > build/ci/benchmarks.csv
           build/ci/yuca_allocations index 1000 1 > build/ci/allocations.jsonl
           build/ci/yuca_allocations search_top10 1000 100 >> build/ci/allocations.jsonl
+          python3 scripts/benchmark_suite.py --candidate build/ci/yuca_benchmark_suite --documents 100,1000 --workloads index,remove,search_common,search_rare --top-k 0,10 --samples 3 --min-sample-ms 1 --max-iterations 20 --output build/ci/scaling
       - uses: actions/upload-artifact@v4
         if: matrix.sanitizers == 'OFF'
         with:
@@ -40,6 +41,7 @@ jobs:
             build/ci/benchmarks.csv
             build/ci/environment.txt
             build/ci/allocations.jsonl
+            build/ci/scaling/
 
   linux-compilers:
     runs-on: ubuntu-24.04

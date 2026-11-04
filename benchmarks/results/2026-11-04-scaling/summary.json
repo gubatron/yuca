@@ -1,0 +1,947 @@
+[
+  {
+    "workload": "index",
+    "documents": 100,
+    "top_k": 0,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 560.421,
+        "min_ns": 515.4834,
+        "max_ns": 593.6337,
+        "stdev_ns": 30.051211302791106,
+        "median_bootstrap_95pct_ns": [
+          515.4834,
+          593.6337
+        ],
+        "checksum": 7340270528680111217
+      }
+    }
+  },
+  {
+    "workload": "index",
+    "documents": 1000,
+    "top_k": 0,
+    "iterations": 17,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 561.5194705882353,
+        "min_ns": 554.9485882352941,
+        "max_ns": 585.951,
+        "stdev_ns": 13.071172589018293,
+        "median_bootstrap_95pct_ns": [
+          554.9485882352941,
+          585.951
+        ],
+        "checksum": 7600965409883136432
+      }
+    }
+  },
+  {
+    "workload": "index",
+    "documents": 10000,
+    "top_k": 0,
+    "iterations": 2,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 647.02705,
+        "min_ns": 619.89585,
+        "max_ns": 681.35205,
+        "stdev_ns": 23.464446443651713,
+        "median_bootstrap_95pct_ns": [
+          619.89585,
+          681.35205
+        ],
+        "checksum": 8202523311318582175
+      }
+    }
+  },
+  {
+    "workload": "replace",
+    "documents": 100,
+    "top_k": 0,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 614.6623,
+        "min_ns": 596.5834,
+        "max_ns": 628.3369,
+        "stdev_ns": 13.110097961990979,
+        "median_bootstrap_95pct_ns": [
+          596.5834,
+          628.3369
+        ],
+        "checksum": 7340270528680111217
+      }
+    }
+  },
+  {
+    "workload": "replace",
+    "documents": 1000,
+    "top_k": 0,
+    "iterations": 14,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 681.872,
+        "min_ns": 673.5892857142857,
+        "max_ns": 770.6727142857143,
+        "stdev_ns": 40.67270267694217,
+        "median_bootstrap_95pct_ns": [
+          673.5892857142857,
+          770.6727142857143
+        ],
+        "checksum": 5501305971272983875
+      }
+    }
+  },
+  {
+    "workload": "replace",
+    "documents": 10000,
+    "top_k": 0,
+    "iterations": 2,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 739.5813,
+        "min_ns": 699.79165,
+        "max_ns": 764.53955,
+        "stdev_ns": 29.19309012642376,
+        "median_bootstrap_95pct_ns": [
+          699.79165,
+          764.53955
+        ],
+        "checksum": 8202523311318582175
+      }
+    }
+  },
+  {
+    "workload": "remove",
+    "documents": 100,
+    "top_k": 0,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 439.3706,
+        "min_ns": 432.1452,
+        "max_ns": 450.7627,
+        "stdev_ns": 7.6579128287020835,
+        "median_bootstrap_95pct_ns": [
+          432.1452,
+          450.7627
+        ],
+        "checksum": 11093807277012354417
+      }
+    }
+  },
+  {
+    "workload": "remove",
+    "documents": 1000,
+    "top_k": 0,
+    "iterations": 22,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 460.1384545454545,
+        "min_ns": 446.11172727272725,
+        "max_ns": 468.4583181818182,
+        "stdev_ns": 8.349026581703017,
+        "median_bootstrap_95pct_ns": [
+          446.11172727272725,
+          468.4583181818182
+        ],
+        "checksum": 16739746614465305195
+      }
+    }
+  },
+  {
+    "workload": "remove",
+    "documents": 10000,
+    "top_k": 0,
+    "iterations": 3,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 419.5194666666667,
+        "min_ns": 393.3889,
+        "max_ns": 427.68606666666665,
+        "stdev_ns": 13.479560555040372,
+        "median_bootstrap_95pct_ns": [
+          393.3889,
+          427.68606666666665
+        ],
+        "checksum": 446184548581385422
+      }
+    }
+  },
+  {
+    "workload": "clear",
+    "documents": 100,
+    "top_k": 0,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 12803.25,
+        "min_ns": 12656.59,
+        "max_ns": 13350.45,
+        "stdev_ns": 289.3267843287244,
+        "median_bootstrap_95pct_ns": [
+          12656.59,
+          13350.45
+        ],
+        "checksum": 11093807277012354417
+      }
+    }
+  },
+  {
+    "workload": "clear",
+    "documents": 1000,
+    "top_k": 0,
+    "iterations": 76,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 123837.13157894737,
+        "min_ns": 122392.56578947368,
+        "max_ns": 126075.68421052632,
+        "stdev_ns": 1669.1900220130585,
+        "median_bootstrap_95pct_ns": [
+          122392.56578947368,
+          126075.68421052632
+        ],
+        "checksum": 3702759019755595513
+      }
+    }
+  },
+  {
+    "workload": "clear",
+    "documents": 10000,
+    "top_k": 0,
+    "iterations": 8,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 1585322.75,
+        "min_ns": 1479286.375,
+        "max_ns": 1649145.75,
+        "stdev_ns": 61643.261533056575,
+        "median_bootstrap_95pct_ns": [
+          1479286.375,
+          1649145.75
+        ],
+        "checksum": 5979869491746668685
+      }
+    }
+  },
+  {
+    "workload": "copy",
+    "documents": 100,
+    "top_k": 0,
+    "iterations": 74,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 113076.52702702703,
+        "min_ns": 106816.35135135135,
+        "max_ns": 114232.52702702703,
+        "stdev_ns": 3240.8219463252,
+        "median_bootstrap_95pct_ns": [
+          106816.35135135135,
+          114232.52702702703
+        ],
+        "checksum": 14315673546733012295
+      }
+    }
+  },
+  {
+    "workload": "copy",
+    "documents": 1000,
+    "top_k": 0,
+    "iterations": 9,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 1101407.6666666667,
+        "min_ns": 1082541.7777777778,
+        "max_ns": 1132898.111111111,
+        "stdev_ns": 20911.458961653945,
+        "median_bootstrap_95pct_ns": [
+          1082541.7777777778,
+          1132898.111111111
+        ],
+        "checksum": 12117339490786383352
+      }
+    }
+  },
+  {
+    "workload": "copy",
+    "documents": 10000,
+    "top_k": 0,
+    "iterations": 1,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 11979375,
+        "min_ns": 11745458,
+        "max_ns": 12149833,
+        "stdev_ns": 150426.17703145952,
+        "median_bootstrap_95pct_ns": [
+          11745458,
+          12149833
+        ],
+        "checksum": 7179555535422445344
+      }
+    }
+  },
+  {
+    "workload": "search_rare",
+    "documents": 100,
+    "top_k": 0,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 1190.08,
+        "min_ns": 1152.07,
+        "max_ns": 1224.63,
+        "stdev_ns": 27.11179208388857,
+        "median_bootstrap_95pct_ns": [
+          1152.07,
+          1224.63
+        ],
+        "checksum": 5977778061449764005
+      }
+    }
+  },
+  {
+    "workload": "search_rare",
+    "documents": 100,
+    "top_k": 10,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 1209.16,
+        "min_ns": 1180.4,
+        "max_ns": 1231.23,
+        "stdev_ns": 22.418778958721198,
+        "median_bootstrap_95pct_ns": [
+          1180.4,
+          1231.23
+        ],
+        "checksum": 5977778061449764005
+      }
+    }
+  },
+  {
+    "workload": "search_rare",
+    "documents": 1000,
+    "top_k": 0,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 4845.45,
+        "min_ns": 4825.86,
+        "max_ns": 5707.08,
+        "stdev_ns": 381.0039389953863,
+        "median_bootstrap_95pct_ns": [
+          4825.86,
+          5707.08
+        ],
+        "checksum": 6508938030712422249
+      }
+    }
+  },
+  {
+    "workload": "search_rare",
+    "documents": 1000,
+    "top_k": 10,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 4957.13,
+        "min_ns": 4861.7,
+        "max_ns": 5302.48,
+        "stdev_ns": 170.20900995540728,
+        "median_bootstrap_95pct_ns": [
+          4861.7,
+          5302.48
+        ],
+        "checksum": 6508938030712422249
+      }
+    }
+  },
+  {
+    "workload": "search_rare",
+    "documents": 10000,
+    "top_k": 0,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 40781.69,
+        "min_ns": 40082.95,
+        "max_ns": 48050.75,
+        "stdev_ns": 3605.5623288580096,
+        "median_bootstrap_95pct_ns": [
+          40082.95,
+          48050.75
+        ],
+        "checksum": 3381786512769788625
+      }
+    }
+  },
+  {
+    "workload": "search_rare",
+    "documents": 10000,
+    "top_k": 10,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 38627.49,
+        "min_ns": 36853.36,
+        "max_ns": 47542.09,
+        "stdev_ns": 4249.27154613823,
+        "median_bootstrap_95pct_ns": [
+          36853.36,
+          47542.09
+        ],
+        "checksum": 6508938030712422249
+      }
+    }
+  },
+  {
+    "workload": "search_common",
+    "documents": 100,
+    "top_k": 0,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 39100.88,
+        "min_ns": 38138.38,
+        "max_ns": 40860.45,
+        "stdev_ns": 1118.0317945076515,
+        "median_bootstrap_95pct_ns": [
+          38138.38,
+          40860.45
+        ],
+        "checksum": 7340270528680111217
+      }
+    }
+  },
+  {
+    "workload": "search_common",
+    "documents": 100,
+    "top_k": 10,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 38597.1,
+        "min_ns": 37777.56,
+        "max_ns": 39577.92,
+        "stdev_ns": 672.7879334678948,
+        "median_bootstrap_95pct_ns": [
+          37777.56,
+          39577.92
+        ],
+        "checksum": 10732610295371597605
+      }
+    }
+  },
+  {
+    "workload": "search_common",
+    "documents": 1000,
+    "top_k": 0,
+    "iterations": 22,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 376640,
+        "min_ns": 375288,
+        "max_ns": 394592.7272727273,
+        "stdev_ns": 9564.17632867956,
+        "median_bootstrap_95pct_ns": [
+          375288,
+          394592.7272727273
+        ],
+        "checksum": 11893226033696237163
+      }
+    }
+  },
+  {
+    "workload": "search_common",
+    "documents": 1000,
+    "top_k": 10,
+    "iterations": 23,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 384871.4347826087,
+        "min_ns": 371900.4347826087,
+        "max_ns": 400268.0869565217,
+        "stdev_ns": 11611.276077748127,
+        "median_bootstrap_95pct_ns": [
+          371900.4347826087,
+          400268.0869565217
+        ],
+        "checksum": 2770014353075542491
+      }
+    }
+  },
+  {
+    "workload": "search_common",
+    "documents": 10000,
+    "top_k": 0,
+    "iterations": 2,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 4672833,
+        "min_ns": 4447062.5,
+        "max_ns": 4954167,
+        "stdev_ns": 181447.01318050126,
+        "median_bootstrap_95pct_ns": [
+          4447062.5,
+          4954167
+        ],
+        "checksum": 8202523311318582175
+      }
+    }
+  },
+  {
+    "workload": "search_common",
+    "documents": 10000,
+    "top_k": 10,
+    "iterations": 3,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 4626166.333333333,
+        "min_ns": 4495680.333333333,
+        "max_ns": 4857083.333333333,
+        "stdev_ns": 132245.1786445246,
+        "median_bootstrap_95pct_ns": [
+          4495680.333333333,
+          4857083.333333333
+        ],
+        "checksum": 8133661471836986843
+      }
+    }
+  },
+  {
+    "workload": "search_grouped",
+    "documents": 100,
+    "top_k": 0,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 42847.05,
+        "min_ns": 42525.38,
+        "max_ns": 44450.86,
+        "stdev_ns": 822.8226933853985,
+        "median_bootstrap_95pct_ns": [
+          42525.38,
+          44450.86
+        ],
+        "checksum": 4979320476697698929
+      }
+    }
+  },
+  {
+    "workload": "search_grouped",
+    "documents": 100,
+    "top_k": 10,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 42927.1,
+        "min_ns": 41814.97,
+        "max_ns": 46530.05,
+        "stdev_ns": 2000.2965481023073,
+        "median_bootstrap_95pct_ns": [
+          41814.97,
+          46530.05
+        ],
+        "checksum": 106667144272099953
+      }
+    }
+  },
+  {
+    "workload": "search_grouped",
+    "documents": 1000,
+    "top_k": 0,
+    "iterations": 18,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 461992.94444444444,
+        "min_ns": 449217.55555555556,
+        "max_ns": 465724.55555555556,
+        "stdev_ns": 7514.315841946682,
+        "median_bootstrap_95pct_ns": [
+          449217.55555555556,
+          465724.55555555556
+        ],
+        "checksum": 2183767593728594351
+      }
+    }
+  },
+  {
+    "workload": "search_grouped",
+    "documents": 1000,
+    "top_k": 10,
+    "iterations": 18,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 456414.44444444444,
+        "min_ns": 446659.55555555556,
+        "max_ns": 475775.55555555556,
+        "stdev_ns": 10821.793039174054,
+        "median_bootstrap_95pct_ns": [
+          446659.55555555556,
+          475775.55555555556
+        ],
+        "checksum": 5385514608031462419
+      }
+    }
+  },
+  {
+    "workload": "search_grouped",
+    "documents": 10000,
+    "top_k": 0,
+    "iterations": 2,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 6020646,
+        "min_ns": 5759458,
+        "max_ns": 6214521,
+        "stdev_ns": 184307.3386331917,
+        "median_bootstrap_95pct_ns": [
+          5759458,
+          6214521
+        ],
+        "checksum": 17297018464335073951
+      }
+    }
+  },
+  {
+    "workload": "search_grouped",
+    "documents": 10000,
+    "top_k": 10,
+    "iterations": 2,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 5661666.5,
+        "min_ns": 5395250,
+        "max_ns": 6237458.5,
+        "stdev_ns": 318892.099200772,
+        "median_bootstrap_95pct_ns": [
+          5395250,
+          6237458.5
+        ],
+        "checksum": 10962017736017795939
+      }
+    }
+  },
+  {
+    "workload": "search_distance",
+    "documents": 100,
+    "top_k": 0,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 49829.57,
+        "min_ns": 48942.87,
+        "max_ns": 51762.08,
+        "stdev_ns": 1080.83555463817,
+        "median_bootstrap_95pct_ns": [
+          48942.87,
+          51762.08
+        ],
+        "checksum": 9661585205230940025
+      }
+    }
+  },
+  {
+    "workload": "search_distance",
+    "documents": 100,
+    "top_k": 10,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 50535.87,
+        "min_ns": 48971.18,
+        "max_ns": 53479.16,
+        "stdev_ns": 1643.0112422165598,
+        "median_bootstrap_95pct_ns": [
+          48971.18,
+          53479.16
+        ],
+        "checksum": 9921962362444908325
+      }
+    }
+  },
+  {
+    "workload": "search_distance",
+    "documents": 1000,
+    "top_k": 0,
+    "iterations": 18,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 492442.1666666667,
+        "min_ns": 487324,
+        "max_ns": 509101.8333333333,
+        "stdev_ns": 8644.57713546046,
+        "median_bootstrap_95pct_ns": [
+          487324,
+          509101.8333333333
+        ],
+        "checksum": 1825015435030746311
+      }
+    }
+  },
+  {
+    "workload": "search_distance",
+    "documents": 1000,
+    "top_k": 10,
+    "iterations": 19,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 492552.5789473684,
+        "min_ns": 488307,
+        "max_ns": 554177.4736842106,
+        "stdev_ns": 28990.707460272366,
+        "median_bootstrap_95pct_ns": [
+          488307,
+          554177.4736842106
+        ],
+        "checksum": 15691760851436998107
+      }
+    }
+  },
+  {
+    "workload": "search_distance",
+    "documents": 10000,
+    "top_k": 0,
+    "iterations": 2,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 5489437.5,
+        "min_ns": 5209708.5,
+        "max_ns": 5837333.5,
+        "stdev_ns": 238632.9271479525,
+        "median_bootstrap_95pct_ns": [
+          5209708.5,
+          5837333.5
+        ],
+        "checksum": 1284405339257981815
+      }
+    }
+  },
+  {
+    "workload": "search_distance",
+    "documents": 10000,
+    "top_k": 10,
+    "iterations": 2,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 5284812,
+        "min_ns": 5010875.5,
+        "max_ns": 5535292,
+        "stdev_ns": 214915.07405821956,
+        "median_bootstrap_95pct_ns": [
+          5010875.5,
+          5535292
+        ],
+        "checksum": 18395027151975941413
+      }
+    }
+  },
+  {
+    "workload": "search_empty",
+    "documents": 100,
+    "top_k": 0,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 609.11,
+        "min_ns": 591.66,
+        "max_ns": 629.68,
+        "stdev_ns": 17.17336658899472,
+        "median_bootstrap_95pct_ns": [
+          591.66,
+          629.68
+        ],
+        "checksum": 11093807277012354417
+      }
+    }
+  },
+  {
+    "workload": "search_empty",
+    "documents": 100,
+    "top_k": 10,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 633.76,
+        "min_ns": 580.4,
+        "max_ns": 712.1,
+        "stdev_ns": 56.214749221178614,
+        "median_bootstrap_95pct_ns": [
+          580.4,
+          712.1
+        ],
+        "checksum": 11093807277012354417
+      }
+    }
+  },
+  {
+    "workload": "search_empty",
+    "documents": 1000,
+    "top_k": 0,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 615.84,
+        "min_ns": 580.82,
+        "max_ns": 620.86,
+        "stdev_ns": 16.56298644568665,
+        "median_bootstrap_95pct_ns": [
+          580.82,
+          620.86
+        ],
+        "checksum": 11093807277012354417
+      }
+    }
+  },
+  {
+    "workload": "search_empty",
+    "documents": 1000,
+    "top_k": 10,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 596.24,
+        "min_ns": 572.46,
+        "max_ns": 602.04,
+        "stdev_ns": 11.413863500147503,
+        "median_bootstrap_95pct_ns": [
+          572.46,
+          602.04
+        ],
+        "checksum": 11093807277012354417
+      }
+    }
+  },
+  {
+    "workload": "search_empty",
+    "documents": 10000,
+    "top_k": 0,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 568.41,
+        "min_ns": 549.49,
+        "max_ns": 649.16,
+        "stdev_ns": 38.859978769937584,
+        "median_bootstrap_95pct_ns": [
+          549.49,
+          649.16
+        ],
+        "checksum": 11093807277012354417
+      }
+    }
+  },
+  {
+    "workload": "search_empty",
+    "documents": 10000,
+    "top_k": 10,
+    "iterations": 100,
+    "calibration_capped": true,
+    "statistics": {
+      "candidate": {
+        "samples": 5,
+        "median_ns": 612.04,
+        "min_ns": 597.93,
+        "max_ns": 700.85,
+        "stdev_ns": 42.0941862969223,
+        "median_bootstrap_95pct_ns": [
+          597.93,
+          700.85
+        ],
+        "checksum": 11093807277012354417
+      }
+    }
+  }
+]
