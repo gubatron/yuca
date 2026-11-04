@@ -128,3 +128,18 @@ If the tool is outside PATH, supply `-DYUCA_CLANG_TIDY_EXECUTABLE=/path/to/clang
 `.clang-tidy` enables the Clang Static Analyzer plus selected bug-prone, portability, and inefficient-operation checks. Findings are errors. The static target is analyzed because static/shared targets compile the same core source; this avoids duplicate reports. `clang_tidy_gate` proves the active configuration rejects integer division incorrectly returned as floating point and accepts the corrected C++11 fixture. Analysis does not replace runtime tests or instrumented fuzzing.
 
 The legacy non-cryptographic `rand()` adapter has one documented, check-specific suppression to preserve `srand` compatibility; it is never suitable for security. Broad style/performance suggestions, ABI-changing parameter rewrites, enum-size changes, and static-initialization advisories require separate review rather than automatic edits. For an advisory full scan, configure `CMAKE_EXPORT_COMPILE_COMMANDS=ON` and run clang-tidy with an explicit broader `--checks` list; do not weaken the blocking gate to hide a real defect.
+
+## Source and branch coverage
+
+Use a separate Clang Debug build with matching `llvm-cov` and `llvm-profdata` versions. The normal build remains dependency-free; this optional reporting path also needs Python 3:
+
+```sh
+cmake -S . -B build/coverage -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Debug -DYUCA_ENABLE_COVERAGE=ON
+cmake --build build/coverage --target coverage --parallel 4
+```
+
+If tools are outside PATH, pass `YUCA_LLVM_COV` and `YUCA_LLVM_PROFDATA` explicitly. On macOS, select the Homebrew LLVM compiler and tools together; do not mix Homebrew and Xcode profile formats. Sanitizers, fuzzers, and benchmarks are deliberately rejected in this build so results cannot be mistaken for performance measurements or fuzz edge coverage.
+
+The `coverage` target builds test executables, runs CTest with a fresh profile directory, merges profiles, and produces `build/coverage/coverage/core.txt`, `core.json`, `summary.json`, `core.profdata`, and `html/index.html`. Reports select only `src/yuca` sources/headers, excluding Catch, test code, and standard-library implementation code. Existing profiles are never reused. Missing core source instrumentation, absent profiles, invalid counts, failed tests, or failed tools are errors; parser tests exercise these reporting safeguards.
+
+The HTML shows individual branches; summary JSON includes covered/total line, branch, function, and region counts. CI archives the report as `core-coverage`. Initial local LLVM 23 coverage on 2026-11-04 was 826/902 lines (91.57%) and 199/230 branches (86.52%). Toolchain/template instantiation differences can change counts; compare within the same toolchain. The key implementation had the weakest initial line coverage (56.25%). Use these gaps to choose meaningful tests, not to manufacture a 100% score. No arbitrary percentage gate is imposed yet; passing coverage does not prove assertions are strong or all behaviors are correct. Mutation testing is not installed by this step.

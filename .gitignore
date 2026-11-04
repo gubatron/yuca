@@ -27,3 +27,6 @@ crash-*
 leak-*
 timeout-*
 oom-*
+__pycache__/
+*.profraw
+*.profdata

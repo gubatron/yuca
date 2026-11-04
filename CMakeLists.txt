@@ -9,6 +9,19 @@ option(YUCA_ENABLE_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSani
 option(YUCA_BUILD_FUZZERS "Build Clang libFuzzer targets (also enables sanitizers)" OFF)
 option(YUCA_ENABLE_CLANG_TIDY "Run the blocking clang-tidy checks on the core library" OFF)
 option(YUCA_WARNINGS_AS_ERRORS "Treat first-party core compiler warnings as errors" OFF)
+option(YUCA_ENABLE_COVERAGE "Instrument a separate Clang source/branch coverage build" OFF)
+
+if(YUCA_ENABLE_COVERAGE)
+    if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        message(FATAL_ERROR "Source coverage requires Clang")
+    endif()
+    if(YUCA_ENABLE_SANITIZERS OR YUCA_BUILD_FUZZERS OR YUCA_BUILD_BENCHMARKS)
+        message(FATAL_ERROR "Use separate coverage, sanitizer/fuzzer, and benchmark builds")
+    endif()
+    if(NOT BUILD_TESTING)
+        message(FATAL_ERROR "Coverage requires BUILD_TESTING=ON")
+    endif()
+endif()
 
 if(YUCA_ENABLE_CLANG_TIDY)
     find_program(YUCA_CLANG_TIDY_EXECUTABLE NAMES clang-tidy clang-tidy-18 clang-tidy-19 clang-tidy-20)
@@ -40,6 +53,10 @@ function(yuca_configure_target target)
     endif()
     if(YUCA_BUILD_FUZZERS)
         target_compile_options(${target} PRIVATE -fsanitize=fuzzer-no-link)
+    endif()
+    if(YUCA_ENABLE_COVERAGE)
+        target_compile_options(${target} PRIVATE -fprofile-instr-generate -fcoverage-mapping)
+        target_link_options(${target} PRIVATE -fprofile-instr-generate)
     endif()
 endfunction()
 
@@ -130,6 +147,29 @@ if(YUCA_BUILD_FUZZERS)
                 -runs=0 -max_len=512 "${CMAKE_CURRENT_SOURCE_DIR}/fuzz/corpus/${name}")
             set_tests_properties(fuzz_${name}_corpus PROPERTIES TIMEOUT 30
                 ENVIRONMENT "UBSAN_OPTIONS=halt_on_error=1")
+        endif()
+    endforeach()
+endif()
+
+if(YUCA_ENABLE_COVERAGE)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    get_filename_component(YUCA_COMPILER_DIRECTORY "${CMAKE_CXX_COMPILER}" DIRECTORY)
+    find_program(YUCA_LLVM_COV NAMES llvm-cov llvm-cov-18 llvm-cov-19 llvm-cov-20 HINTS "${YUCA_COMPILER_DIRECTORY}")
+    find_program(YUCA_LLVM_PROFDATA NAMES llvm-profdata llvm-profdata-18 llvm-profdata-19 llvm-profdata-20 HINTS "${YUCA_COMPILER_DIRECTORY}")
+    if(NOT YUCA_LLVM_COV OR NOT YUCA_LLVM_PROFDATA)
+        message(FATAL_ERROR "Set YUCA_LLVM_COV and YUCA_LLVM_PROFDATA to tools matching this Clang")
+    endif()
+    add_test(NAME coverage_report_tests COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_coverage_report.py")
+    add_custom_target(coverage
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/coverage_report.py"
+            --build-dir "${CMAKE_BINARY_DIR}" --source-dir "${CMAKE_CURRENT_SOURCE_DIR}"
+            --llvm-cov "${YUCA_LLVM_COV}" --llvm-profdata "${YUCA_LLVM_PROFDATA}"
+        DEPENDS yuca_tests yuca_manual_example
+        USES_TERMINAL VERBATIM)
+    foreach(test_target yuca_demo_shared yuca_demo_static yuca_catch_portability)
+        if(TARGET ${test_target})
+            add_dependencies(coverage ${test_target})
         endif()
     endforeach()
 endif()

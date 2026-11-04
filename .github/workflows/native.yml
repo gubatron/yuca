@@ -66,6 +66,22 @@ jobs:
       - name: Test analyzer gate and library
         run: ctest --test-dir build/analysis --output-on-failure
 
+  coverage:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install matching coverage tools
+        run: sudo apt-get update && sudo apt-get install -y clang-18 llvm-18
+      - name: Configure source and branch coverage
+        run: cmake -S . -B build/coverage -DCMAKE_CXX_COMPILER=clang++-18 -DCMAKE_BUILD_TYPE=Debug -DYUCA_ENABLE_COVERAGE=ON -DYUCA_WARNINGS_AS_ERRORS=ON -DYUCA_LLVM_COV=/usr/bin/llvm-cov-18 -DYUCA_LLVM_PROFDATA=/usr/bin/llvm-profdata-18
+      - name: Build, test, and report core-only coverage
+        run: cmake --build build/coverage --target coverage --parallel 4
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: core-coverage
+          path: build/coverage/coverage/
+
   linux-fuzz:
     runs-on: ubuntu-latest
     steps:
