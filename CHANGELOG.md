@@ -12,6 +12,7 @@
 - Fix division by zero and the excluded upper endpoint in `utils::maxRand`; support the full `size_t` bound range with a standard uniform distribution.
 
 ### Added
+- Richer differential fuzz properties for multi-term unions/intersections, duplicate query terms, exact ranked top-k prefixes, maximum limits, and index-copy isolation.
 - Bounded allocation-failure sweeps, live-byte leak checks after each attempt, and independent index copy/move tests.
 - Native CPU-profile workloads, isolated new/delete allocation metrics and peak RSS, tracker correctness tests, and CI allocation artifacts.
 - Isolated Clang source/branch coverage builds, fresh-profile core-only HTML/JSON reports, reporting safeguard tests, and archived CI coverage artifacts.
