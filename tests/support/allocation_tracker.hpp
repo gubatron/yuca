@@ -15,6 +15,10 @@ namespace yuca_test {
 
     AllocationSnapshot allocationSnapshot() noexcept;
     void resetAllocationPeak() noexcept;
+    // One-shot: fail the allocation after this many successful allocation calls.
+    // Automatically disarms before throwing, so failure reporting can allocate.
+    void failAllocationAfter(std::size_t successful_calls) noexcept;
+    void disableAllocationFailure() noexcept;
 }
 
 #endif

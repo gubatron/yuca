@@ -114,6 +114,10 @@ if(BUILD_TESTING)
     yuca_configure_target(yuca_tests)
     add_test(NAME unit_tests COMMAND yuca_tests)
     set_tests_properties(unit_tests PROPERTIES TIMEOUT 60)
+    add_executable(yuca_indexer_copy_tests tests/indexer_copy_tests.cpp)
+    target_link_libraries(yuca_indexer_copy_tests PRIVATE yuca_static)
+    yuca_configure_target(yuca_indexer_copy_tests)
+    add_test(NAME indexer_copy COMMAND yuca_indexer_copy_tests)
     if(YUCA_ENABLE_CLANG_TIDY)
         find_package(Python3 REQUIRED COMPONENTS Interpreter)
         add_test(NAME clang_tidy_gate COMMAND "${Python3_EXECUTABLE}"
@@ -153,6 +157,11 @@ if(YUCA_BUILD_PROFILING)
         add_executable(yuca_allocation_tracker_tests tests/allocation_tracker_tests.cpp tests/support/allocation_tracker.cpp)
         yuca_configure_target(yuca_allocation_tracker_tests)
         add_test(NAME allocation_tracker COMMAND yuca_allocation_tracker_tests)
+        add_executable(yuca_allocation_failures tests/allocation_failure_tests.cpp tests/support/allocation_tracker.cpp)
+        target_link_libraries(yuca_allocation_failures PRIVATE yuca_static)
+        yuca_configure_target(yuca_allocation_failures)
+        add_test(NAME allocation_failures COMMAND yuca_allocation_failures)
+        set_tests_properties(allocation_failures PROPERTIES TIMEOUT 60)
         foreach(workload index search search_grouped search_top10 search_distance)
             add_test(NAME profile_${workload} COMMAND yuca_workload ${workload} 24 2)
             add_test(NAME allocations_${workload} COMMAND yuca_allocations ${workload} 24 2)
@@ -189,7 +198,7 @@ if(YUCA_ENABLE_COVERAGE)
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/coverage_report.py"
             --build-dir "${CMAKE_BINARY_DIR}" --source-dir "${CMAKE_CURRENT_SOURCE_DIR}"
             --llvm-cov "${YUCA_LLVM_COV}" --llvm-profdata "${YUCA_LLVM_PROFDATA}"
-        DEPENDS yuca_tests yuca_manual_example
+        DEPENDS yuca_tests yuca_manual_example yuca_indexer_copy_tests
         USES_TERMINAL VERBATIM)
     foreach(test_target yuca_demo_shared yuca_demo_static yuca_catch_portability)
         if(TARGET ${test_target})

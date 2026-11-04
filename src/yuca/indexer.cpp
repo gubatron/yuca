@@ -30,14 +30,84 @@
 
 namespace yuca {
 
+    namespace {
+        typedef yuca::utils::Map<std::string, std::shared_ptr<ReverseIndex>> ReverseIndices;
+
+        struct PreparedGroup {
+            std::string name;
+            SPStringKeySet keys;
+            std::shared_ptr<ReverseIndex> index;
+            bool created;
+        };
+
+        // All document/group/key snapshots and new reverse-index objects are
+        // allocated before publishing any mutation. Rollback never needs a copy.
+        std::vector<PreparedGroup> prepareGroups(const SPDocument &doc, const ReverseIndices &indices,
+                                                bool create_missing) {
+            std::vector<PreparedGroup> result;
+            const auto names = doc->getGroups();
+            result.reserve(names.size());
+            const auto &stored = indices.getStdMap();
+            for (const auto &name : names) {
+                const auto found = stored.find(name);
+                const bool missing = found == stored.end();
+                auto index = missing ? std::shared_ptr<ReverseIndex>() : found->second;
+                if (missing && create_missing) {
+                    index = std::make_shared<ReverseIndex>();
+                }
+                result.push_back({name, doc->getGroupSPKeys(name), index, missing});
+            }
+            return result;
+        }
+
+        // Only pointer/integer lookups, set erasure, and node destruction occur
+        // here. This path serves both successful removal and exception rollback.
+        void erasePostings(const std::vector<PreparedGroup> &groups, const SPDocument &doc,
+                           ReverseIndices &indices) noexcept {
+            auto &stored = indices.getStdMap();
+            for (const auto &group : groups) {
+                if (!group.index) {
+                    continue;
+                }
+                for (const auto &key : group.keys.getStdSet()) {
+                    group.index->removeDocument(key, doc);
+                }
+                if (group.index->getKeyCount() == 0) {
+                    const auto found = stored.find(group.name);
+                    if (found != stored.end() && found->second == group.index) {
+                        stored.erase(found);
+                    }
+                }
+            }
+        }
+    }
+
     void ReverseIndex::putDocument(SPKey key, SPDocument doc) {
         SPKey cached_key = keyCacheGet(key);
-        if (cached_key == nullptr) {
-            keyCachePut(key);
+        const bool new_key = cached_key == nullptr;
+        if (new_key) {
             cached_key = key;
         }
-        // Mutate the stored posting list, not a full copy on every insertion.
-        spkey_to_spdocset_map.getStdMap()[cached_key].add(doc);
+        auto &postings = spkey_to_spdocset_map.getStdMap();
+        auto found = postings.find(cached_key);
+        const bool new_posting = found == postings.end();
+        try {
+            if (new_key) {
+                keyCachePut(key);
+            }
+            if (new_posting) {
+                found = postings.emplace(cached_key, SPDocumentSet()).first;
+            }
+            found->second.add(doc);
+        } catch (...) {
+            if (new_posting) {
+                postings.erase(cached_key);
+            }
+            if (new_key) {
+                keyCacheRemove(cached_key);
+            }
+            throw;
+        }
     }
 
     void ReverseIndex::removeDocument(SPKey key, SPDocument doc) {
@@ -157,6 +227,20 @@ namespace yuca {
         indexDocument(spDoc);
     }
 
+    Indexer::Indexer(const Indexer &other) : Indexer(other.implicit_group) {
+        for (const auto &entry : other.docPtrCache.getStdMap()) {
+            auto document = std::make_shared<Document>(*entry.second);
+            for (const auto &group : entry.second->getGroups()) {
+                const auto keys = entry.second->getGroupSPKeys(group);
+                document->removeGroup(group);
+                for (const auto &key : keys.getStdSet()) {
+                    document->addKey(*key);
+                }
+            }
+            indexDocument(document);
+        }
+    }
+
     Document Indexer::getDocument(long doc_id) const {
         SPDocument spDocument = docPtrCache.get(doc_id);
         if (spDocument == nullptr) {
@@ -195,13 +279,31 @@ namespace yuca {
         if (spDoc == nullptr) {
             throw std::invalid_argument("indexDocument requires a non-null document");
         }
-        // IDs identify documents, not shared_ptr instances. Replace all old postings.
-        removeDocument(spDoc->getId());
-        docPtrCache.put(spDoc->getId(), spDoc);
-
-        std::set<std::string> groups = spDoc->getGroups();
-        for (auto const &group : groups) {
-            addToIndex(group, spDoc);
+        const auto previous = docPtrCache.get(spDoc->getId());
+        if (previous == spDoc) {
+            return; // Indexed pointers must be removed before their keys are mutated.
+        }
+        const auto groups = prepareGroups(spDoc, reverseIndices, true);
+        const auto old_groups = previous ? prepareGroups(previous, reverseIndices, false)
+                                         : std::vector<PreparedGroup>();
+        try {
+            for (const auto &group : groups) {
+                if (group.created) {
+                    reverseIndices.put(group.name, group.index);
+                }
+                for (const auto &key : group.keys.getStdSet()) {
+                    group.index->putDocument(key, spDoc);
+                }
+            }
+            // New cache nodes publish only after all postings succeed. Replacing
+            // a shared_ptr in an existing node does not allocate or throw.
+            docPtrCache.put(spDoc->getId(), spDoc);
+        } catch (...) {
+            erasePostings(groups, spDoc, reverseIndices);
+            throw;
+        }
+        if (previous) {
+            erasePostings(old_groups, previous, reverseIndices);
         }
         // look for each one of the keys defined for this document
         // the keys come along with their group, which is used
@@ -225,22 +327,9 @@ namespace yuca {
         if (doc == nullptr) {
             return;
         }
-        std::set<std::string> groups = doc->getGroups();
-        for (auto const &group : groups) {
-            std::shared_ptr<ReverseIndex> reverse_index = getReverseIndex(group);
-
-            SPStringKeySet key_set = doc->getGroupSPKeys(group);
-            for (auto const &key : key_set.getStdSetCopy()) {
-                reverse_index->removeDocument(key, doc);
-            }
-            if (reverse_index->getKeyCount() == 0) {
-                reverse_index->clear();
-                reverseIndices.remove(group);
-            } else {
-                reverseIndices.put(group, reverse_index);
-            }
-        }
-        docPtrCache.remove(doc->getId());
+        const auto groups = prepareGroups(doc, reverseIndices, false);
+        erasePostings(groups, doc, reverseIndices);
+        docPtrCache.getStdMap().erase(doc->getId());
     }
 
     void Indexer::clear() {
@@ -394,22 +483,6 @@ namespace yuca {
             }
         }
         return docs_out;
-    }
-
-    void Indexer::addToIndex(std::string const &group, SPDocument doc) {
-        SPStringKeySet doc_keys = doc->getGroupSPKeys(group);
-        if (doc_keys.isEmpty()) {
-            std::cout << "Indexer::addToIndex(" << group
-                      << "): check your logic, document has no doc_keys under this group <"
-                      << group << ">" << std::endl;
-            return;
-        }
-        // Make sure there's a ReverseIndex, if there isn't one, create an empty one
-        std::shared_ptr<ReverseIndex> r_index = getReverseIndex(group);
-        for (auto const &k_sp : doc_keys.getStdSet()) {
-            r_index->putDocument(k_sp, doc);
-        }
-        reverseIndices.put(group, r_index);
     }
 
     std::shared_ptr<ReverseIndex> Indexer::getReverseIndex(std::string const &group) const {

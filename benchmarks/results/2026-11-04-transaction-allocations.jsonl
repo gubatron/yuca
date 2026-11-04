@@ -1,0 +1,1 @@
+{"workload":"search_top10","documents":1000,"iterations":100,"checksum":1000,"peak_process_rss_bytes":9732096,"new_calls":1302900,"new_requested_bytes":80308800,"live_new_bytes_before":1733552,"live_new_bytes_after":1733552,"peak_extra_live_new_bytes":274240}

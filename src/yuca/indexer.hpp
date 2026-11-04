@@ -153,6 +153,14 @@ namespace yuca {
         Indexer() : Indexer(":keyword") {
         }
 
+        /** Copy an independent index, document values, and key objects. */
+        Indexer(const Indexer &other);
+
+        Indexer(Indexer &&other) = default;
+
+        // Assignment was already unavailable because the implicit group is const.
+        Indexer &operator=(const Indexer &) = delete;
+
         /** Wrapper meant for non C++ users so their API surface doesn't need to deal with shared_ptr */
         void indexDocument(Document doc);
 
@@ -167,7 +175,7 @@ namespace yuca {
         /** Wrapper meant for non C++ users so their API surface doesn't need to deal with shared_ptr */
         bool removeDocument(Document doc);
 
-        /** Insert or replace by ID. Rejects nullptr with std::invalid_argument.
+        /** Insert or replace by ID with rollback on allocation failure. Rejects nullptr with std::invalid_argument.
          * The pointer is retained: remove the document before mutating its keys. */
         void indexDocument(SPDocument doc);
 
@@ -247,8 +255,6 @@ namespace yuca {
          *
          * */
         std::shared_ptr<ReverseIndex> getReverseIndex(std::string const &group) const;
-
-        void addToIndex(std::string const &group, SPDocument doc);
 
         yuca::utils::Map<std::string, std::shared_ptr<ReverseIndex>> reverseIndices;
 

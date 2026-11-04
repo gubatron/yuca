@@ -10,8 +10,19 @@ namespace {
     std::atomic<std::size_t> allocated_bytes{0};
     std::atomic<std::size_t> live_bytes{0};
     std::atomic<std::size_t> peak_bytes{0};
+    std::atomic<std::size_t> failure_countdown{std::numeric_limits<std::size_t>::max()};
 
     void *allocate(std::size_t bytes) {
+        auto remaining = failure_countdown.load(std::memory_order_relaxed);
+        while (remaining != std::numeric_limits<std::size_t>::max()) {
+            const auto next = remaining == 0 ? std::numeric_limits<std::size_t>::max() : remaining - 1;
+            if (failure_countdown.compare_exchange_weak(remaining, next, std::memory_order_relaxed)) {
+                if (remaining == 0) {
+                    throw std::bad_alloc();
+                }
+                break;
+            }
+        }
         if (bytes > std::numeric_limits<std::size_t>::max() - sizeof(Header)) {
             throw std::bad_alloc();
         }
@@ -64,5 +75,13 @@ namespace yuca_test {
 
     void resetAllocationPeak() noexcept {
         peak_bytes.store(live_bytes.load(std::memory_order_relaxed), std::memory_order_relaxed);
+    }
+
+    void failAllocationAfter(std::size_t successful_calls) noexcept {
+        failure_countdown.store(successful_calls, std::memory_order_relaxed);
+    }
+
+    void disableAllocationFailure() noexcept {
+        failure_countdown.store(std::numeric_limits<std::size_t>::max(), std::memory_order_relaxed);
     }
 }

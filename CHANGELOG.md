@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Preserve logical index state across allocation failures in map/posting/document insert, replace, and remove; make copied index/document state independent.
 - Build the vendored test runner with runtime-sized `SIGSTKSZ`; test hash identity without assuming standard-library hash ordering.
 - Build the vendored Catch runner on Apple Silicon.
 - Replace documents by ID without retaining old postings; remove using cached keys, including ID -1; define null-document behavior.
@@ -11,6 +12,7 @@
 - Fix division by zero and the excluded upper endpoint in `utils::maxRand`; support the full `size_t` bound range with a standard uniform distribution.
 
 ### Added
+- Bounded allocation-failure sweeps, live-byte leak checks after each attempt, and independent index copy/move tests.
 - Native CPU-profile workloads, isolated new/delete allocation metrics and peak RSS, tracker correctness tests, and CI allocation artifacts.
 - Isolated Clang source/branch coverage builds, fresh-profile core-only HTML/JSON reports, reporting safeguard tests, and archived CI coverage artifacts.
 - Blocking clang-tidy/Clang Static Analyzer checks with a seeded-defect gate test, strict core warnings, and full Linux GCC/Clang unit-test CI.

@@ -386,10 +386,14 @@ namespace yuca {
             }
 
             void put(K key, V value) {
-                if (containsKey(key)) {
-                    m.erase(key);
+                const auto position = m.lower_bound(key);
+                if (position != m.end() && !m.key_comp()(key, position->first)) {
+                    // Keep the existing node. Parameter construction already
+                    // succeeded, and shared_ptr/string/container moves are cheap.
+                    position->second = std::move(value);
+                } else {
+                    m.emplace_hint(position, std::move(key), std::move(value));
                 }
-                m.insert(std::make_pair(key, value));
             }
 
             unsigned long size() const noexcept {
