@@ -46,7 +46,8 @@ TEST_CASE("Test If Key Can Be Added") {
 	SPStringKeySet foo_keys = document_sp->getGroupSPKeys(foo_group);
 	REQUIRE(foo_keys.size() == 1);
 
-	REQUIRE(bar_key_sp.get()->getId() < bar_key2_sp.get()->getId());
+	// Hash ordering is implementation-defined; distinct keys must not compare equal.
+	REQUIRE_FALSE(*bar_key_sp == *bar_key2_sp);
 
 	document_sp->addKey(bar_key_sp);
 	document_sp->addKey(bar_key2_sp);
@@ -233,10 +234,14 @@ TEST_CASE("Document properties tests") {
 		doc.removeIntProperty("modes");
 		REQUIRE(doc.intProperty("modes") == -1);
 
+#if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wconstant-conversion"
+#endif
 		doc.intProperty("wont_fit", 6301973179050681573); // (ON PURPOSE) warning: implicit conversion from 'long' to 'int'
+#if defined(__clang__)
 #pragma clang diagnostic pop
+#endif
 		REQUIRE(doc.intProperty("wont_fit") == -1856314139);
 	}
 
@@ -292,4 +297,3 @@ TEST_CASE("Document properties tests") {
 		doc.removeStringProperty("garbage");
 	}
 }
-

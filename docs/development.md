@@ -2,7 +2,7 @@
 
 ## Supported baseline
 
-The core is C++11 with no runtime dependencies beyond the standard library. CMake 3.16+ supports out-of-source builds. Tests use vendored Catch 2.2.1 with a small Apple Silicon debugger-trap patch; no network access is required to build. Java/SWIG is a separate legacy build, not covered by core CTest.
+The core is C++11 with no runtime dependencies beyond the standard library. CMake 3.16+ supports out-of-source builds. Tests use vendored Catch 2.2.1 with local compatibility patches for the Apple Silicon debugger trap and runtime-sized alternate signal stacks. `catch_portability` reproduces a non-constant `SIGSTKSZ` on Unix hosts. No network access is required to build. Java/SWIG is a separate legacy build, not covered by core CTest.
 
 ## Build and test
 

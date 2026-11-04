@@ -4736,7 +4736,7 @@ namespace Catch {
         static bool isSet;
         static struct sigaction oldSigActions[];
         static stack_t oldSigStack;
-        static char altStackMem[];
+        static std::vector<char> altStackMem;
 
         static void handleSignal( int sig );
 
@@ -7325,8 +7325,8 @@ namespace Catch {
     FatalConditionHandler::FatalConditionHandler() {
         isSet = true;
         stack_t sigStack;
-        sigStack.ss_sp = altStackMem;
-        sigStack.ss_size = SIGSTKSZ;
+        sigStack.ss_sp = altStackMem.data();
+        sigStack.ss_size = altStackMem.size();
         sigStack.ss_flags = 0;
         sigaltstack(&sigStack, &oldSigStack);
         struct sigaction sa = { };
@@ -7357,7 +7357,9 @@ namespace Catch {
     bool FatalConditionHandler::isSet = false;
     struct sigaction FatalConditionHandler::oldSigActions[sizeof(signalDefs)/sizeof(SignalDefs)] = {};
     stack_t FatalConditionHandler::oldSigStack = {};
-    char FatalConditionHandler::altStackMem[SIGSTKSZ] = {};
+    // Local compatibility patch: glibc can compute SIGSTKSZ at runtime.
+    // Allocate before installing handlers; signal handling itself never allocates.
+    std::vector<char> FatalConditionHandler::altStackMem(static_cast<std::size_t>(SIGSTKSZ));
 
 } // namespace Catch
 

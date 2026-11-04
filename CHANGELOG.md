@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Build the vendored test runner with runtime-sized `SIGSTKSZ`; test hash identity without assuming standard-library hash ordering.
 - Build the vendored Catch runner on Apple Silicon.
 - Replace documents by ID without retaining old postings; remove using cached keys, including ID -1; define null-document behavior.
 - Prevent dangling container references from temporaries, invalid list insertion, overflowing/limit-sized sublist loops, invalidated self-operation iterators, and termination through incorrect `noexcept` declarations.
