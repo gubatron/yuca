@@ -143,3 +143,24 @@ If tools are outside PATH, pass `YUCA_LLVM_COV` and `YUCA_LLVM_PROFDATA` explici
 The `coverage` target builds test executables, runs CTest with a fresh profile directory, merges profiles, and produces `build/coverage/coverage/core.txt`, `core.json`, `summary.json`, `core.profdata`, and `html/index.html`. Reports select only `src/yuca` sources/headers, excluding Catch, test code, and standard-library implementation code. Existing profiles are never reused. Missing core source instrumentation, absent profiles, invalid counts, failed tests, or failed tools are errors; parser tests exercise these reporting safeguards.
 
 The HTML shows individual branches; summary JSON includes covered/total line, branch, function, and region counts. CI archives the report as `core-coverage`. Initial local LLVM 23 coverage on 2026-11-04 was 826/902 lines (91.57%) and 199/230 branches (86.52%). Toolchain/template instantiation differences can change counts; compare within the same toolchain. The key implementation had the weakest initial line coverage (56.25%). Use these gaps to choose meaningful tests, not to manufacture a 100% score. No arbitrary percentage gate is imposed yet; passing coverage does not prove assertions are strong or all behaviors are correct. Mutation testing is not installed by this step.
+
+## CPU and allocation profiling
+
+```sh
+cmake -S . -B build/profile -DCMAKE_BUILD_TYPE=RelWithDebInfo -DYUCA_BUILD_PROFILING=ON
+cmake --build build/profile --parallel 4
+ctest --test-dir build/profile --output-on-failure
+build/profile/yuca_workload search_top10 10000 3000
+build/profile/yuca_allocations index 1000 1
+build/profile/yuca_allocations search_top10 1000 100
+```
+
+Both drivers use the same deterministic corpus as the microbenchmarks. Arguments are workload, documents (1–100000), and iterations (1–100000). Workloads are `index`, selective `search`, `search_grouped`, `search_top10`, and `search_distance`. Index runs once; queries run the requested iterations. Corpus creation and initial query-index population occur before the measured allocation window; result construction/destruction is included. Output cardinality is checked before reporting.
+
+Use **`yuca_workload`** for CPU sampling: it uses the normal allocator. For a text call-tree sample on macOS, launch it in one terminal and run `/usr/bin/sample <its-pid> 3 -file build/profile/time-profile.txt` in another. Instruments Time Profiler/Allocations can target the same executable. On Linux, use `perf record -g -- build/profile/yuca_workload search_top10 10000 3000`, then `perf report`; `perf stat` can measure cycles/instructions/branch/cache events when host permissions permit. These tools are optional host tooling, not downloaded or configured by CMake. Do not change machine-wide profiling/security settings just to collect a trace.
+
+**`yuca_allocations`** links a diagnostic new/delete replacement into that executable only. The distributed libraries and CPU driver never link it. JSON reports allocation call count, cumulative requested bytes, live requested bytes before/after, and peak extra live bytes above the starting baseline. It handles normal C++11 alignment, arrays, zero-size/nothrow/sized deletion, and checks tracker accounting in CTest. It counts intercepted C++ new/delete payloads, **not** malloc calls made directly by C libraries, allocator metadata, reserved capacity outside the window, or all process memory. It is intended for single-threaded workload windows; cross-thread activity could contaminate window totals. There is no support for over-aligned C++17 allocation in this C++11 driver.
+
+`peak_process_rss_bytes` is separately obtained from `getrusage` on macOS/Linux, with platform units normalized to bytes; zero means unavailable on unsupported hosts. RSS is a process-wide lifetime high-water mark, including corpus/runtime/diagnostic overhead, not per-query memory or memory returned to the OS. Diagnostic headers/counters perturb allocator behavior and timings. Never use `yuca_allocations` timing as production performance evidence, and do not combine this profiling build with sanitizers/fuzzers/coverage.
+
+Initial local evidence (2026-11-04, AppleClang 21/libc++, 1000 documents): indexing requested 24,208 allocations / 1,637,408 bytes; 100 top-ten searches requested 1,403,000 allocations / 85,111,200 bytes, with no net live-byte growth across the query loop. This is **14,030 new calls per broad query**, not evidence of a leak. A three-second native `sample` trace over 10,000 documents showed set/tree copying and allocation beneath `findDocuments`/`getDocuments` in retrieval. This identifies an optimization target; it does not yet measure a fix or establish a portable CPU percentage. Raw allocation records are under `benchmarks/results/`; the large host-specific call tree remains in `build/profile/`.

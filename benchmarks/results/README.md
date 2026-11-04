@@ -12,3 +12,9 @@ Environment: local Darwin arm64, AppleClang 21.0.0.21000334, libc++, C++11, CMak
 | Full-width random bound safety | `f861054` | random-bound fix in the commit adding `2026-11-03-random.csv` | Core workload medians -5.09% to +9.04%, overlapping ranges; no core performance claim. The benchmark corpus does not call `maxRand`, so it cannot quantify distribution overhead; a uniform inclusive sampler replaces a biased/crashing algorithm. Fuzz corpus replay and 10,000 utility mutation runs pass. |
 
 Compare any adjacent pair using `python3 benchmarks/compare.py before.csv after.csv`. Search and lifecycle correctness are separately verified with regression tests; the benchmark checksums only verify result cardinalities.
+
+## Quality tooling baseline — 2026-11-04
+
+`2026-11-04-allocations.jsonl` records diagnostic allocation snapshots for the deterministic 1000-document corpus (100 query iterations; one index pass), AppleClang 21/libc++ on Darwin arm64, RelWithDebInfo. Requested C++ allocation bytes are not RSS; RSS is the separate process-wide high-water metric. The diagnostic allocator is isolated from production and CPU timing. The native macOS sample trace of 3000 broad top-ten queries on 10,000 documents showed retrieval set/tree copies and allocations. No optimization was applied or speedup inferred from that trace.
+
+Strict-warning/static-analysis setup does not change runtime algorithms. Adjacent nine-sample Release runs before/after that setup moved +1.13% indexing, +1.29% grouped search, +3.79% top-ten, +2.25% distance, +3.63% removal; ranges overlap. These local raw CSVs are retained under `build/quality-before.csv` and `build/quality-after.csv`; no performance change is established.

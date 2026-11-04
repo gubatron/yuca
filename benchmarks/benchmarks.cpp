@@ -1,4 +1,5 @@
 #include "yuca/yuca.hpp"
+#include "corpus.hpp"
 #include <chrono>
 #include <cstdlib>
 #include <iomanip>
@@ -42,16 +43,7 @@ int main(int argc, char **argv) {
         }
         const unsigned samples = argc > 1 ? parse(argv[1], 100) : 7;
         const unsigned count = argc > 2 ? parse(argv[2], 100000) : 1000;
-        std::vector<yuca::Document> documents;
-        documents.reserve(count);
-        for (unsigned i = 0; i < count; ++i) {
-            yuca::Document doc(static_cast<long>(i));
-            doc.addKey(yuca::StringKey("common", ":keyword"));
-            doc.addKey(yuca::StringKey("term" + std::to_string(i % 100), ":keyword"));
-            doc.addKey(yuca::StringKey(i % 2 ? "txt" : "pdf", ":extension"));
-            doc.stringProperty("title", "common title " + std::to_string(i));
-            documents.push_back(doc);
-        }
+        const auto documents = yuca_bench::makeCorpus(count);
         std::cout << "# compiler="
 #ifdef _MSC_VER
                   << "MSVC " << _MSC_VER

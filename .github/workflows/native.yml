@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Configure
-        run: cmake -S . -B build/ci -DCMAKE_BUILD_TYPE=Release -DYUCA_ENABLE_SANITIZERS=${{ matrix.sanitizers }} -DYUCA_BUILD_BENCHMARKS=ON -DYUCA_WARNINGS_AS_ERRORS=ON
+        run: cmake -S . -B build/ci -DCMAKE_BUILD_TYPE=Release -DYUCA_ENABLE_SANITIZERS=${{ matrix.sanitizers }} -DYUCA_BUILD_BENCHMARKS=ON -DYUCA_BUILD_PROFILING=${{ matrix.sanitizers == 'OFF' && 'ON' || 'OFF' }} -DYUCA_WARNINGS_AS_ERRORS=ON
       - name: Build
         run: cmake --build build/ci --parallel 4
       - name: Test
@@ -30,6 +30,8 @@ jobs:
           uname -a >> build/ci/environment.txt
           c++ --version >> build/ci/environment.txt
           build/ci/yuca_benchmarks 7 1000 > build/ci/benchmarks.csv
+          build/ci/yuca_allocations index 1000 1 > build/ci/allocations.jsonl
+          build/ci/yuca_allocations search_top10 1000 100 >> build/ci/allocations.jsonl
       - uses: actions/upload-artifact@v4
         if: matrix.sanitizers == 'OFF'
         with:
@@ -37,6 +39,7 @@ jobs:
           path: |
             build/ci/benchmarks.csv
             build/ci/environment.txt
+            build/ci/allocations.jsonl
 
   linux-compilers:
     runs-on: ubuntu-24.04
@@ -47,7 +50,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Configure strict C++11 core and full unit tests
-        run: cmake -S . -B build/ci -DCMAKE_CXX_COMPILER=${{ matrix.compiler }} -DCMAKE_BUILD_TYPE=Release -DYUCA_WARNINGS_AS_ERRORS=ON -DYUCA_BUILD_BENCHMARKS=ON
+        run: cmake -S . -B build/ci -DCMAKE_CXX_COMPILER=${{ matrix.compiler }} -DCMAKE_BUILD_TYPE=Release -DYUCA_WARNINGS_AS_ERRORS=ON -DYUCA_BUILD_BENCHMARKS=ON -DYUCA_BUILD_PROFILING=ON
       - name: Build
         run: cmake --build build/ci --parallel 4
       - name: Test

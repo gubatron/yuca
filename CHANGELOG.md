@@ -11,6 +11,7 @@
 - Fix division by zero and the excluded upper endpoint in `utils::maxRand`; support the full `size_t` bound range with a standard uniform distribution.
 
 ### Added
+- Native CPU-profile workloads, isolated new/delete allocation metrics and peak RSS, tracker correctness tests, and CI allocation artifacts.
 - Isolated Clang source/branch coverage builds, fresh-profile core-only HTML/JSON reports, reporting safeguard tests, and archived CI coverage artifacts.
 - Blocking clang-tidy/Clang Static Analyzer checks with a seeded-defect gate test, strict core warnings, and full Linux GCC/Clang unit-test CI.
 - Out-of-source, target-based CMake, CTest integration, library/header installation, and optional ASan/UBSan builds.
