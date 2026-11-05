@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Pin Linux fuzz CI to Ubuntu 24.04, matching the compiler/analysis jobs instead of following the Ubuntu 26 `ubuntu-latest` migration.
 - Remove artifact upload's Node.js 20 deprecation notice using SHA-pinned `actions/upload-artifact` v7.0.2 (Node.js 24).
 - Remove checkout's Node.js 20 deprecation notice using SHA-pinned `actions/checkout` v7.0.1 (Node.js 24).
 - Preserve logical index state across allocation failures in map/posting/document insert, replace, and remove; make copied index/document state independent.

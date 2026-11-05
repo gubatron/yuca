@@ -26,6 +26,12 @@ class NativeWorkflowTests(unittest.TestCase):
         for declaration in declarations:
             self.assertEqual(declaration, "cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2")
 
+    def test_linux_jobs_do_not_follow_a_migrating_image(self):
+        workflow = WORKFLOW.read_text()
+        self.assertNotIn("runs-on: ubuntu-latest", workflow)
+        fuzz_job = workflow.split("  linux-fuzz:\n", 1)[1]
+        self.assertIn("runs-on: ubuntu-24.04", fuzz_job)
+
 
 if __name__ == "__main__":
     unittest.main()
