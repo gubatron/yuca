@@ -14,7 +14,7 @@ jobs:
       matrix:
         sanitizers: ['OFF', 'ON']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Configure
         run: cmake -S . -B build/ci -DCMAKE_BUILD_TYPE=Release -DYUCA_ENABLE_SANITIZERS=${{ matrix.sanitizers }} -DYUCA_BUILD_BENCHMARKS=ON -DYUCA_BUILD_PROFILING=${{ matrix.sanitizers == 'OFF' && 'ON' || 'OFF' }} -DYUCA_WARNINGS_AS_ERRORS=ON
       - name: Build
@@ -50,7 +50,7 @@ jobs:
       matrix:
         compiler: [g++, clang++]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Configure strict C++11 core and full unit tests
         run: cmake -S . -B build/ci -DCMAKE_CXX_COMPILER=${{ matrix.compiler }} -DCMAKE_BUILD_TYPE=Release -DYUCA_WARNINGS_AS_ERRORS=ON -DYUCA_BUILD_BENCHMARKS=ON -DYUCA_BUILD_PROFILING=ON
       - name: Build
@@ -61,9 +61,11 @@ jobs:
   static-analysis:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install Clang analysis tools
         run: sudo apt-get update && sudo apt-get install -y clang-tidy
+      - name: Check workflow runtime policy
+        run: python3 tests/test_native_workflow.py
       - name: Configure
         run: cmake -S . -B build/analysis -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Debug -DYUCA_ENABLE_CLANG_TIDY=ON -DYUCA_WARNINGS_AS_ERRORS=ON
       - name: Build with blocking analysis
@@ -74,7 +76,7 @@ jobs:
   coverage:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install matching coverage tools
         run: sudo apt-get update && sudo apt-get install -y clang-18 llvm-18
       - name: Configure source and branch coverage
@@ -90,7 +92,7 @@ jobs:
   linux-fuzz:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Configure instrumented library and fuzzers
         run: cmake -S . -B build/fuzz -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DYUCA_BUILD_FUZZERS=ON -DBUILD_TESTING=OFF -DYUCA_BUILD_DEMOS=OFF
       - name: Build

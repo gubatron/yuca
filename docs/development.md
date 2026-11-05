@@ -115,6 +115,8 @@ Extending the utility harness to random bounds subsequently reproduced division 
 
 ## Blocking static analysis and strict warnings
 
+CI checkout uses `actions/checkout` v7.0.1, pinned to its immutable commit SHA. Its Node.js 24 runtime requires Actions Runner 2.327.1+; these jobs use GitHub-hosted runners. Checkout v7's fork protections do not require opting into unsafe checkout: this workflow uses ordinary `push`/`pull_request`, not privileged `pull_request_target`/`workflow_run` triggers. Keep the version comment and reviewed SHA together when upgrading. Workflow-only maintenance changes no native code or benchmark algorithms; use actionlint and hosted CI to verify action compatibility, not native timing as evidence of a speedup.
+
 The core compiles with `-Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow` on GCC/Clang. Enable `YUCA_WARNINGS_AS_ERRORS=ON` to reject core compiler warnings. These options are private to Yuca, not requirements imposed on consumers or the vendored test runner.
 
 The optional analysis build needs clang-tidy and Python 3 (for the analyzer gate self-test):

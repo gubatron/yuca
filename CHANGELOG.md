@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Remove checkout's Node.js 20 deprecation notice using SHA-pinned `actions/checkout` v7.0.1 (Node.js 24).
 - Preserve logical index state across allocation failures in map/posting/document insert, replace, and remove; make copied index/document state independent.
 - Build the vendored test runner with runtime-sized `SIGSTKSZ`; test hash identity without assuming standard-library hash ordering.
 - Build the vendored Catch runner on Apple Silicon.
