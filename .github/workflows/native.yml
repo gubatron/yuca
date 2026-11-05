@@ -33,7 +33,7 @@ jobs:
           build/ci/yuca_allocations index 1000 1 > build/ci/allocations.jsonl
           build/ci/yuca_allocations search_top10 1000 100 >> build/ci/allocations.jsonl
           python3 scripts/benchmark_suite.py --candidate build/ci/yuca_benchmark_suite --documents 100,1000 --workloads index,remove,search_common,search_rare --top-k 0,10 --samples 3 --min-sample-ms 1 --max-iterations 20 --output build/ci/scaling
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: matrix.sanitizers == 'OFF'
         with:
           name: release-benchmarks
@@ -83,7 +83,7 @@ jobs:
         run: cmake -S . -B build/coverage -DCMAKE_CXX_COMPILER=clang++-18 -DCMAKE_BUILD_TYPE=Debug -DYUCA_ENABLE_COVERAGE=ON -DYUCA_WARNINGS_AS_ERRORS=ON -DYUCA_LLVM_COV=/usr/bin/llvm-cov-18 -DYUCA_LLVM_PROFDATA=/usr/bin/llvm-profdata-18
       - name: Build, test, and report core-only coverage
         run: cmake --build build/coverage --target coverage --parallel 4
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: core-coverage
@@ -106,7 +106,7 @@ jobs:
           cp -R fuzz/corpus/indexer build/fuzz/corpus/
           build/fuzz/yuca_fuzz_utils build/fuzz/corpus/utils -runs=10000 -seed=444 -max_len=512 -timeout=5 -rss_limit_mb=1024
           build/fuzz/yuca_fuzz_indexer build/fuzz/corpus/indexer -runs=10000 -seed=444 -max_len=512 -timeout=5 -rss_limit_mb=1024
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
           name: fuzz-failure-artifacts

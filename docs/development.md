@@ -115,6 +115,8 @@ Extending the utility harness to random bounds subsequently reproduced division 
 
 ## Blocking static analysis and strict warnings
 
+Artifact uploads use SHA-pinned `actions/upload-artifact` v7.0.2 (Node.js 24), retaining zipped multi-path uploads and the existing artifact names/conditions. The v7 `archive` default is `true`, so consumers still receive archives; no single-file/unarchived mode is requested. `python3 tests/test_native_workflow.py` checks reviewed action pins and runs in the static-analysis job; actionlint separately validates workflow syntax and expressions.
+
 CI checkout uses `actions/checkout` v7.0.1, pinned to its immutable commit SHA. Its Node.js 24 runtime requires Actions Runner 2.327.1+; these jobs use GitHub-hosted runners. Checkout v7's fork protections do not require opting into unsafe checkout: this workflow uses ordinary `push`/`pull_request`, not privileged `pull_request_target`/`workflow_run` triggers. Keep the version comment and reviewed SHA together when upgrading. Workflow-only maintenance changes no native code or benchmark algorithms; use actionlint and hosted CI to verify action compatibility, not native timing as evidence of a speedup.
 
 The core compiles with `-Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow` on GCC/Clang. Enable `YUCA_WARNINGS_AS_ERRORS=ON` to reject core compiler warnings. These options are private to Yuca, not requirements imposed on consumers or the vendored test runner.
