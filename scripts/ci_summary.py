@@ -86,6 +86,27 @@ def benchmark_summary(directory):
                         f"{statistics.median(values) / 1000:,.3f} | {min(values) / 1000:,.3f}–{max(values) / 1000:,.3f} |")
     else:
         rows.append("Microbenchmark report unavailable; inspect the benchmark step logs.")
+    snapshots = directory / "snapshots.csv"
+    if snapshots.is_file():
+        groups = {}
+        with snapshots.open(encoding="utf-8") as source:
+            for entry in csv.DictReader(source):
+                key = (int(entry["documents"]), int(entry["bytes"]))
+                if min(key) <= 0:
+                    raise ValueError("invalid snapshot benchmark cardinality")
+                groups.setdefault(key, []).append(entry)
+        if not groups:
+            raise ValueError("empty snapshot benchmark CSV")
+        rows += ["", "### .yuca checkpoint timings", "",
+                 "Medians in milliseconds. Save includes encoding and file sync; load includes read, validation and bulk reconstruction. Zero file timings mean not measured. Warm filesystem cache; no power-loss durability or latency guarantee.", "",
+                 "| Documents | Bytes | Samples | Encode (ms) | Bulk decode (ms) | Replay decode (ms) | Save (ms) | Load (ms) |",
+                 "| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |"]
+        for (documents, byte_count), entries in sorted(groups.items()):
+            timings = []
+            for metric in ("encode_ms", "bulk_decode_ms", "replay_decode_ms", "save_ms", "load_ms"):
+                value = statistics.median(number(entry[metric]) for entry in entries)
+                timings.append(f"{value:,.3f}" if value else "not measured")
+            rows.append(f"| {documents:,} | {byte_count:,} | {len(entries)} | " + " | ".join(timings) + " |")
     rows += ["", "### Scaling suite", ""]
     scaling = directory / "scaling" / "summary.json"
     if scaling.is_file():

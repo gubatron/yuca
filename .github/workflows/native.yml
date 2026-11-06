@@ -33,6 +33,7 @@ jobs:
           build/ci/yuca_allocations index 1000 1 > build/ci/allocations.jsonl
           build/ci/yuca_allocations search_top10 1000 100 >> build/ci/allocations.jsonl
           python3 scripts/benchmark_suite.py --candidate build/ci/yuca_benchmark_suite --documents 100,1000 --workloads index,remove,search_common,search_rare --top-k 0,10 --samples 3 --min-sample-ms 1 --max-iterations 20 --output build/ci/scaling
+          build/ci/yuca_snapshot_benchmark 1000 build/ci/disposable-benchmark.yuca > build/ci/snapshots.csv
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         id: benchmark-artifact
         if: matrix.sanitizers == 'OFF'
@@ -42,6 +43,7 @@ jobs:
             build/ci/benchmarks.csv
             build/ci/environment.txt
             build/ci/allocations.jsonl
+            build/ci/snapshots.csv
             build/ci/scaling/
       - name: Release benchmark summary
         if: always() && matrix.sanitizers == 'OFF'
@@ -113,15 +115,17 @@ jobs:
         run: cmake -S . -B build/fuzz -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DYUCA_BUILD_FUZZERS=ON -DBUILD_TESTING=OFF -DYUCA_BUILD_DEMOS=OFF
       - name: Build
         run: cmake --build build/fuzz --parallel 4
-      - name: Replay and mutate both corpora
+      - name: Replay and mutate all corpora
         env:
           UBSAN_OPTIONS: halt_on_error=1
         run: |
           mkdir -p build/fuzz/corpus
           cp -R fuzz/corpus/utils build/fuzz/corpus/
           cp -R fuzz/corpus/indexer build/fuzz/corpus/
+          cp -R fuzz/corpus/snapshot build/fuzz/corpus/
           build/fuzz/yuca_fuzz_utils build/fuzz/corpus/utils -runs=10000 -seed=444 -max_len=512 -timeout=5 -rss_limit_mb=1024
           build/fuzz/yuca_fuzz_indexer build/fuzz/corpus/indexer -runs=10000 -seed=444 -max_len=512 -timeout=5 -rss_limit_mb=1024
+          build/fuzz/yuca_fuzz_snapshot build/fuzz/corpus/snapshot -runs=10000 -seed=444 -max_len=512 -timeout=5 -rss_limit_mb=1024
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:

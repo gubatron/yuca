@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
     try {
         const std::string selected = argc == 2 ? argv[1] : "all";
         check(selected == "all" || selected == "map" || selected == "posting" || selected == "replace" ||
-              selected == "insert" || selected == "remove" || selected == "copy", "unknown failure scenario");
+              selected == "insert" || selected == "remove" || selected == "copy" || selected == "snapshot", "unknown failure scenario");
         if (selected == "all" || selected == "map") {
             auto map = yuca::utils::Map<int, std::string>("");
             map.put(1, "old");
@@ -135,6 +135,15 @@ int main(int argc, char **argv) {
         if (selected == "all" || selected == "copy") {
             exhaust("index copy", prepare, [](yuca::Indexer &index) { yuca::Indexer copy(index); },
                     unchanged, unchanged);
+        }
+        if (selected == "all" || selected == "snapshot") {
+            const auto bytes = prepare()->serialize();
+            exhaust("snapshot encoding", prepare, [](yuca::Indexer &index) { const auto encoded = index.serialize(); },
+                    unchanged, unchanged);
+            exhaust("snapshot decoding", prepare, [&](yuca::Indexer &) {
+                auto loaded = yuca::Indexer::deserialize(bytes);
+                check(loaded.search("old :extension txt").size() == 1, "snapshot lost postings");
+            }, unchanged, unchanged);
         }
         return 0;
     } catch (const std::exception &error) {

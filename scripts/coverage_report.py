@@ -58,7 +58,7 @@ def main():
     output = build / "coverage"
     output.mkdir(exist_ok=True)
     core = root / "src" / "yuca"
-    sources = sorted(core.glob("*.cpp")) + sorted(core.glob("*.hpp"))
+    sources = sorted(core.glob("*.cpp")) + sorted(core.glob("*.hpp")) + sorted(core.glob("*.h"))
     binary = build / "yuca_tests"
     # Each invocation gets a new directory: old profiles can never inflate coverage.
     with tempfile.TemporaryDirectory(prefix="profiles-", dir=output) as directory:

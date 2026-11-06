@@ -7,6 +7,7 @@
 - [Documents and ownership](#documents-and-ownership)
 - [Keys, groups, and queries](#keys-groups-and-queries)
 - [Ranking and limits](#ranking-and-limits)
+- [Saving and restoring .yuca checkpoints](#saving-and-restoring-yuca-checkpoints)
 - [API guide](#api-guide)
 - [Troubleshooting](#troubleshooting)
 - [Maintenance and next steps](#maintenance-and-next-steps)
@@ -15,7 +16,7 @@
 
 Yuca is a small, in-memory C++11 exact-key search library. Applications supply documents, searchable keys, optional key groups, and unindexed typed properties. An inverted index maps each group's keys to matching documents. No service, database, model download, or runtime dependency beyond the C++ standard library is required.
 
-This is **not yet** a full-text analyzer or a durable search database. It has no persistence, phrase/proximity search, stemming, Unicode normalization, BM25 statistics, embeddings, approximate nearest-neighbor index, or thread-safe writer. There is currently no public C ABI; the native interface is C++, with experimental legacy Java/SWIG wrappers.
+This is **not yet** a full-text analyzer or a transactional durable search database. It supports whole-index `.yuca` checkpoints, not a write-ahead log or automatic per-write persistence. It has no phrase/proximity search, stemming, Unicode normalization, BM25 statistics, embeddings, approximate nearest-neighbor index, or thread-safe writer. There is currently no public C ABI; the native interface is C++, with experimental legacy Java/SWIG wrappers.
 
 ## Build, link, and run
 
@@ -55,6 +56,38 @@ On platforms using `lib64`, substitute the actual installed library directory. U
 Result collections are independent snapshots of membership, not immutable snapshots of document content. Clearing or replacing an index does not invalidate a result's shared document pointer. `getDocument` returns a value copy; missing IDs return `Document::NULL_DOCUMENT` (ID -1). Because ID -1 is also accepted as a real ID, equality with the sentinel is ambiguous for that ID; prefer application IDs other than -1. Removal itself uses actual cache presence and works for -1.
 
 Indexer instances have no internal locking. Externally synchronize accesses when any thread mutates an instance or its retained documents. `shared_ptr` only manages lifetime, not pointee synchronization. Indexer copy construction creates independent document values, key objects, and reverse indexes, preserving the implicit group. Clearing or editing the copied index does not mutate the original. Copying rebuilds the index and can allocate/throw. Ordinary Document value copies still share key pointers; treat retained key objects as immutable. Move construction is supported; copy assignment remains unavailable because the implicit group is const.
+
+## Saving and restoring .yuca checkpoints
+
+```cpp
+yuca::Indexer index(":title");
+// ...index documents and typed properties...
+index.save("catalog.yuca"); // Explicitly replaces this path on success.
+
+// On the next session, construct a new independent index in one operation:
+auto resumed = yuca::Indexer::load("catalog.yuca");
+// resumed.indexDocument(...), resumed.removeDocument(...), resumed.search(...)
+resumed.save("catalog.yuca");
+
+// The identical format is also available as a contiguous in-memory byte blob:
+auto bytes = resumed.serialize(); // std::vector<unsigned char>
+auto cloned = yuca::Indexer::deserialize(bytes);
+// Or deserialize(pointer, byte_count, optional_limits) for caller-owned buffers.
+```
+
+The [complete persistence example](examples/persistence.cpp) is compiled/tested against both static and shared libraries. Run `build/release/yuca_persistence_example_static build/example.yuca`; it reports `2 documents restored; incremental checkpoint verified` and leaves the example checkpoint at that explicitly supplied path.
+
+**What is saved:** the implicit query group, every numeric document ID (including negative IDs), every group's key strings/IDs, and all bool/byte/int/long/string properties, including explicitly stored default values, empty strings, and embedded NUL bytes. Empty documents are retained. Key order is canonicalized, so pointer allocation and insertion order do not change the bytes. Existing query result objects, random request/result IDs, allocator internals, pointers, and transient query state are not persisted. The loader bulk-builds new document/property/key storage and reverse postings; it neither aliases the source index nor needs the input buffer after returning. Further insertions, replacements, removals, searches, and checkpoints work normally.
+
+**Consistency and errors:** externally synchronize all index/retained-document access while saving; there is no concurrent-writer snapshot isolation. Observe the existing rule to remove a document before mutating its keys. `deserialize`/`load` return a new Indexer, rather than partially modifying an existing one; on invalid input they throw `SnapshotError`. File creation/read/write/sync/rename failures also throw `SnapshotError`; allocation failure propagates as `std::bad_alloc`. The const implicit group makes assignment unavailable: construct the returned object, or build a new `unique_ptr<Indexer>` before swapping an application's pointer.
+
+`save` encodes first, creates an exclusive same-directory temporary file (mode 0600 on POSIX), writes and syncs the entire file, closes it, then renames/replaces the destination. A failure before publication leaves the previous file untouched; temporary cleanup is attempted on exception. Parent directories are not created. Use a local filesystem with atomic same-directory rename semantics; network filesystem semantics can differ. This is an atomic checkpoint replacement, **not a guarantee of directory-entry durability across sudden power loss** (the POSIX parent directory is not fsynced), a journal, or a substitute for redundant backups. Saving needs space for both the old and new files plus a contiguous encoded buffer in RAM. Loading temporarily retains both file bytes and the new index. Keep periodic checkpoints rather than relying solely on shutdown callbacks; a killed process cannot run them.
+
+**Compatibility and bounds:** `.yuca` v1 is a versioned little-endian logical format, not a memory dump. It is uncompressed and not encrypted. Because current key/string-document identity relies on implementation-defined `std::hash`, v1 checks the runtime hash ABI and each decoded key ID, rejecting incompatible standard-library/toolchain hashes rather than silently changing retrieval. Reuse a compatible application build; for migration between incompatible hash implementations, export original application records and reindex. Numeric values must fit the loading platform's `long`/`int`; byte properties retain their eight raw bits (numeric `char` signedness is platform-specific). `.yuca` is a convention, not a required filename suffix. Native libraries remain C++11 and have no new runtime dependency. Rebuild consumers against the new headers; Java/SWIG persistence adapters are not provided.
+
+`SnapshotLimits` defaults to 1 GiB total file bytes, 1,000,000 documents, 16,000,000 keys, 16,000,000 properties, 16 MiB per string, and 1 GiB aggregate decoded text (`max_decoded_string_bytes`). The text budget includes group-name copies owned by each key and reverse index, preventing a large shared on-disk group name from expanding without bound. Counts/lengths are checked before allocation/loops, with global key/property/text budgets, duplicate-name/document rejection, and exact end-of-input validation. Adjust the fields explicitly and pass them to `load`/`deserialize` for larger indexes or tighter untrusted-input limits. These budgets are **not** an exact bound on total process RAM: map nodes, pointers, buffer capacity/geometric growth, and temporary string/hash copies add overhead. Select limits for the host's available RAM. XXH64 detects accidental corruption but is not cryptographic authentication: attackers can recompute it. Authenticate/encrypt files externally if required. The checksum implementation's [BSD-2-Clause notice](third-party-licenses.md) accompanies distributions.
+
+See [development and benchmark notes](development.md#snapshot-format-and-performance) for the byte layout, experiments, actual timings, fuzzing, and fault-injection qualification.
 
 ## Keys, groups, and queries
 

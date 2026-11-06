@@ -62,6 +62,7 @@ namespace yuca {
         friend std::ostream &operator<<(std::ostream &output_stream, Key &key);
 
     protected:
+        friend class SnapshotCodec;
         long id{};
         std::string group;
     };
@@ -79,9 +80,9 @@ namespace yuca {
         friend std::ostream &operator<<(std::ostream &output_stream, StringKey &key);
 
     private:
+        friend class SnapshotCodec;
         std::string str_key;
     };
 }
 
 #endif //YUCA_KEY_H
-

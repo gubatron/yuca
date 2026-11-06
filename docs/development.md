@@ -195,9 +195,49 @@ The initial sweep reproduced lost map mappings, partially published posting/cach
 
 Rebuild C++ consumers to use the explicit copy constructor; code compiled against the old header can retain its old inline shallow-copy behavior. The post-fix deterministic coverage run measured 877/958 core lines (91.54%) and 228/266 branches (85.71%) locally. The allocation-failure executable deliberately uses a separate non-coverage allocator build, so its exercised error paths are not included in those coverage totals.
 
-## Isolated scaling benchmarks and controlled comparisons
+## Inline benchmark reports
 
 The macOS non-sanitized job publishes **Release benchmarks** directly on the run Summary page: microbenchmark medians/ranges, scaling median/bootstrap intervals and calibration-cap flags, and allocation/RSS totals with explicit units. Commit/runner/compiler details are expandable, and a direct `release-benchmarks` link retains the full CSV/JSON samples and fingerprints. Summaries read existing outputs, never time rendering or rerun workloads. Small hosted-runner samples remain informational, not p95/p99 estimates or a regression gate. Missing/incomplete sections are labeled unavailable; job status identifies failed runs. Earlier runs cannot acquire summaries retroactively. Preview with `python3 scripts/ci_summary.py benchmarks build/ci > build/benchmark-summary.md` after generating those reports; test with `python3 tests/test_ci_summary.py`.
+
+## Snapshot format and performance
+
+Public usage and operational limits are in the [checkpoint manual](manual.md#saving-and-restoring-yuca-checkpoints). `src/yuca/snapshot.cpp` is a private codec adapter with read-only access to document storage; it avoids public getter copies during encoding. Only an unpublished loader result uses bulk posting construction. The public mutation path keeps its normal transactional guarantees. `Indexer`'s defaulted move explicitly spells `noexcept(false)` because its const implicit-group string is copied and may allocate; this documents the existing exception behavior rather than falsely promising a no-throw move.
+
+### Version 1 byte layout
+
+Every integer is little endian. Header (40 bytes): magic `YUCAIDX\0` (8 bytes), version (u32, 1), flags (u32, 0), payload length (u64), XXH64 checksum of payload (u64, seed 0), and a runtime `std::hash<std::string>` probe (u64). Unknown versions/flags or incompatible hashes are rejected. The payload is:
+
+1. Implicit group (string), document count (u64).
+2. Documents in strictly ascending signed ID order: ID (signed 64-bit), group count (u64), then each group name (string), key count (u64, nonzero), and keys (string value, signed 64-bit key ID). Keys are sorted lexically for stable bytes; repeated identical strings on distinct retained key pointers are preserved. Sorting scratch storage is reused across groups/documents.
+3. For each document, the five property maps in BOOL, BYTE, INT, LONG, STRING order: count (u64), then name (string) and value. Numeric values occupy 64 bits; bool is 0/1, byte is 0..255 raw bits, int/long are signed and range checked. String values are strings. Names may repeat across types but not within one map. Group names may not repeat within a document.
+
+A string is a u64 byte length followed by exactly that many bytes, without a terminator. Signed values use their modulo-2^64 two's-complement encoding; decoding avoids implementation-defined out-of-range signed conversions. Empty strings and NUL bytes are valid. No padding, pointers, map implementation layout, or compiler struct layout is written. The loader enforces the payload length, checksum, key IDs, count/length budgets and end-of-input. Hash collisions remain the legacy identity limitation; persistence neither solves nor hides them. Files created with a different hash implementation are deliberately not a portable interchange format.
+
+### Reproducible experiments
+
+```sh
+cmake -S . -B build/snapshot-release -DCMAKE_BUILD_TYPE=Release -DYUCA_BUILD_BENCHMARKS=ON -DYUCA_BUILD_PROFILING=ON -DYUCA_WARNINGS_AS_ERRORS=ON
+cmake --build build/snapshot-release --parallel 4
+ctest --test-dir build/snapshot-release --output-on-failure
+build/snapshot-release/yuca_snapshot_strategies 100000 > build/snapshot-strategies.csv
+build/snapshot-release/yuca_snapshot_benchmark 100000 build/benchmark-only.yuca > build/snapshot-timings.csv
+```
+
+**The benchmark's optional file argument is disposable: it is overwritten and removed. Never point it at a real backup.** Without that argument, file timings are zero/not measured. All tools bound document count to 1..1,000,000. The encoding experiment compares the same ordered string records using inline length-prefixes versus a global dictionary with u64 references; both independently decode and compare records outside the timer. It is a payload experiment, **not an alternate `.yuca` reader**, and its sizes exclude the full index's numeric properties/header. Order alternates, one initial iteration is warmup, and seven raw samples are retained.
+
+The production benchmark uses three keys in two groups plus all five property types per document. It times encoding, direct bulk decode, public-`indexDocument` replay decode (private benchmark seam), and optional actual save/load. Direct/replay decode share the same parsing/validation and alternate order each sample. Corpus construction, output fingerprints/byte comparisons, searches, and destruction are outside timers. Save includes encoding, file data sync, and atomic rename; load includes the buffered file read, checksum, validation, and reconstruction. The filesystem page cache is warm, not deliberately flushed. No compression, mmap, journal, or zero-copy restored pointer graph is claimed. `serialize()` needs an output-sized contiguous allocation; v1 uses geometric buffer growth rather than a second sizing scan. CI runs a small 1000-document file benchmark, archives `snapshots.csv` in `release-benchmarks`, and renders byte counts/median timings on the run Summary page.
+
+Initial AppleClang 21/libc++ Release experiments at 100,000 documents: inline string payload encoding median 3.83 ms / 13.58 MB versus dictionary 112.51 ms / 9.79 MB; dictionary decoding was 6.67 ms versus inline 7.89 ms. The production codec chooses inline strings to favor checkpoint/write latency and simplicity, not because it is the smallest or universally fastest format. A first FNV-1a integrity pass dominated encoding, so it was replaced with portable XXH64 and per-group sort allocation was eliminated. The final v1 run produced 29,678,954-byte snapshots: medians **14.64 ms encode, 59.38 ms bulk decode versus 83.46 ms replay, 42.43 ms save and 66.22 ms load**. Save samples ranged 19.19–43.21 ms; an earlier qualification run's save median was 21.08 ms, demonstrating the sensitivity of synced file I/O to host/filesystem conditions. These are one host's seven-sample observations, not a promised latency, million-document result, cold-storage measurement, or throughput guarantee. Ordered FNV/XXH/reuse development runs can be confounded by host drift; only bulk/replay configurations were interleaved within the same run. Raw data and environment notes are retained under `benchmarks/results/2026-11-06-snapshots/`.
+
+XXH64 is specified by upstream xxHash v0.8.3. The small portable implementation has no unaligned native loads and no external runtime dependency. Empty/short/block/tail/unaligned test vectors were checked against upstream; the local independent reference comparison covered every length 0..4096 at eight byte alignments plus 1 MB. The independent downloaded reference header and verifier remain under `build/`, not part of the distributed library. Its [BSD notice](third-party-licenses.md) is installed alongside the library.
+
+### Persistence qualification
+
+`[snapshot]` Catch tests cover all typed values/defaults, numeric extremes, custom/empty groups, duplicate key pointers, binary strings, canonical bytes, independent buffer lifetimes, incremental operations, every truncation of a nontrivial snapshot, malformed headers/checksums/lengths/counts/booleans/bytes/hashes, duplicate names/documents/groups, integer overflow, trailing bytes, missing files/parents, replacement, rename failure, and configured resource limits, including expanded group-name text amplification. Three fixture-dependent `snapshot_session_*` tests write, resume/update, and verify the checkpoint in separate processes, including string-derived document IDs. File loading validates the fixed header before allocating the full bounded buffer. File API qualification is POSIX locally and in Linux/macOS CI; a Windows narrow-path adapter is provided but not verified by the current CI matrix.
+
+The isolated allocation-failure executable sweeps encode/decode allocation points and verifies source invariants/no leaked tracked bytes. On POSIX, `snapshot_save_failures` injects every successive allocation failure during file saving, checking the old checkpoint is byte-identical after failure and no temporary file survives; it then verifies successful replacement. This does not inject ENOSPC, short writes, kernel errors, or process/power failure, and does not combine diagnostic allocators with sanitizers. Normal memory/file paths are exercised separately under ASan/UBSan. `fuzz/snapshot_fuzz.cpp` round-trips generated indexes, compares ordered search IDs/scores, parses arbitrary bytes under tight limits, and repairs checksums on mutated payloads to exercise deep validation. CI replays/mutates all three corpora; generated corpus files remain under `build/`. Coverage includes internal `.h` checksum code as well as public headers, not just `.cpp`/`.hpp`.
+
+## Isolated scaling benchmarks and controlled comparisons
 
 The original `yuca_benchmarks` CSV interface is retained for existing comparisons. `YUCA_BUILD_BENCHMARKS=ON` also builds `yuca_benchmark_suite`, with isolated phases and a separate standard-library-only Python runner:
 

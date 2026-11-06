@@ -15,6 +15,8 @@
 - Fix division by zero and the excluded upper endpoint in `utils::maxRand`; support the full `size_t` bound range with a standard uniform distribution.
 
 ### Added
+- Versioned `.yuca` whole-index binary checkpoints and in-memory byte serialization, including custom implicit groups and all typed properties; bounded/corruption-checked independent loading, bulk posting restoration, atomic same-directory file replacement, compiled static/shared persistence examples, allocation-failure tests, and a checksum-aware snapshot fuzzer.
+- Measured inline-vs-dictionary encoding, bulk-vs-replay restoration, and snapshot encode/save/load benchmarks; portable XXH64 checksum with independent standard vectors and its BSD-2-Clause notice.
 - Asserted indexer edge-path tests for request/result equality, diagnostic output, missing removals, distance-ranking properties, copy isolation, and clear/reuse (GitHub #1); require `key.cpp` and `indexer.cpp` to exceed 90% lines/branches/functions/regions in coverage CI.
 - Direct key ordering/equality boundary tests and diagnostic stream/flush assertions, covering every `key.cpp` branch, function, and region.
 - Inline GitHub Actions Release benchmark medians/ranges, scaling intervals/sample counts, allocation/RSS diagnostics, and environment details alongside the downloadable raw artifact.

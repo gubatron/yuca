@@ -173,6 +173,7 @@ namespace yuca {
         static const Document NULL_DOCUMENT;
 
     private:
+        friend class SnapshotCodec;
         long id;
 
         // maps groups to set<Key>

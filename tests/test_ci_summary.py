@@ -114,6 +114,17 @@ class BenchmarkSummaryTests(unittest.TestCase):
             self.assertEqual(report.count("unavailable"), 2)
             self.assertIn("| search_top10 | query | 1 | 1.000", report)
 
+    def test_snapshot_checkpoint_timings_have_explicit_file_units(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            self.fixture(directory)
+            (directory / "snapshots.csv").write_text(
+                "documents,sample,bytes,encode_ms,bulk_decode_ms,replay_decode_ms,save_ms,load_ms\n"
+                "1000,1,300000,1,2,3,0,0\n1000,2,300000,3,4,5,0,0\n")
+            report = benchmark_summary(directory)
+            self.assertIn("### .yuca checkpoint timings", report)
+            self.assertIn("| 1,000 | 300,000 | 2 | 2.000 | 3.000 | 4.000 | not measured | not measured |", report)
+
     def test_nonfinite_and_invalid_intervals_fail_instead_of_being_published(self):
         with tempfile.TemporaryDirectory() as temporary:
             directory = Path(temporary)

@@ -32,6 +32,7 @@
 #include "key.hpp"
 #include "document.hpp"
 #include "types.hpp"
+#include "snapshot.hpp"
 #include <map>
 #include <set>
 #include <memory>
@@ -156,7 +157,8 @@ namespace yuca {
         /** Copy an independent index, document values, and key objects. */
         Indexer(const Indexer &other);
 
-        Indexer(Indexer &&other) = default;
+        // The const implicit-group string must be copied, which can allocate.
+        Indexer(Indexer &&other) noexcept(false) = default;
 
         // Assignment was already unavailable because the implicit group is const.
         Indexer &operator=(const Indexer &) = delete;
@@ -184,6 +186,27 @@ namespace yuca {
 
         /** Remove all documents from the index */
         void clear();
+
+        /** Versioned binary logical snapshot. Externally synchronize the index and
+         * retained documents throughout serialization. Includes every property type. */
+        std::vector<unsigned char> serialize() const;
+
+        /** Build an independent index or throw; never mutates an existing index.
+         * Rejects corrupt, incompatible, over-limit, duplicate, and trailing data. */
+        static Indexer deserialize(const void *bytes, std::size_t size,
+                                   const SnapshotLimits &limits = SnapshotLimits());
+        static Indexer deserialize(const std::vector<unsigned char> &bytes,
+                                   const SnapshotLimits &limits = SnapshotLimits()) {
+            return deserialize(bytes.data(), bytes.size(), limits);
+        }
+
+        /** Encode before opening a unique same-directory temporary file, sync its
+         * contents, then atomically replace path. Parent directory must exist.
+         * Rename durability across power loss depends on the filesystem. */
+        void save(const std::string &path) const;
+
+        /** Bounded file read followed by full validation and independent construction. */
+        static Indexer load(const std::string &path, const SnapshotLimits &limits = SnapshotLimits());
 
         /**
          *
@@ -239,6 +262,7 @@ namespace yuca {
         SPDocumentSet findDocuments(SPKeyList keys) const;
 
     private:
+        friend class SnapshotCodec;
         /**
          * The Indexer is conformed by multiple reverse indexes,
          * which are identified by a 'group', this helps us partition our indexing

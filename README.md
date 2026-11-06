@@ -66,10 +66,12 @@ AddressSanitizer and UndefinedBehaviorSanitizer require Clang or GCC. See [the d
  Please open an issue on the github issue tracker if you have any problems, ideas.
  If you feel like extending or patching, please open an issue first so that you don't waste your time coding something that might not be accepted for a good reason.
 
-## Not supported for now
- - Index serialization. For now the index is only meant to be used in-memory. Will have to think deeply on how to go
-   about this in an incremental/decremental manner so that serialization is optimal and we don't have to save the entire
-   index every time. Not a priority at this moment.
+## Index checkpoints
+
+Save the whole index with `index.save("catalog.yuca")` and resume with `auto index = yuca::Indexer::load("catalog.yuca")`.
+Binary byte-buffer serialization is also available. See the [checkpoint manual](docs/manual.md#saving-and-restoring-yuca-checkpoints)
+for compatibility, limits, atomic replacement, and a compiled example. Incremental index work after loading is supported;
+incremental on-disk updates/a write-ahead log are not yet implemented.
 
 ### LIBRARY BINARY DISTRIBUTION GOALS:
  - static library: yuca.lib (windows x64), yuca.a (linux x64, mac x64)
