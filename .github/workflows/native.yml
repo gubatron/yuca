@@ -65,7 +65,9 @@ jobs:
       - name: Install Clang analysis tools
         run: sudo apt-get update && sudo apt-get install -y clang-tidy
       - name: Check workflow runtime policy
-        run: python3 tests/test_native_workflow.py
+        run: |
+          python3 tests/test_native_workflow.py
+          python3 tests/test_ci_summary.py
       - name: Configure
         run: cmake -S . -B build/analysis -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Debug -DYUCA_ENABLE_CLANG_TIDY=ON -DYUCA_WARNINGS_AS_ERRORS=ON
       - name: Build with blocking analysis
@@ -84,10 +86,17 @@ jobs:
       - name: Build, test, and report core-only coverage
         run: cmake --build build/coverage --target coverage --parallel 4
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        id: coverage-artifact
         if: always()
         with:
           name: core-coverage
           path: build/coverage/coverage/
+      - name: Coverage summary
+        if: always()
+        env:
+          ARTIFACT_URL: ${{ steps.coverage-artifact.outputs.artifact-url }}
+          JOB_STATUS: ${{ job.status }}
+        run: python3 scripts/ci_summary.py coverage build/coverage/coverage >> "$GITHUB_STEP_SUMMARY"
 
   linux-fuzz:
     runs-on: ubuntu-24.04

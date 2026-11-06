@@ -15,6 +15,7 @@
 - Fix division by zero and the excluded upper endpoint in `utils::maxRand`; support the full `size_t` bound range with a standard uniform distribution.
 
 ### Added
+- Inline GitHub Actions coverage tables (total and per-source counts/percentages) with a direct full-report artifact link.
 - Isolated phase/scaling benchmark suite with calibrated interleaved comparisons, raw samples, output fingerprints, bootstrap uncertainty, runner tests, and CI artifacts.
 - Richer differential fuzz properties for multi-term unions/intersections, duplicate query terms, exact ranked top-k prefixes, maximum limits, and index-copy isolation.
 - Bounded allocation-failure sweeps, live-byte leak checks after each attempt, and independent index copy/move tests.

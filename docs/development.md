@@ -139,6 +139,10 @@ The legacy non-cryptographic `rand()` adapter has one documented, check-specific
 
 ## Source and branch coverage
 
+New workflow runs show a **Core coverage** table directly on the GitHub Actions run Summary page, below the job graph, using `GITHUB_STEP_SUMMARY` (the same mechanism as FrostWire). It lists total/per-source line, branch, function, and region coverage with covered/total counts; zero opportunities display as `—`, not perfect coverage. A direct `core-coverage` artifact link opens the full downloadable report, including `html/index.html`. GitHub does not render that interactive HTML inside a job summary. Historical runs are unchanged. Missing reports are explicitly marked unavailable, and the job status is shown so partial results are not mistaken for a passing run. The summary renderer only reads existing reports and does not rerun tests or change native performance.
+
+Validate the standard-library-only renderer with `python3 tests/test_ci_summary.py`. To preview locally, run `python3 scripts/ci_summary.py coverage build/coverage/coverage > build/coverage-summary.md`.
+
 Use a separate Clang Debug build with matching `llvm-cov` and `llvm-profdata` versions. The normal build remains dependency-free; this optional reporting path also needs Python 3:
 
 ```sh
