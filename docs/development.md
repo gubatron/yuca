@@ -191,6 +191,8 @@ Rebuild C++ consumers to use the explicit copy constructor; code compiled agains
 
 ## Isolated scaling benchmarks and controlled comparisons
 
+The macOS non-sanitized job publishes **Release benchmarks** directly on the run Summary page: microbenchmark medians/ranges, scaling median/bootstrap intervals and calibration-cap flags, and allocation/RSS totals with explicit units. Commit/runner/compiler details are expandable, and a direct `release-benchmarks` link retains the full CSV/JSON samples and fingerprints. Summaries read existing outputs, never time rendering or rerun workloads. Small hosted-runner samples remain informational, not p95/p99 estimates or a regression gate. Missing/incomplete sections are labeled unavailable; job status identifies failed runs. Earlier runs cannot acquire summaries retroactively. Preview with `python3 scripts/ci_summary.py benchmarks build/ci > build/benchmark-summary.md` after generating those reports; test with `python3 tests/test_ci_summary.py`.
+
 The original `yuca_benchmarks` CSV interface is retained for existing comparisons. `YUCA_BUILD_BENCHMARKS=ON` also builds `yuca_benchmark_suite`, with isolated phases and a separate standard-library-only Python runner:
 
 ```sh

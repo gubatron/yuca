@@ -34,6 +34,7 @@ jobs:
           build/ci/yuca_allocations search_top10 1000 100 >> build/ci/allocations.jsonl
           python3 scripts/benchmark_suite.py --candidate build/ci/yuca_benchmark_suite --documents 100,1000 --workloads index,remove,search_common,search_rare --top-k 0,10 --samples 3 --min-sample-ms 1 --max-iterations 20 --output build/ci/scaling
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        id: benchmark-artifact
         if: matrix.sanitizers == 'OFF'
         with:
           name: release-benchmarks
@@ -42,6 +43,12 @@ jobs:
             build/ci/environment.txt
             build/ci/allocations.jsonl
             build/ci/scaling/
+      - name: Release benchmark summary
+        if: always() && matrix.sanitizers == 'OFF'
+        env:
+          ARTIFACT_URL: ${{ steps.benchmark-artifact.outputs.artifact-url }}
+          JOB_STATUS: ${{ job.status }}
+        run: python3 scripts/ci_summary.py benchmarks build/ci >> "$GITHUB_STEP_SUMMARY"
 
   linux-compilers:
     runs-on: ubuntu-24.04
