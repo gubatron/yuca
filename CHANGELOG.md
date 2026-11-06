@@ -15,6 +15,7 @@
 - Fix division by zero and the excluded upper endpoint in `utils::maxRand`; support the full `size_t` bound range with a standard uniform distribution.
 
 ### Added
+- Asserted indexer edge-path tests for request/result equality, diagnostic output, missing removals, distance-ranking properties, copy isolation, and clear/reuse (GitHub #1); require `key.cpp` and `indexer.cpp` to exceed 90% lines/branches/functions/regions in coverage CI.
 - Direct key ordering/equality boundary tests and diagnostic stream/flush assertions, covering every `key.cpp` branch, function, and region.
 - Inline GitHub Actions Release benchmark medians/ranges, scaling intervals/sample counts, allocation/RSS diagnostics, and environment details alongside the downloadable raw artifact.
 - Inline GitHub Actions coverage tables (total and per-source counts/percentages) with a direct full-report artifact link.

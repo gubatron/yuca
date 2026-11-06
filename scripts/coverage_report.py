@@ -27,6 +27,22 @@ def summarize_export(export, required_sources):
     return summary
 
 
+def enforce_target_coverage(export):
+    """Keep the explicitly qualified files above 90%, without rounding or exclusions."""
+    files = [entry for unit in export["data"] for entry in unit["files"]]
+    for name in ("key.cpp", "indexer.cpp"):
+        matches = [entry for entry in files if Path(entry["filename"]).name == name]
+        if len(matches) != 1:
+            raise ValueError(f"expected exactly one coverage record for {name}")
+        for metric in ("lines", "branches", "functions", "regions"):
+            counts = matches[0]["summary"][metric]
+            count, covered = counts["count"], counts["covered"]
+            if type(count) is not int or type(covered) is not int or not 0 <= covered <= count:
+                raise ValueError(f"invalid {name} {metric} counts")
+            if count == 0 or covered * 100 <= count * 90:
+                raise ValueError(f"{name} {metric} coverage must exceed 90%: {covered}/{count}")
+
+
 def run(command, **kwargs):
     return subprocess.run([str(part) for part in command], check=True, text=True, **kwargs)
 
@@ -67,6 +83,8 @@ def main():
     run([args.llvm_cov, "show", *common, "-format=html", f"-output-dir={output / 'html'}", "-show-branches=count"])
     print((output / "core.txt").read_text(encoding="utf-8"))
     print(f"Core-only summary: {output / 'summary.json'}\nBranch/source HTML: {output / 'html' / 'index.html'}")
+    # Retain reports for inspection even when a qualified file regresses.
+    enforce_target_coverage(exported)
 
 
 if __name__ == "__main__":
