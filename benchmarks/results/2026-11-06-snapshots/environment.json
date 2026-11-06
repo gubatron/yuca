@@ -1,0 +1,35 @@
+{
+  "recorded_at": "2026-11-06T17:20:25.568089+00:00",
+  "feature_revision": "fdd6105a1d1d2d90e1cf1b350ada50ab747fccb7",
+  "baseline_revision": "2bb18d64dedfdfb512f83b37ffc65bacdc96fe0a",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "hardware_model": "Mac16,6",
+  "memory_bytes": 137438953472,
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "stdlib_macros": [
+    "#define _LIBCPP_VERSION 220106"
+  ],
+  "cmake_settings": [
+    "CMAKE_BUILD_TYPE:STRING=Release",
+    "CMAKE_CXX_COMPILER:FILEPATH=/usr/bin/c++",
+    "CMAKE_CXX_FLAGS:STRING=",
+    "CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG"
+  ],
+  "binary_sha256": {
+    "build/snapshot-release/yuca_snapshot_benchmark": "a8f49b861a971256664c346c59579e1b7de5cd2cd89f7e0d6747288b0d6ed516",
+    "build/snapshot-release/yuca_snapshot_strategies": "9d98fd6d72a5000a6eccfea6c7f934643ba9cd8f596b19c13271b1d649221fed",
+    "build/snapshot-release/yuca_benchmark_suite": "e23f2ac1737221d3e5a50d7d220e18da9a938493350f91c4b658d4b39e87cb59"
+  },
+  "commands": [
+    "build/snapshot-release/yuca_snapshot_strategies N > payload-v1-N.csv",
+    "build/snapshot-release/yuca_snapshot_benchmark N build/snapshot-release/v1-benchmark-N.yuca > v1-N.csv"
+  ],
+  "notes": [
+    "N=1000,10000,100000; seven samples after an internal warmup; all outputs validated outside timers.",
+    "v1-* and payload-v1-* use the feature revision; fnv-development-* and xxh-development-* were uncommitted earlier prototypes, not released file versions.",
+    "Bulk and replay decode alternate order in each process. Separate development stages were NOT interleaved; do not infer isolated checksum speedup percentages.",
+    "Warm filesystem page cache. File save includes data fsync but not directory fsync. Undedicated macOS host; thermal/power state uncontrolled. Earlier qualification overlapped other verification work; final v1 series ran serially.",
+    "No million-document or cold-storage claim. Times are not hard gates."
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "python": "3.14.8 (v3.14.8:8e6e75d9102, Sep 30 2026, 14:34:30) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "command": [
+    "scripts/benchmark_suite.py",
+    "--baseline",
+    "build/snapshot-parent/build/yuca_benchmark_suite",
+    "--candidate",
+    "build/snapshot-release/yuca_benchmark_suite",
+    "--documents",
+    "1000",
+    "--workloads",
+    "index,search_common",
+    "--top-k",
+    "10",
+    "--samples",
+    "7",
+    "--min-sample-ms",
+    "10",
+    "--max-iterations",
+    "100",
+    "--output",
+    "build/snapshot-core-v1-comparison"
+  ],
+  "working_directory": "/Users/gubatron/workspace/yuca",
+  "binaries": {
+    "candidate": {
+      "path": "/Users/gubatron/workspace/yuca/build/snapshot-release/yuca_benchmark_suite",
+      "sha256": "e23f2ac1737221d3e5a50d7d220e18da9a938493350f91c4b658d4b39e87cb59"
+    },
+    "baseline": {
+      "path": "/Users/gubatron/workspace/yuca/build/snapshot-parent/build/yuca_benchmark_suite",
+      "sha256": "e23f2ac1737221d3e5a50d7d220e18da9a938493350f91c4b658d4b39e87cb59"
+    }
+  },
+  "notes": "Fresh process per sample with one internal untimed warmup. Setup, validation and teardown excluded. Record compiler/flags/power settings separately."
+}

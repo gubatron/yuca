@@ -1,0 +1,82 @@
+[
+  {
+    "workload": "index",
+    "documents": 1000,
+    "top_k": 0,
+    "iterations": 90,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 9,
+        "median_ns": 477.27174444444444,
+        "min_ns": 434.42865555555557,
+        "max_ns": 513.9532444444444,
+        "stdev_ns": 20.6015000401827,
+        "median_bootstrap_95pct_ns": [
+          476.2944111111111,
+          490.7861222222222
+        ],
+        "checksum": 6906973607218041495
+      },
+      "baseline": {
+        "samples": 9,
+        "median_ns": 476.65647777777775,
+        "min_ns": 463.9735444444444,
+        "max_ns": 504.3093,
+        "stdev_ns": 14.145222509728725,
+        "median_bootstrap_95pct_ns": [
+          465.5722777777778,
+          498.1999777777778
+        ],
+        "checksum": 6906973607218041495
+      }
+    },
+    "comparison": {
+      "change_percent": 0.12907968219273425,
+      "change_bootstrap_95pct_percent": [
+        -4.200769624014001,
+        2.9643244355596288
+      ]
+    }
+  },
+  {
+    "workload": "search_common",
+    "documents": 1000,
+    "top_k": 10,
+    "iterations": 114,
+    "calibration_capped": false,
+    "statistics": {
+      "candidate": {
+        "samples": 9,
+        "median_ns": 346237.8947368421,
+        "min_ns": 320641.43859649124,
+        "max_ns": 358803.0438596491,
+        "stdev_ns": 10972.427109623983,
+        "median_bootstrap_95pct_ns": [
+          336273.79824561405,
+          351191.8859649123
+        ],
+        "checksum": 2438126026734499109
+      },
+      "baseline": {
+        "samples": 9,
+        "median_ns": 352479.15789473685,
+        "min_ns": 329239.36842105264,
+        "max_ns": 376087.7368421053,
+        "stdev_ns": 16251.915886044993,
+        "median_bootstrap_95pct_ns": [
+          332984.3157894737,
+          370364.7894736842
+        ],
+        "checksum": 2438126026734499109
+      }
+    },
+    "comparison": {
+      "change_percent": -1.7706758025558655,
+      "change_bootstrap_95pct_percent": [
+        -5.772928567865742,
+        4.250373278220443
+      ]
+    }
+  }
+]

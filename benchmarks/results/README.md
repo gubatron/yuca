@@ -1,5 +1,7 @@
 # Initial maintenance measurements — 2026-11-03
 
+For `.yuca` checkpoint encoding strategies, bulk/replay restore comparisons, actual file save/load timings, and native regression controls, see [the 2026-11-06 snapshot experiment](2026-11-06-snapshots/README.md).
+
 Environment: local Darwin arm64, AppleClang 21.0.0.21000334, libc++, C++11, CMake Release defaults (`-O3 -DNDEBUG`), no sanitizers, single-threaded. Command: `build/release/yuca_benchmarks 7 1000`. Hardware model/power mode were not pinned; treat these as exploratory local evidence, not portable claims or statistically established speedups. Raw CSV is committed alongside this file.
 
 | Change | Baseline | Candidate | Interpretation |

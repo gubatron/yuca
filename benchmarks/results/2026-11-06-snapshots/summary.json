@@ -1,0 +1,35 @@
+{
+  "1000": {
+    "bytes": 294854,
+    "samples": 7,
+    "median_ms": {
+      "encode_ms": 0.193333,
+      "bulk_decode_ms": 0.519583,
+      "replay_decode_ms": 0.761375,
+      "save_ms": 0.66975,
+      "load_ms": 0.755833
+    }
+  },
+  "10000": {
+    "bytes": 2957954,
+    "samples": 7,
+    "median_ms": {
+      "encode_ms": 1.467292,
+      "bulk_decode_ms": 4.729042,
+      "replay_decode_ms": 6.216792,
+      "save_ms": 2.610875,
+      "load_ms": 5.202375
+    }
+  },
+  "100000": {
+    "bytes": 29678954,
+    "samples": 7,
+    "median_ms": {
+      "encode_ms": 14.640584,
+      "bulk_decode_ms": 59.377291,
+      "replay_decode_ms": 83.455084,
+      "save_ms": 42.428291,
+      "load_ms": 66.222458
+    }
+  }
+}
