@@ -15,6 +15,7 @@
 - Fix division by zero and the excluded upper endpoint in `utils::maxRand`; support the full `size_t` bound range with a standard uniform distribution.
 
 ### Added
+- Direct key ordering/equality boundary tests and diagnostic stream/flush assertions, covering every `key.cpp` branch, function, and region.
 - Inline GitHub Actions Release benchmark medians/ranges, scaling intervals/sample counts, allocation/RSS diagnostics, and environment details alongside the downloadable raw artifact.
 - Inline GitHub Actions coverage tables (total and per-source counts/percentages) with a direct full-report artifact link.
 - Isolated phase/scaling benchmark suite with calibrated interleaved comparisons, raw samples, output fingerprints, bootstrap uncertainty, runner tests, and CI artifacts.

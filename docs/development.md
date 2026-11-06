@@ -139,6 +139,8 @@ The legacy non-cryptographic `rand()` adapter has one documented, check-specific
 
 ## Source and branch coverage
 
+`tests/key_tests.cpp` verifies every comparison at minimum/zero/maximum IDs, same-ID/different-group equality, default/getter behavior, and both diagnostic stream overloads including their returned stream and flush. Tests do not rely on hash ordering or pointer addresses. The local Clang coverage run after these additions measured `key.cpp` at 100% lines, branches, functions, and regions (32/32, 4/4, 9/9, 11/11). These are assertion-based test additions only; production code and benchmark algorithms are unchanged, so no performance improvement is claimed.
+
 New workflow runs show a **Core coverage** table directly on the GitHub Actions run Summary page, below the job graph, using `GITHUB_STEP_SUMMARY` (the same mechanism as FrostWire). It lists total/per-source line, branch, function, and region coverage with covered/total counts; zero opportunities display as `—`, not perfect coverage. A direct `core-coverage` artifact link opens the full downloadable report, including `html/index.html`. GitHub does not render that interactive HTML inside a job summary. Historical runs are unchanged. Missing reports are explicitly marked unavailable, and the job status is shown so partial results are not mistaken for a passing run. The summary renderer only reads existing reports and does not rerun tests or change native performance.
 
 Validate the standard-library-only renderer with `python3 tests/test_ci_summary.py`. To preview locally, run `python3 scripts/ci_summary.py coverage build/coverage/coverage > build/coverage-summary.md`.
